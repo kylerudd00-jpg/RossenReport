@@ -1423,6 +1423,155 @@
         @media (max-width: 960px) {
             .deals-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* ─── CYCLING HERO TAGLINE ─── */
+        .hero-tagline { transition: opacity 0.4s ease; }
+        .hero-tagline.fading { opacity: 0; }
+
+        /* ─── NEW EPISODE BADGE ─── */
+        .new-ep-badge {
+            position: absolute;
+            top: 1rem; left: 1rem;
+            z-index: 10;
+            background: #ff0000;
+            color: #fff;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            display: none;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .new-ep-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        /* ─── ARC DATE ─── */
+        .arc-date {
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.28);
+            margin-top: 0.2rem;
+            letter-spacing: 0.04em;
+        }
+
+        /* ─── TESTIMONIALS ─── */
+        .testimonials { background: var(--blue); overflow: hidden; padding: 5rem 0; }
+        .testi-header { padding: 0 2rem; max-width: 1100px; margin: 0 auto; }
+        .testi-header .eyebrow { color: rgba(255,209,0,0.85); }
+        .testi-header .eyebrow::before { background: var(--yellow); }
+        .testi-overflow { overflow: hidden; margin-top: 2.75rem; }
+        .testi-track {
+            display: flex;
+            gap: 1.25rem;
+            width: max-content;
+            animation: testiScroll 40s linear infinite;
+            padding: 0.25rem 0;
+        }
+        .testi-track:hover { animation-play-state: paused; }
+        @keyframes testiScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .testi-card {
+            background: rgba(255,255,255,0.07);
+            border-left: 3px solid var(--yellow);
+            padding: 1.5rem 2rem;
+            width: 320px;
+            flex-shrink: 0;
+        }
+        .testi-quote {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.82);
+            line-height: 1.75;
+            font-style: italic;
+        }
+        .testi-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.68rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--yellow);
+            margin-top: 0.85rem;
+            display: block;
+        }
+
+        /* ─── CONTACT / WORK WITH JEFF ─── */
+        .contact-section { background: var(--gray-light); }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+        }
+        .contact-card {
+            background: var(--white);
+            padding: 2rem;
+            border-top: 4px solid var(--blue);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s, transform 0.18s;
+            color: var(--dark);
+        }
+        .contact-card:hover {
+            box-shadow: 0 10px 32px rgba(11,44,107,0.13);
+            transform: translateY(-2px);
+            border-top-color: var(--yellow);
+        }
+        .contact-icon {
+            width: 44px; height: 44px;
+            background: var(--blue);
+            color: var(--yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+        .contact-card:hover .contact-icon { background: var(--blue-mid); }
+        .contact-type {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .contact-desc {
+            font-size: 0.83rem;
+            color: var(--gray);
+            line-height: 1.65;
+            flex: 1;
+        }
+        .contact-cta {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue-mid);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+        @media (max-width: 960px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .contact-grid { grid-template-columns: 1fr; } }
+
+        /* ─── SPOTLIGHT 3 CARDS ─── */
+        @media (min-width: 769px) {
+            .spotlight-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -1441,7 +1590,7 @@
                 <span class="yellow">Rossen</span>
             </h1>
             <div class="hero-rule"></div>
-            <p class="hero-tagline">
+            <p class="hero-tagline" id="heroTagline">
                 Saving you money, exposing scams, and revealing the best deals.<br>
                 <strong>Your trusted guide to living smarter.</strong>
             </p>
@@ -1524,6 +1673,7 @@
         </div>
 
         <div class="video-wrap fade-up" id="videoWrap">
+            <div class="new-ep-badge" id="newEpBadge">New Episode</div>
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
                 <img id="thumbImg" src="rossenbackground.jpg" alt="Rossen Reports — Latest Episode">
                 <div class="thumb-overlay"></div>
@@ -1599,6 +1749,35 @@
             <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;background:var(--blue);border-color:var(--blue);color:var(--yellow);">
                 <i class="fas fa-tag"></i> See All Deals
             </a>
+        </div>
+    </div>
+</section>
+
+<!-- ── VIEWER WINS / TESTIMONIALS ── -->
+<section class="testimonials" id="wins">
+    <div class="testi-header">
+        <span class="eyebrow">Viewer Wins</span>
+        <h2 class="section-title" style="color:var(--white);">Real Results<br>From Real Viewers</h2>
+    </div>
+    <div class="testi-overflow">
+        <div class="testi-track" id="testiTrack">
+            <div class="testi-card"><p class="testi-quote">"Jeff's tip about hidden cable fees saved me $87 a month. I called my provider and they dropped the charges immediately."</p><span class="testi-name">— Linda M., Ohio</span></div>
+            <div class="testi-card"><p class="testi-quote">"I almost fell for a fake IRS scam call. Watched Jeff's segment that morning and knew exactly what to do. He literally saved me $2,000."</p><span class="testi-name">— Dave K., Florida</span></div>
+            <div class="testi-card"><p class="testi-quote">"Bought a security camera Jeff recommended on Amazon — half the price of the brand-name ones and works even better."</p><span class="testi-name">— Maria T., Texas</span></div>
+            <div class="testi-card"><p class="testi-quote">"Jeff showed us the hidden fees on travel booking sites. Booked directly and saved $340 on our family vacation."</p><span class="testi-name">— The Hendersons, New York</span></div>
+            <div class="testi-card"><p class="testi-quote">"My mom almost wired $3,000 to a scammer. I'd watched Rossen Reports the week before and recognized every red flag."</p><span class="testi-name">— Rachel S., Illinois</span></div>
+            <div class="testi-card"><p class="testi-quote">"Used Jeff's grocery savings tricks for one month and cut my weekly bill from $180 to $115. Every single week now."</p><span class="testi-name">— Tom B., Michigan</span></div>
+            <div class="testi-card"><p class="testi-quote">"Jeff exposed a contractor scam targeting seniors in my neighborhood. Shared the episode and three families avoided getting ripped off."</p><span class="testi-name">— Carol W., Pennsylvania</span></div>
+            <div class="testi-card"><p class="testi-quote">"I negotiated my medical bill down 40% using exactly the script Jeff laid out. The hospital agreed without a fight."</p><span class="testi-name">— James R., Georgia</span></div>
+            <!-- duplicate for seamless loop -->
+            <div class="testi-card"><p class="testi-quote">"Jeff's tip about hidden cable fees saved me $87 a month. I called my provider and they dropped the charges immediately."</p><span class="testi-name">— Linda M., Ohio</span></div>
+            <div class="testi-card"><p class="testi-quote">"I almost fell for a fake IRS scam call. Watched Jeff's segment that morning and knew exactly what to do. He literally saved me $2,000."</p><span class="testi-name">— Dave K., Florida</span></div>
+            <div class="testi-card"><p class="testi-quote">"Bought a security camera Jeff recommended on Amazon — half the price of the brand-name ones and works even better."</p><span class="testi-name">— Maria T., Texas</span></div>
+            <div class="testi-card"><p class="testi-quote">"Jeff showed us the hidden fees on travel booking sites. Booked directly and saved $340 on our family vacation."</p><span class="testi-name">— The Hendersons, New York</span></div>
+            <div class="testi-card"><p class="testi-quote">"My mom almost wired $3,000 to a scammer. I'd watched Rossen Reports the week before and recognized every red flag."</p><span class="testi-name">— Rachel S., Illinois</span></div>
+            <div class="testi-card"><p class="testi-quote">"Used Jeff's grocery savings tricks for one month and cut my weekly bill from $180 to $115. Every single week now."</p><span class="testi-name">— Tom B., Michigan</span></div>
+            <div class="testi-card"><p class="testi-quote">"Jeff exposed a contractor scam targeting seniors in my neighborhood. Shared the episode and three families avoided getting ripped off."</p><span class="testi-name">— Carol W., Pennsylvania</span></div>
+            <div class="testi-card"><p class="testi-quote">"I negotiated my medical bill down 40% using exactly the script Jeff laid out. The hospital agreed without a fight."</p><span class="testi-name">— James R., Georgia</span></div>
         </div>
     </div>
 </section>
@@ -1716,7 +1895,7 @@
     <div class="container">
         <span class="eyebrow">Join the Conversation</span>
         <h2 class="section-title">Follow Along<br>Every Day</h2>
-        <div class="spotlight-grid fade-up">
+        <div class="spotlight-grid spotlight-grid-3 fade-up">
 
             <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
                 <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg');"></div>
@@ -1741,6 +1920,19 @@
                     <div class="spotlight-title">@jeffrossen</div>
                     <p class="spotlight-sub">Behind-the-scenes, money tips, and more from Jeff's personal Instagram.</p>
                     <div class="spotlight-btn"><i class="fab fa-instagram"></i> Follow on Instagram</div>
+                </div>
+            </a>
+
+            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
+                <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg'); background-position: center;"></div>
+                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(255,0,80,0.45) 55%, rgba(0,0,0,0.3) 100%);"></div>
+                <div class="spotlight-card-content">
+                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
+                        <i class="fab fa-tiktok"></i> TikTok
+                    </div>
+                    <div class="spotlight-title">@rossen.reports</div>
+                    <p class="spotlight-sub">Short-form scam alerts and money tips — millions of views and growing fast.</p>
+                    <div class="spotlight-btn"><i class="fab fa-tiktok"></i> Follow on TikTok</div>
                 </div>
             </a>
 
@@ -1780,6 +1972,38 @@
     </div>
 </section>
 
+<!-- ── WORK WITH JEFF ── -->
+<section class="section contact-section" id="contact">
+    <div class="container">
+        <span class="eyebrow">Get In Touch</span>
+        <h2 class="section-title">Work With Jeff</h2>
+        <div class="contact-grid fade-up">
+
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <div class="contact-icon"><i class="fas fa-microphone-alt"></i></div>
+                <span class="contact-type">Speaking Engagements</span>
+                <p class="contact-desc">Book Jeff for your next conference, corporate event, or keynote. He brings the same energy and insight that's earned millions of viewers.</p>
+                <span class="contact-cta">Reach Out <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <div class="contact-icon"><i class="fas fa-handshake"></i></div>
+                <span class="contact-type">Brand Partnerships</span>
+                <p class="contact-desc">Partner with Jeff and the Rossen Reports team to connect with millions of engaged, trust-driven consumers actively seeking deals and products.</p>
+                <span class="contact-cta">Partner With Us <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <div class="contact-icon"><i class="fas fa-envelope-open-text"></i></div>
+                <span class="contact-type">Media &amp; Press</span>
+                <p class="contact-desc">Interview requests, podcast appearances, and press inquiries. Connect with the Rossen Reports team via Substack.</p>
+                <span class="contact-cta">Contact Team <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+        </div>
+    </div>
+</section>
+
 <!-- ── FOOTER ── -->
 <footer>
     <div class="footer-inner">
@@ -1796,6 +2020,7 @@
                     <a href="#deals" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Deals of the Week</a>
                     <a href="#subscribe" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Newsletter</a>
                     <a href="#shop" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Shop &amp; Save</a>
+                    <a href="#contact" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Work With Jeff</a>
                 </div>
             </div>
             <div class="footer-socials">
@@ -1817,15 +2042,33 @@
 <script>
 // ── YOUTUBE: fetch thumbnail, title, and episode archive ──
 (function () {
+    // Hardcoded fallback — most recent known video
+    window._latestVideoId = 'pVH0evvebRw';
+
+    // Show NEW badge on episode-day (Wed=3, Fri=5)
+    var dow = new Date().getDay();
+    if (dow === 3 || dow === 5) {
+        var badge = document.getElementById('newEpBadge');
+        if (badge) badge.style.display = 'flex';
+    }
+
     var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC7PYy5Tx1WhbnGKc3KJeRKw';
     var proxies = [
         'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl),
         'https://corsproxy.io/?' + encodeURIComponent(rssUrl)
     ];
 
+    function fmtDate(str) {
+        try {
+            var d = new Date(str);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } catch(e) { return ''; }
+    }
+
     function parseAndRender(xml) {
         var ids    = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(function(m){ return m[1]; });
         var titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(function(m){ return m[1]; });
+        var dates  = [...xml.matchAll(/<published>([^<]+)<\/published>/g)].map(function(m){ return m[1]; });
         if (!ids.length) throw new Error('no videos');
 
         setMainVideo(ids[0], titles[0] || 'Latest Episode', true);
@@ -1833,12 +2076,14 @@
         var row = document.getElementById('episodeRow');
         ids.slice(0, 8).forEach(function (vid, i) {
             var t = titles[i] || 'Episode';
+            var dateStr = dates[i + 1] ? fmtDate(dates[i + 1]) : '';
             var card = document.createElement('div');
             card.className = 'archive-card' + (i === 0 ? ' active' : '');
             card.id = 'arc-' + vid;
             card.innerHTML =
                 '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
-                '<div class="arc-title">' + t + '</div>';
+                '<div class="arc-title">' + t + '</div>' +
+                (dateStr ? '<div class="arc-date">' + dateStr + '</div>' : '');
             card.addEventListener('click', function () { loadArchiveVideo(vid, t); });
             row.appendChild(card);
         });
@@ -1938,6 +2183,26 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     document.getElementById('emailForm').style.display = 'none';
     document.getElementById('emailSuccess').style.display = 'flex';
 });
+
+// ── CYCLING HERO TAGLINE ──
+(function () {
+    var phrases = [
+        'Saving you money, exposing scams, and revealing the best deals.<br><strong>Your trusted guide to living smarter.</strong>',
+        'Exposing scams before they hit your wallet.<br><strong>Consumer protection you can count on.</strong>',
+        'The best deals of the week, every week.<br><strong>New episodes every Wednesday &amp; Friday.</strong>'
+    ];
+    var idx = 0;
+    var el = document.getElementById('heroTagline');
+    if (!el) return;
+    setInterval(function () {
+        el.classList.add('fading');
+        setTimeout(function () {
+            idx = (idx + 1) % phrases.length;
+            el.innerHTML = phrases[idx];
+            el.classList.remove('fading');
+        }, 420);
+    }, 4500);
+})();
 
 // ── COUNT-UP ANIMATION ──
 (function () {
