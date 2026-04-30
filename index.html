@@ -996,27 +996,43 @@
             gap: 0.5rem;
             position: relative;
             transition: box-shadow 0.2s, transform 0.18s;
-            border-bottom: 3px solid transparent;
+            border-top: 4px solid var(--deal-color, var(--yellow));
+            overflow: hidden;
+        }
+
+        .deal-card::after {
+            content: var(--deal-icon, '');
+            position: absolute;
+            bottom: -0.5rem; right: 0.75rem;
+            font-size: 3.5rem;
+            opacity: 0.07;
+            line-height: 1;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
         }
 
         .deal-card:hover {
-            box-shadow: 0 8px 28px rgba(11,44,107,0.12);
+            box-shadow: 0 8px 28px color-mix(in srgb, var(--deal-color, var(--yellow)) 25%, transparent);
             transform: translateY(-3px);
-            border-bottom-color: var(--yellow);
         }
 
+        .deal-card:hover::after { opacity: 0.13; transform: scale(1.08); }
+
         .deal-badge {
-            display: inline-block;
-            background: var(--yellow);
-            color: var(--blue);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: color-mix(in srgb, var(--deal-color, var(--yellow)) 12%, transparent);
+            color: var(--deal-color, var(--blue));
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             font-size: 0.62rem;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            padding: 0.2rem 0.6rem;
+            padding: 0.25rem 0.65rem;
             margin-bottom: 0.35rem;
             width: fit-content;
+            border: 1px solid color-mix(in srgb, var(--deal-color, var(--yellow)) 30%, transparent);
         }
 
         .deal-name {
@@ -1424,6 +1440,58 @@
             .deals-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+        /* ─── FLOATING PHOTO ANIMATION ─── */
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-7px); }
+        }
+        .hero-card-inner { animation: floatCard 4.5s ease-in-out infinite; }
+
+        /* ─── ANGLED SECTION DIVIDERS ─── */
+        .hero {
+            clip-path: polygon(0 0, 100% 0, 100% 94%, 0 100%);
+            padding-bottom: 9rem;
+            margin-bottom: -3rem;
+        }
+        .press-strip {
+            clip-path: polygon(0 0, 100% 6%, 100% 100%, 0 94%);
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+            margin-bottom: -1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .latest {
+            clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
+            padding-top: 7rem;
+            padding-bottom: 7rem;
+            margin-bottom: -2rem;
+        }
+        .email-signup {
+            clip-path: polygon(0 0, 100% 3%, 100% 100%, 0 97%);
+            padding-top: 8rem;
+            padding-bottom: 8rem;
+            margin-bottom: -2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .deals {
+            padding-top: 8rem;
+        }
+        .testimonials {
+            clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
+            padding-top: 8rem;
+            padding-bottom: 8rem;
+            margin-bottom: -2rem;
+        }
+        @media (max-width: 768px) {
+            .hero { clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%); padding-bottom: 7rem; margin-bottom: -2rem; }
+            .press-strip { clip-path: none; padding-top: 1.25rem; padding-bottom: 1.25rem; margin-bottom: 0; }
+            .latest { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
+            .email-signup { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
+            .testimonials { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
+        }
+
         /* ─── CYCLING HERO TAGLINE ─── */
         .hero-tagline { transition: opacity 0.4s ease; }
         .hero-tagline.fading { opacity: 0; }
@@ -1482,15 +1550,34 @@
         .testi-card {
             background: rgba(255,255,255,0.07);
             border-left: 3px solid var(--yellow);
-            padding: 1.5rem 2rem;
+            padding: 1.75rem 2rem 1.5rem;
             width: 320px;
             flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.25s, box-shadow 0.25s;
+        }
+        .testi-card:hover {
+            background: rgba(255,255,255,0.12);
+            box-shadow: -3px 0 18px rgba(255,209,0,0.18);
+        }
+        .testi-card::before {
+            content: '\201C';
+            position: absolute;
+            top: -0.5rem; right: 1rem;
+            font-family: Georgia, serif;
+            font-size: 6rem;
+            color: rgba(255,209,0,0.08);
+            line-height: 1;
+            pointer-events: none;
         }
         .testi-quote {
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.82);
+            color: rgba(255,255,255,0.85);
             line-height: 1.75;
             font-style: italic;
+            position: relative;
+            z-index: 1;
         }
         .testi-name {
             font-family: 'Oswald', sans-serif;
@@ -1500,6 +1587,8 @@
             color: var(--yellow);
             margin-top: 0.85rem;
             display: block;
+            position: relative;
+            z-index: 1;
         }
 
         /* ─── CONTACT / WORK WITH JEFF ─── */
@@ -1716,32 +1805,32 @@
         <h2 class="section-title">Deals of the Week</h2>
         <div class="deals-grid fade-up">
 
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#c0392b; --deal-icon:'🔒';">
                 <span class="deal-badge">🔒 Home Security</span>
                 <span class="deal-name">Best Security Cameras This Week</span>
                 <p class="deal-desc">Jeff tested dozens — these are the cameras that actually protect your home without breaking the bank.</p>
-                <span class="deal-cta">Shop Now <i class="fas fa-arrow-right"></i></span>
+                <span class="deal-cta" style="color:#c0392b;">Shop Now <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card">
+            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#27ae60; --deal-icon:'🛒';">
                 <span class="deal-badge">🛒 Grocery Savings</span>
                 <span class="deal-name">Stop Overpaying at the Store</span>
                 <p class="deal-desc">Walmart deals most shoppers walk right past — Jeff's picks for maximum savings on everyday essentials.</p>
-                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
+                <span class="deal-cta" style="color:#27ae60;">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card">
+            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#2980b9; --deal-icon:'✈️';">
                 <span class="deal-badge">✈️ Travel Steals</span>
                 <span class="deal-name">Hidden Travel Deals Airlines Won't Tell You</span>
                 <p class="deal-desc">The prices airlines and hotels don't advertise — exposed by Jeff's consumer investigations team.</p>
-                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
+                <span class="deal-cta" style="color:#2980b9;">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#8e44ad; --deal-icon:'📱';">
                 <span class="deal-badge">📱 Top Tech</span>
                 <span class="deal-name">Best Tech Under $50</span>
                 <p class="deal-desc">Consumer gadgets that actually deliver on their promises — vetted and recommended by Jeff's team.</p>
-                <span class="deal-cta">Explore <i class="fas fa-arrow-right"></i></span>
+                <span class="deal-cta" style="color:#8e44ad;">Explore <i class="fas fa-arrow-right"></i></span>
             </a>
 
         </div>
