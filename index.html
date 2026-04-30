@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeff Rossen | Rossen Reports</title>
+    <meta name="description" content="Jeff Rossen — Award-winning consumer investigative journalist. Saving you money, exposing scams, and revealing the best deals.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue:       #0B2C6B;
+            --blue-mid:   #1E4DB7;
+            --blue-light: #2E62D9;
+            --yellow:     #FFD100;
+            --white:      #FFFFFF;
+            --gray-light: #F0F2F5;
+            --gray:       #6B7280;
+            --dark:       #111827;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+            background: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--blue);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 7rem 2rem 6rem;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .hero-bar {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 6px;
+            background: var(--yellow);
+            z-index: 2;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(30,77,183,0.35) 0%, transparent 65%);
+            top: 50%; right: -100px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* logo floats at top-left of hero */
+        .hero-logo {
+            position: absolute;
+            top: 1.75rem;
+            left: 2rem;
+            z-index: 10;
+        }
+
+        .hero-logo img { height: 90px; }
+
+        .hero-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 5rem;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 0.35rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-eyebrow::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .hero-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(3.5rem, 8vw, 6rem);
+            color: var(--white);
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-name .yellow { color: var(--yellow); }
+
+        .hero-rule {
+            width: 56px; height: 4px;
+            background: var(--yellow);
+            margin: 1.75rem 0;
+        }
+
+        .hero-tagline {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.72);
+            line-height: 1.75;
+            max-width: 500px;
+        }
+
+        .hero-tagline strong { color: var(--white); }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 0.875rem 2rem;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--yellow);
+            color: var(--blue);
+            border-color: var(--yellow);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--yellow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border-color: rgba(255,255,255,0.35);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--white);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-num {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.9rem;
+            color: var(--yellow);
+            display: block;
+        }
+
+        .stat-lbl {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 0.2rem;
+        }
+
+        /* hero ID card */
+        .hero-card { width: 300px; flex-shrink: 0; }
+
+        .hero-card-inner {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,209,0,0.25);
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+        }
+
+        .hero-card-photo {
+            width: 100%;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+        }
+
+        .hero-card-photo img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .lower-third { position: relative; }
+
+        .lt-yellow {
+            background: var(--yellow);
+            padding: 0.5rem 1.25rem;
+        }
+
+        .lt-yellow span {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .lt-blue {
+            background: var(--blue-mid);
+            padding: 0.4rem 1.25rem;
+        }
+
+        .lt-blue span {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        /* ── SHARED ── */
+        .section { padding: 6rem 2rem; }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--blue-mid);
+            margin-bottom: 0.85rem;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: block;
+            width: 28px; height: 2px;
+            background: var(--yellow);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            color: var(--blue);
+            text-transform: uppercase;
+            line-height: 1.05;
+        }
+
+        /* ── LATEST EPISODE ── */
+        .latest { background: var(--dark); }
+        .latest .eyebrow { color: rgba(255,209,0,0.85); }
+        .latest .eyebrow::before { background: var(--yellow); }
+        .latest .section-title { color: var(--white); }
+
+        .latest-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .video-title-display {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            font-style: italic;
+            max-width: 500px;
+        }
+
+        .video-wrap {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+        }
+
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        .video-fallback {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            background: #0d0d0d;
+        }
+
+        .video-fallback i.fa-youtube { font-size: 4rem; color: #ff0000; }
+
+        .video-fallback p {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .video-fallback a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff0000;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.75rem 1.75rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        .video-fallback a:hover { opacity: 0.85; }
+
+        /* ── ABOUT ── */
+        .about { background: var(--white); }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 5rem;
+            align-items: start;
+            margin-top: 3.5rem;
+        }
+
+        .about-panel {
+            background: var(--blue);
+            padding: 2.75rem;
+            position: relative;
+        }
+
+        .about-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -10px; right: -10px;
+            width: 100%; height: 100%;
+            border: 2px solid var(--yellow);
+            z-index: -1;
+        }
+
+        .about-quote {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--white);
+            line-height: 1.55;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-quote em { color: var(--yellow); font-style: normal; }
+
+        .about-quote-attr {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .tl-item {
+            display: grid;
+            grid-template-columns: 50px 10px 1fr;
+            gap: 0 1rem;
+            align-items: start;
+        }
+
+        .tl-year {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--blue-mid);
+            letter-spacing: 0.04em;
+            padding-top: 0.15rem;
+        }
+
+        .tl-dot {
+            width: 10px; height: 10px;
+            background: var(--yellow);
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        .tl-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+            line-height: 1.65;
+        }
+
+        .tl-desc strong { color: var(--dark); }
+
+        /* ── THE SHOW ── */
+        .show-section {
+            background: var(--blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .show-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .show-section::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--yellow);
+        }
+
+        .show-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .cs-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .cs-badge::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .cs-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(2.75rem, 7vw, 5rem);
+            color: var(--white);
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .cs-title span { color: var(--yellow); }
+
+        .cs-sub {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.62);
+            margin: 1.5rem 0 2.5rem;
+            line-height: 1.75;
+        }
+
+        /* ── SOCIAL LINKS ── */
+        .links-section { background: var(--gray-light); }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .link-card {
+            background: var(--white);
+            border: 2px solid transparent;
+            padding: 1.4rem 1.6rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            transition: border-color 0.2s, transform 0.18s;
+        }
+
+        .link-card:hover {
+            border-color: var(--yellow);
+            transform: translateY(-2px);
+        }
+
+        .link-card:hover .lc-icon {
+            background: var(--yellow);
+            color: var(--blue);
+        }
+
+        .lc-icon {
+            width: 46px; height: 46px; min-width: 46px;
+            background: var(--blue);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .lc-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+        }
+
+        .lc-handle {
+            font-size: 0.77rem;
+            color: var(--gray);
+            display: block;
+            margin-top: 0.15rem;
+        }
+
+        .lc-arrow {
+            margin-left: auto;
+            color: var(--gray);
+            font-size: 0.72rem;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .link-card:hover .lc-arrow { color: var(--yellow); }
+
+        /* ── SHOP ── */
+        .shop { background: var(--white); }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .shop-card {
+            background: var(--white);
+            border-top: 4px solid var(--yellow);
+            padding: 2rem;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s, transform 0.18s;
+        }
+
+        .shop-card:hover {
+            box-shadow: 0 10px 32px rgba(11,44,107,0.13);
+            transform: translateY(-2px);
+        }
+
+        .shop-platform {
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .shop-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--blue);
+        }
+
+        .shop-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+            line-height: 1.65;
+            flex: 1;
+        }
+
+        .shop-link {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue-mid);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--dark);
+            color: rgba(255,255,255,0.55);
+            padding: 3.5rem 2rem 2rem;
+        }
+
+        .footer-inner { max-width: 1100px; margin: 0 auto; }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-brand { display: flex; flex-direction: column; gap: 0.85rem; }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .footer-bio {
+            font-size: 0.8rem;
+            max-width: 280px;
+            line-height: 1.65;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .footer-social {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .footer-social:hover {
+            background: var(--yellow);
+            color: var(--blue);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.07);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 900px) {
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-card { display: none; }
+            .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .about-panel::after { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .section { padding: 4rem 1.25rem; }
+            .hero { padding: 6rem 1.25rem 5rem; }
+            .hero-logo { left: 1.25rem; }
+            .hero-logo img { height: 64px; }
+            .hero-cta { flex-direction: column; }
+            .btn { justify-content: center; width: 100%; }
+            .hero-stats { flex-wrap: wrap; gap: 1.5rem 2rem; }
+            .footer-top { flex-direction: column; }
+            .footer-bottom { flex-direction: column; text-align: center; }
+            .latest-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<section class="hero" id="home">
+    <div class="hero-glow"></div>
+    <div class="hero-logo">
+        <img src="rossenlogo.png" alt="Rossen Reports">
+    </div>
+    <div class="hero-inner">
+        <div>
+            <div class="hero-eyebrow">Award-Winning Consumer Journalist</div>
+            <h1 class="hero-name">
+                Jeff<br>
+                <span class="yellow">Rossen</span>
+            </h1>
+            <div class="hero-rule"></div>
+            <p class="hero-tagline">
+                Saving you money, exposing scams, and revealing the best deals.<br>
+                <strong>Your trusted guide to living smarter.</strong>
+            </p>
+            <div class="hero-cta">
+                <a href="#latest" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Watch Latest Episode
+                </a>
+                <a href="#follow" class="btn btn-outline">
+                    <i class="fas fa-share-alt"></i> Follow Jeff
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div>
+                    <span class="stat-num">2.4M+</span>
+                    <span class="stat-lbl">Followers</span>
+                </div>
+                <div>
+                    <span class="stat-num">18K+</span>
+                    <span class="stat-lbl">Subscribers</span>
+                </div>
+                <div>
+                    <span class="stat-num">15+</span>
+                    <span class="stat-lbl">Years on Air</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <div class="hero-card-inner">
+                <div class="hero-card-photo">
+                    <img src="jeff-rossennew.png" alt="Jeff Rossen">
+                </div>
+                <div class="lower-third">
+                    <div class="lt-yellow"><span>Jeff Rossen</span></div>
+                    <div class="lt-blue"><span>Consumer Investigative Journalist</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-bar"></div>
+</section>
+
+<!-- ── LATEST EPISODE ── -->
+<section class="section latest" id="latest">
+    <div class="container">
+        <div class="latest-header">
+            <div>
+                <span class="eyebrow">Watch Now</span>
+                <h2 class="section-title">Latest Episode</h2>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:flex-end;">
+                <div class="live-badge">Live Every Wednesday &amp; Friday</div>
+                <p class="video-title-display" id="videoTitle"></p>
+            </div>
+        </div>
+        <div class="video-wrap">
+            <iframe id="latestVideo" src="" allowfullscreen allow="encrypted-media"></iframe>
+            <div class="video-fallback" id="videoFallback">
+                <i class="fab fa-youtube"></i>
+                <p>Watch the latest on YouTube</p>
+                <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-youtube"></i> Go to Channel
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="section about" id="about">
+    <div class="container">
+        <span class="eyebrow">Who is Jeff Rossen</span>
+        <h2 class="section-title">The Reporter<br>On Your Side</h2>
+        <div class="about-grid">
+            <div class="about-panel">
+                <p class="about-quote">
+                    "I'll save you money by revealing the <em>best deals</em>, and exposing the <em>worst scams</em>."
+                </p>
+                <p class="about-quote-attr">— Jeff Rossen, Rossen Reports</p>
+            </div>
+            <div class="timeline">
+                <div class="tl-item">
+                    <span class="tl-year">2025</span>
+                    <div class="tl-dot"></div>
+                    <p class="tl-desc"><strong>Went fully independent</strong> — launched his own YouTube channel and consumer media brand with 2.4 million followers across platforms.</p>
+                </div>
+                <div class="tl-item">
+                    <span class="tl-year">2019</span>
+                    <div class="tl-dot"></div>
+                    <p class="tl-desc"><strong>Joined Hearst Television</strong> — Rossen Reports syndicated nationally across NBC, ABC, and CBS affiliate stations.</p>
+                </div>
+                <div class="tl-item">
+                    <span class="tl-year">2017</span>
+                    <div class="tl-dot"></div>
+                    <p class="tl-desc">Published <strong>Rossen to the Rescue</strong> — the ultimate guide to avoiding scams, everyday dangers, and major catastrophes.</p>
+                </div>
+                <div class="tl-item">
+                    <span class="tl-year">2012</span>
+                    <div class="tl-dot"></div>
+                    <p class="tl-desc"><strong>Launched Rossen Reports</strong> — named National Investigative Correspondent; segments aired on Today, Nightly News, and Dateline NBC.</p>
+                </div>
+                <div class="tl-item">
+                    <span class="tl-year">2008</span>
+                    <div class="tl-dot"></div>
+                    <p class="tl-desc"><strong>Joined NBC News</strong> — became a fixture on the Today Show and NBC Nightly News with Lester Holt.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── THE SHOW ── -->
+<section class="section show-section" id="show">
+    <div class="show-inner">
+        <div class="cs-badge">Now Live</div>
+        <h2 class="cs-title">The<br><span>Rossen</span><br>Reports Show</h2>
+        <p class="cs-sub">
+            Consumer investigations, money-saving tips, scam exposés, and the stories that matter to you — straight from the source. New episodes every <strong style="color:var(--yellow)">Wednesday &amp; Friday</strong>.
+        </p>
+        <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;">
+            <i class="fab fa-youtube"></i> Watch on YouTube
+        </a>
+    </div>
+</section>
+
+<!-- ── FOLLOW / SOCIAL LINKS ── -->
+<section class="section links-section" id="follow">
+    <div class="container">
+        <span class="eyebrow">Stay Connected</span>
+        <h2 class="section-title">Follow Jeff<br>Everywhere</h2>
+        <div class="links-grid">
+
+            <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fab fa-youtube"></i></div>
+                <div>
+                    <span class="lc-name">YouTube</span>
+                    <span class="lc-handle">@RossenReports</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fab fa-instagram"></i></div>
+                <div>
+                    <span class="lc-name">Instagram</span>
+                    <span class="lc-handle">@jeffrossen</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fab fa-tiktok"></i></div>
+                <div>
+                    <span class="lc-name">TikTok</span>
+                    <span class="lc-handle">@rossen.reports</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fab fa-facebook-f"></i></div>
+                <div>
+                    <span class="lc-name">Facebook</span>
+                    <span class="lc-handle">@rossenreports</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+            <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fab fa-x-twitter"></i></div>
+                <div>
+                    <span class="lc-name">X / Twitter</span>
+                    <span class="lc-handle">@jeffrossen</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="link-card">
+                <div class="lc-icon"><i class="fas fa-newspaper"></i></div>
+                <div>
+                    <span class="lc-name">Substack</span>
+                    <span class="lc-handle">Rossen Reports Newsletter</span>
+                </div>
+                <i class="fas fa-arrow-right lc-arrow"></i>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<!-- ── SHOP ── -->
+<section class="section shop" id="shop">
+    <div class="container">
+        <span class="eyebrow">Jeff's Picks</span>
+        <h2 class="section-title">Shop &amp; Save</h2>
+        <div class="shop-grid">
+
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="shop-card">
+                <span class="shop-platform">Amazon</span>
+                <span class="shop-name">Jeff's Amazon Shop</span>
+                <p class="shop-desc">Hand-picked products, deals, and recommendations straight from Jeff's consumer investigations.</p>
+                <span class="shop-link">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="shop-card">
+                <span class="shop-platform">Walmart</span>
+                <span class="shop-name">Walmart Storefront</span>
+                <p class="shop-desc">Jeff's curated Walmart picks — quality products at prices that actually make sense.</p>
+                <span class="shop-link">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="shop-card">
+                <span class="shop-platform">DealSeek</span>
+                <span class="shop-name">DealSeek Collection</span>
+                <p class="shop-desc">Exclusive deals and steals curated by the Rossen Reports team. Updated regularly.</p>
+                <span class="shop-link">See Deals <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="#home" class="footer-logo">
+                    <img src="rossenlogo.png" alt="Rossen Reports" style="height:36px;">
+                </a>
+                <p class="footer-bio">
+                    Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.
+                </p>
+            </div>
+            <div class="footer-socials">
+                <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="Substack"><i class="fas fa-newspaper"></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Rossen Reports. All rights reserved.</span>
+            <span>jeffrossen.com</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Auto-load latest YouTube video from Rossen Reports channel RSS feed
+    (function () {
+        const rssUrl = 'https://www.youtube.com/feeds/videos.xml?user=RossenReports';
+        const apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+
+        fetch(apiUrl)
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    const video = data.items[0];
+                    const videoId = video.link.split('v=')[1]?.split('&')[0];
+                    if (videoId) {
+                        document.getElementById('latestVideo').src =
+                            'https://www.youtube.com/embed/' + videoId + '?rel=0&modestbranding=1';
+                        document.getElementById('videoTitle').textContent = video.title;
+                        return;
+                    }
+                }
+                showFallback();
+            })
+            .catch(showFallback);
+
+        function showFallback() {
+            document.getElementById('latestVideo').style.display = 'none';
+            document.getElementById('videoFallback').style.display = 'flex';
+            document.getElementById('videoTitle').textContent = '';
+        }
+    })();
+</script>
+
+</body>
+</html>
