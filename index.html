@@ -1334,6 +1334,17 @@
             color: rgba(255,255,255,0.15);
         }
 
+        .press-logo img {
+            display: block;
+            height: 24px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.3;
+            transition: opacity 0.25s;
+        }
+
+        .press-logo:hover img { opacity: 0.65; }
+
         @media (max-width: 768px) {
             .press-strip { padding: 1.25rem; }
             .press-label { display: none; }
@@ -1478,16 +1489,13 @@
     <div class="press-inner">
         <span class="press-label">As Seen On</span>
         <div class="press-logo">
-            <span class="pl-main">NBC</span>
-            <span class="pl-sub">News</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f0/NBC_News_%282023%29.svg" alt="NBC News">
         </div>
         <div class="press-logo">
-            <span class="pl-main">TODAY</span>
-            <span class="pl-sub">Show</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/76/Today_logo.svg" alt="TODAY Show" style="height:20px;">
         </div>
         <div class="press-logo">
-            <span class="pl-main">Dateline</span>
-            <span class="pl-sub">NBC</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Dateline_NBC_logo.svg" alt="Dateline NBC" style="height:18px;">
         </div>
         <div class="press-logo">
             <span class="pl-main">Hearst</span>
