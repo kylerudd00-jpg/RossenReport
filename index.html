@@ -977,63 +977,53 @@
         }
 
         /* ─────────────── DEALS OF THE WEEK ─────────────── */
-        .deals { background: var(--off-white, #F7F7F5); border-top: 5px solid var(--yellow); }
+        .deals { background: var(--gray-light); }
+
+        .deals-intro {
+            font-size: 0.92rem;
+            color: var(--gray);
+            margin-top: 0.6rem;
+            max-width: 480px;
+            line-height: 1.65;
+        }
 
         .deals-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
+            gap: 1.5rem;
             margin-top: 2.5rem;
         }
 
         .deal-card {
             background: var(--white);
-            border: 1px solid rgba(0,0,0,0.07);
-            padding: 1.5rem;
+            border-top: 3px solid var(--yellow);
+            padding: 1.75rem 1.5rem 1.5rem;
             text-decoration: none;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            position: relative;
+            gap: 0.6rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             transition: box-shadow 0.2s, transform 0.18s;
-            border-top: 4px solid var(--deal-color, var(--yellow));
-            overflow: hidden;
-        }
-
-        .deal-card::after {
-            content: var(--deal-icon, '');
-            position: absolute;
-            bottom: -0.5rem; right: 0.75rem;
-            font-size: 3.5rem;
-            opacity: 0.07;
-            line-height: 1;
-            pointer-events: none;
-            transition: opacity 0.2s, transform 0.2s;
         }
 
         .deal-card:hover {
-            box-shadow: 0 8px 28px color-mix(in srgb, var(--deal-color, var(--yellow)) 25%, transparent);
+            box-shadow: 0 8px 28px rgba(11,44,107,0.13);
             transform: translateY(-3px);
         }
 
-        .deal-card:hover::after { opacity: 0.13; transform: scale(1.08); }
-
-        .deal-badge {
+        .deal-category {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            background: color-mix(in srgb, var(--deal-color, var(--yellow)) 12%, transparent);
-            color: var(--deal-color, var(--blue));
+            gap: 0.4rem;
             font-family: 'Oswald', sans-serif;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.62rem;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            padding: 0.25rem 0.65rem;
-            margin-bottom: 0.35rem;
-            width: fit-content;
-            border: 1px solid color-mix(in srgb, var(--deal-color, var(--yellow)) 30%, transparent);
+            color: var(--blue-mid);
         }
+
+        .deal-category i { font-size: 0.7rem; }
 
         .deal-name {
             font-family: 'Oswald', sans-serif;
@@ -1044,10 +1034,16 @@
         }
 
         .deal-desc {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: var(--gray);
-            line-height: 1.6;
+            line-height: 1.65;
             flex: 1;
+        }
+
+        .deal-divider {
+            border: none;
+            border-top: 1px solid var(--gray-light);
+            margin: 0.15rem 0 0;
         }
 
         .deal-cta {
@@ -1060,7 +1056,6 @@
             text-transform: uppercase;
             color: var(--blue-mid);
             font-weight: 600;
-            margin-top: 0.5rem;
         }
 
         .deals-footer {
@@ -1803,34 +1798,39 @@
     <div class="container">
         <span class="eyebrow">Updated Weekly</span>
         <h2 class="section-title">Deals of the Week</h2>
+        <p class="deals-intro">Jeff's team-vetted picks — products and savings worth your attention right now.</p>
         <div class="deals-grid fade-up">
 
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#c0392b; --deal-icon:'🔒';">
-                <span class="deal-badge">🔒 Home Security</span>
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-category"><i class="fas fa-shield-alt"></i> Home Security</span>
                 <span class="deal-name">Best Security Cameras This Week</span>
                 <p class="deal-desc">Jeff tested dozens — these are the cameras that actually protect your home without breaking the bank.</p>
-                <span class="deal-cta" style="color:#c0392b;">Shop Now <i class="fas fa-arrow-right"></i></span>
+                <hr class="deal-divider">
+                <span class="deal-cta">Shop Now <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#27ae60; --deal-icon:'🛒';">
-                <span class="deal-badge">🛒 Grocery Savings</span>
+            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-category"><i class="fas fa-shopping-cart"></i> Grocery Savings</span>
                 <span class="deal-name">Stop Overpaying at the Store</span>
                 <p class="deal-desc">Walmart deals most shoppers walk right past — Jeff's picks for maximum savings on everyday essentials.</p>
-                <span class="deal-cta" style="color:#27ae60;">See Deals <i class="fas fa-arrow-right"></i></span>
+                <hr class="deal-divider">
+                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#2980b9; --deal-icon:'✈️';">
-                <span class="deal-badge">✈️ Travel Steals</span>
+            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-category"><i class="fas fa-plane"></i> Travel Steals</span>
                 <span class="deal-name">Hidden Travel Deals Airlines Won't Tell You</span>
                 <p class="deal-desc">The prices airlines and hotels don't advertise — exposed by Jeff's consumer investigations team.</p>
-                <span class="deal-cta" style="color:#2980b9;">See Deals <i class="fas fa-arrow-right"></i></span>
+                <hr class="deal-divider">
+                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card" style="--deal-color:#8e44ad; --deal-icon:'📱';">
-                <span class="deal-badge">📱 Top Tech</span>
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-category"><i class="fas fa-microchip"></i> Top Tech</span>
                 <span class="deal-name">Best Tech Under $50</span>
                 <p class="deal-desc">Consumer gadgets that actually deliver on their promises — vetted and recommended by Jeff's team.</p>
-                <span class="deal-cta" style="color:#8e44ad;">Explore <i class="fas fa-arrow-right"></i></span>
+                <hr class="deal-divider">
+                <span class="deal-cta">Explore <i class="fas fa-arrow-right"></i></span>
             </a>
 
         </div>
