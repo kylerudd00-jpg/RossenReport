@@ -15,7 +15,6 @@
         :root {
             --blue:       #0B2C6B;
             --blue-mid:   #1E4DB7;
-            --blue-light: #2E62D9;
             --yellow:     #FFD100;
             --white:      #FFFFFF;
             --gray-light: #F0F2F5;
@@ -32,7 +31,12 @@
             overflow-x: hidden;
         }
 
-        /* ── HERO ── */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ─────────────── HERO ─────────────── */
         .hero {
             background: var(--blue);
             min-height: 100vh;
@@ -66,17 +70,15 @@
             position: absolute;
             width: 700px; height: 700px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(30,77,183,0.35) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(30,77,183,0.4) 0%, transparent 65%);
             top: 50%; right: -100px;
             transform: translateY(-50%);
             pointer-events: none;
         }
 
-        /* logo floats at top-left of hero */
         .hero-logo {
             position: absolute;
-            top: 1.75rem;
-            left: 2rem;
+            top: 1.75rem; left: 2rem;
             z-index: 10;
         }
 
@@ -87,7 +89,7 @@
             margin: 0 auto;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr 300px;
             gap: 5rem;
             align-items: center;
             position: relative;
@@ -117,11 +119,6 @@
             animation: pulse 2s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.4; transform: scale(0.7); }
-        }
-
         .hero-name {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
@@ -129,7 +126,6 @@
             color: var(--white);
             line-height: 0.95;
             text-transform: uppercase;
-            letter-spacing: -0.01em;
         }
 
         .hero-name .yellow { color: var(--yellow); }
@@ -172,39 +168,25 @@
             border: 2px solid transparent;
         }
 
-        .btn-primary {
-            background: var(--yellow);
-            color: var(--blue);
-            border-color: var(--yellow);
-        }
+        .btn-primary { background: var(--yellow); color: var(--blue); border-color: var(--yellow); }
+        .btn-primary:hover { background: transparent; color: var(--yellow); }
+        .btn-outline { background: transparent; color: var(--white); border-color: rgba(255,255,255,0.35); }
+        .btn-outline:hover { border-color: var(--white); }
 
-        .btn-primary:hover {
-            background: transparent;
-            color: var(--yellow);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--white);
-            border-color: rgba(255,255,255,0.35);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--white);
-        }
-
+        /* stats with count-up */
         .hero-stats {
             display: flex;
             gap: 2.5rem;
             margin-top: 3.5rem;
             padding-top: 2.5rem;
             border-top: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
         }
 
         .stat-num {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: 1.9rem;
+            font-size: 2rem;
             color: var(--yellow);
             display: block;
         }
@@ -218,14 +200,13 @@
             margin-top: 0.2rem;
         }
 
-        /* hero ID card */
-        .hero-card { width: 300px; flex-shrink: 0; }
+        /* hero photo card */
+        .hero-card { flex-shrink: 0; }
 
         .hero-card-inner {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,209,0,0.25);
             overflow: hidden;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,209,0,0.25);
         }
 
         .hero-card-photo {
@@ -243,11 +224,7 @@
 
         .lower-third { position: relative; }
 
-        .lt-yellow {
-            background: var(--yellow);
-            padding: 0.5rem 1.25rem;
-        }
-
+        .lt-yellow { background: var(--yellow); padding: 0.5rem 1.25rem; }
         .lt-yellow span {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
@@ -257,11 +234,7 @@
             letter-spacing: 0.04em;
         }
 
-        .lt-blue {
-            background: var(--blue-mid);
-            padding: 0.4rem 1.25rem;
-        }
-
+        .lt-blue { background: var(--blue-mid); padding: 0.4rem 1.25rem; }
         .lt-blue span {
             font-size: 0.72rem;
             color: rgba(255,255,255,0.85);
@@ -269,9 +242,8 @@
             text-transform: uppercase;
         }
 
-        /* ── SHARED ── */
+        /* ─────────────── SHARED ─────────────── */
         .section { padding: 6rem 2rem; }
-
         .container { max-width: 1100px; margin: 0 auto; }
 
         .eyebrow {
@@ -302,7 +274,7 @@
             line-height: 1.05;
         }
 
-        /* ── LATEST EPISODE ── */
+        /* ─────────────── LATEST EPISODE ─────────────── */
         .latest { background: var(--dark); }
         .latest .eyebrow { color: rgba(255,209,0,0.85); }
         .latest .eyebrow::before { background: var(--yellow); }
@@ -313,8 +285,8 @@
             align-items: flex-end;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 1.25rem;
-            margin-bottom: 2rem;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
         }
 
         .live-badge {
@@ -329,6 +301,7 @@
             letter-spacing: 0.16em;
             text-transform: uppercase;
             padding: 0.4rem 1rem;
+            white-space: nowrap;
         }
 
         .live-badge::before {
@@ -341,11 +314,13 @@
 
         .video-title-display {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.45);
             font-style: italic;
-            max-width: 500px;
+            max-width: 480px;
+            text-align: right;
         }
 
+        /* click-to-play thumbnail */
         .video-wrap {
             position: relative;
             padding-bottom: 56.25%;
@@ -353,6 +328,62 @@
             overflow: hidden;
             background: #000;
             box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+            cursor: pointer;
+        }
+
+        .video-thumb {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+        }
+
+        .video-thumb img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumb-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            transition: background 0.2s;
+        }
+
+        .video-wrap:hover .thumb-overlay { background: rgba(0,0,0,0.2); }
+
+        .play-btn {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            background: #ff0000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .video-wrap:hover .play-btn {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .thumb-title {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 2rem 1.5rem 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.75));
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--white);
+            z-index: 4;
+            line-height: 1.4;
         }
 
         .video-wrap iframe {
@@ -360,18 +391,19 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             border: none;
+            display: none;
         }
 
         .video-fallback {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            inset: 0;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 1.25rem;
             background: #0d0d0d;
+            cursor: default;
         }
 
         .video-fallback i.fa-youtube { font-size: 4rem; color: #ff0000; }
@@ -379,7 +411,7 @@
         .video-fallback p {
             font-family: 'Oswald', sans-serif;
             font-size: 1rem;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.5);
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
@@ -397,29 +429,21 @@
             font-size: 0.85rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            transition: opacity 0.2s;
         }
 
         .video-fallback a:hover { opacity: 0.85; }
 
-        /* ── ABOUT ── */
+        /* ─────────────── ABOUT (no timeline) ─────────────── */
         .about { background: var(--white); }
 
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.3fr;
-            gap: 5rem;
-            align-items: start;
-            margin-top: 3.5rem;
-        }
-
-        .about-panel {
+        .about-quote-wrap {
+            margin-top: 3rem;
             background: var(--blue);
-            padding: 2.75rem;
+            padding: 3.5rem;
             position: relative;
         }
 
-        .about-panel::after {
+        .about-quote-wrap::after {
             content: '';
             position: absolute;
             bottom: -10px; right: -10px;
@@ -428,62 +452,58 @@
             z-index: -1;
         }
 
-        .about-quote {
+        .about-quote-text {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.35rem;
+            font-size: clamp(1.35rem, 3vw, 1.9rem);
             font-weight: 500;
             color: var(--white);
             line-height: 1.55;
-            margin-bottom: 1.5rem;
+            max-width: 700px;
         }
 
-        .about-quote em { color: var(--yellow); font-style: normal; }
+        .about-quote-text em { color: var(--yellow); font-style: normal; }
 
         .about-quote-attr {
             font-size: 0.78rem;
             color: rgba(255,255,255,0.45);
             letter-spacing: 0.1em;
             text-transform: uppercase;
+            margin-top: 1.5rem;
+            display: block;
         }
 
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 1.75rem;
-        }
-
-        .tl-item {
+        .creds-row {
             display: grid;
-            grid-template-columns: 50px 10px 1fr;
-            gap: 0 1rem;
-            align-items: start;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            margin-top: 3.5rem;
+            border-top: 3px solid var(--yellow);
         }
 
-        .tl-year {
+        .cred-item {
+            padding: 2rem 1.5rem;
+            border-right: 1px solid var(--gray-light);
+        }
+
+        .cred-item:last-child { border-right: none; }
+
+        .cred-num {
             font-family: 'Oswald', sans-serif;
-            font-weight: 600;
-            font-size: 0.82rem;
-            color: var(--blue-mid);
-            letter-spacing: 0.04em;
-            padding-top: 0.15rem;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: var(--blue);
+            display: block;
         }
 
-        .tl-dot {
-            width: 10px; height: 10px;
-            background: var(--yellow);
-            margin-top: 0.3rem;
-            flex-shrink: 0;
-        }
-
-        .tl-desc {
-            font-size: 0.875rem;
+        .cred-label {
+            font-size: 0.8rem;
             color: var(--gray);
-            line-height: 1.65;
+            line-height: 1.5;
+            margin-top: 0.35rem;
+            display: block;
         }
 
-        .tl-desc strong { color: var(--dark); }
-
-        /* ── THE SHOW ── */
+        /* ─────────────── THE SHOW ─────────────── */
         .show-section {
             background: var(--blue);
             position: relative;
@@ -559,77 +579,157 @@
             line-height: 1.75;
         }
 
-        /* ── SOCIAL LINKS ── */
-        .links-section { background: var(--gray-light); }
+        /* ─────────────── SOCIAL LINKS (prominent) ─────────────── */
+        .links-section { background: var(--dark); }
+        .links-section .eyebrow { color: rgba(255,209,0,0.85); }
+        .links-section .eyebrow::before { background: var(--yellow); }
+        .links-section .section-title { color: var(--white); }
 
         .links-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
             margin-top: 3rem;
+            background: rgba(255,255,255,0.06);
         }
 
-        .link-card {
-            background: var(--white);
-            border: 2px solid transparent;
-            padding: 1.4rem 1.6rem;
+        /* featured YouTube card spans full width */
+        .link-card-featured {
+            grid-column: 1 / -1;
+            background: #1a0000;
+            padding: 2rem 2.5rem;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 1.15rem;
-            transition: border-color 0.2s, transform 0.18s;
+            gap: 2rem;
+            border-left: 5px solid #ff0000;
+            transition: background 0.2s;
         }
 
-        .link-card:hover {
-            border-color: var(--yellow);
-            transform: translateY(-2px);
-        }
+        .link-card-featured:hover { background: #200000; }
 
-        .link-card:hover .lc-icon {
-            background: var(--yellow);
-            color: var(--blue);
-        }
-
-        .lc-icon {
-            width: 46px; height: 46px; min-width: 46px;
-            background: var(--blue);
-            color: var(--white);
+        .link-card-featured .lc-icon-big {
+            width: 72px; height: 72px; min-width: 72px;
+            background: #ff0000;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            transition: background 0.2s, color 0.2s;
+            font-size: 1.75rem;
+            flex-shrink: 0;
         }
 
-        .lc-name {
+        .link-card-featured .lc-text { flex: 1; }
+
+        .link-card-featured .lc-name {
             font-family: 'Oswald', sans-serif;
-            font-weight: 600;
-            font-size: 0.92rem;
-            color: var(--blue);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--white);
             text-transform: uppercase;
             letter-spacing: 0.04em;
             display: block;
         }
 
-        .lc-handle {
-            font-size: 0.77rem;
-            color: var(--gray);
+        .link-card-featured .lc-handle {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
             display: block;
-            margin-top: 0.15rem;
+            margin-top: 0.2rem;
+        }
+
+        .link-card-featured .lc-desc {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 0.4rem;
+            display: block;
+        }
+
+        .link-card-featured .lc-arrow {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .link-card-featured:hover .lc-arrow {
+            color: #ff0000;
+            transform: translateX(4px);
+        }
+
+        /* standard social cards */
+        .link-card {
+            background: #161e2e;
+            padding: 1.75rem 1.5rem;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.2s;
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--platform-color, var(--yellow));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s;
+        }
+
+        .link-card:hover::before { transform: scaleX(1); }
+        .link-card:hover { background: #1d2840; }
+
+        .lc-icon {
+            width: 54px; height: 54px;
+            background: rgba(255,255,255,0.07);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.25rem;
+            transition: background 0.2s;
+        }
+
+        .link-card:hover .lc-icon { background: var(--platform-color, var(--yellow)); }
+
+        .lc-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+
+        .lc-handle {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.4);
+            display: block;
+            margin-top: 0.3rem;
         }
 
         .lc-arrow {
-            margin-left: auto;
-            color: var(--gray);
-            font-size: 0.72rem;
-            flex-shrink: 0;
-            transition: color 0.2s;
+            position: absolute;
+            bottom: 1.5rem; right: 1.5rem;
+            color: rgba(255,255,255,0.2);
+            font-size: 0.8rem;
+            transition: color 0.2s, transform 0.2s;
         }
 
-        .link-card:hover .lc-arrow { color: var(--yellow); }
+        .link-card:hover .lc-arrow {
+            color: var(--platform-color, var(--yellow));
+            transform: translate(3px, -3px);
+        }
 
-        /* ── SHOP ── */
-        .shop { background: var(--white); }
+        /* ─────────────── SHOP ─────────────── */
+        .shop { background: var(--gray-light); }
 
         .shop-grid {
             display: grid;
@@ -689,10 +789,10 @@
             margin-top: 0.75rem;
         }
 
-        /* ── FOOTER ── */
+        /* ─────────────── FOOTER ─────────────── */
         footer {
-            background: var(--dark);
-            color: rgba(255,255,255,0.55);
+            background: #0a0f1a;
+            color: rgba(255,255,255,0.45);
             padding: 3.5rem 2rem 2rem;
         }
 
@@ -708,12 +808,7 @@
         }
 
         .footer-brand { display: flex; flex-direction: column; gap: 0.85rem; }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
+        .footer-logo { display: inline-flex; text-decoration: none; }
 
         .footer-bio {
             font-size: 0.8rem;
@@ -734,19 +829,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.65);
+            color: rgba(255,255,255,0.55);
             text-decoration: none;
             font-size: 0.95rem;
             transition: background 0.2s, color 0.2s;
         }
 
-        .footer-social:hover {
-            background: var(--yellow);
-            color: var(--blue);
-        }
+        .footer-social:hover { background: var(--yellow); color: var(--blue); }
 
         .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.07);
+            border-top: 1px solid rgba(255,255,255,0.06);
             padding-top: 1.5rem;
             display: flex;
             justify-content: space-between;
@@ -756,25 +848,70 @@
             font-size: 0.75rem;
         }
 
-        /* ── MOBILE ── */
-        @media (max-width: 900px) {
-            .hero-inner { grid-template-columns: 1fr; }
-            .hero-card { display: none; }
-            .about-grid { grid-template-columns: 1fr; gap: 3rem; }
-            .about-panel::after { display: none; }
+        /* ─────────────── MOBILE ─────────────── */
+        @media (max-width: 960px) {
+            .links-grid { grid-template-columns: repeat(2, 1fr); }
+            .creds-row { grid-template-columns: repeat(2, 1fr); }
+            .cred-item:nth-child(2) { border-right: none; }
+            .cred-item:nth-child(3) { border-top: 1px solid var(--gray-light); }
+            .cred-item:nth-child(4) { border-top: 1px solid var(--gray-light); border-right: none; }
         }
 
         @media (max-width: 768px) {
-            .section { padding: 4rem 1.25rem; }
-            .hero { padding: 6rem 1.25rem 5rem; }
-            .hero-logo { left: 1.25rem; }
-            .hero-logo img { height: 64px; }
+            .hero {
+                padding: 5.5rem 1.25rem 5rem;
+                min-height: auto;
+            }
+
+            .hero-logo { left: 1.25rem; top: 1.25rem; }
+            .hero-logo img { height: 60px; }
+
+            .hero-inner {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            /* show Jeff's photo on mobile, smaller */
+            .hero-card {
+                width: 200px;
+                margin: 0 auto;
+            }
+
             .hero-cta { flex-direction: column; }
             .btn { justify-content: center; width: 100%; }
-            .hero-stats { flex-wrap: wrap; gap: 1.5rem 2rem; }
+
+            .hero-stats {
+                gap: 1.5rem 2.5rem;
+            }
+
+            .section { padding: 4rem 1.25rem; }
+
+            .about-quote-wrap { padding: 2rem; }
+            .about-quote-wrap::after { display: none; }
+
+            .creds-row { grid-template-columns: repeat(2, 1fr); }
+
+            .links-grid { grid-template-columns: 1fr; }
+            .link-card-featured { padding: 1.5rem; gap: 1.25rem; }
+            .link-card-featured .lc-icon-big { width: 54px; height: 54px; font-size: 1.4rem; }
+            .link-card-featured .lc-name { font-size: 1.05rem; }
+            .link-card { flex-direction: row; align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem; }
+            .lc-icon { margin-bottom: 0; width: 46px; height: 46px; min-width: 46px; font-size: 1.2rem; }
+            .lc-arrow { position: static; margin-left: auto; }
+
+            .latest-header { flex-direction: column; align-items: flex-start; }
+            .video-title-display { text-align: left; }
+            .play-btn { width: 60px; height: 60px; font-size: 1.5rem; }
+
             .footer-top { flex-direction: column; }
             .footer-bottom { flex-direction: column; text-align: center; }
-            .latest-header { flex-direction: column; align-items: flex-start; }
+
+            .link-card-featured .lc-desc { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-name { font-size: 3rem; }
+            .creds-row { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -808,15 +945,15 @@
             </div>
             <div class="hero-stats">
                 <div>
-                    <span class="stat-num">2.4M+</span>
+                    <span class="stat-num" data-count="2.4" data-suffix="M+">2.4M+</span>
                     <span class="stat-lbl">Followers</span>
                 </div>
                 <div>
-                    <span class="stat-num">18K+</span>
+                    <span class="stat-num" data-count="18" data-suffix="K+">18K+</span>
                     <span class="stat-lbl">Subscribers</span>
                 </div>
                 <div>
-                    <span class="stat-num">15+</span>
+                    <span class="stat-num" data-count="15" data-suffix="+">15+</span>
                     <span class="stat-lbl">Years on Air</span>
                 </div>
             </div>
@@ -845,18 +982,26 @@
                 <span class="eyebrow">Watch Now</span>
                 <h2 class="section-title">Latest Episode</h2>
             </div>
-            <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:flex-end;">
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
                 <div class="live-badge">Live Every Wednesday &amp; Friday</div>
                 <p class="video-title-display" id="videoTitle"></p>
             </div>
         </div>
-        <div class="video-wrap">
-            <iframe id="latestVideo" src="" allowfullscreen allow="encrypted-media"></iframe>
+
+        <div class="video-wrap" id="videoWrap">
+            <!-- thumbnail shown by default; click to play -->
+            <div class="video-thumb" id="videoThumb" onclick="playVideo()">
+                <img id="thumbImg" src="" alt="Latest Episode">
+                <div class="thumb-overlay"></div>
+                <div class="play-btn"><i class="fab fa-youtube"></i></div>
+                <div class="thumb-title" id="thumbTitle"></div>
+            </div>
+            <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
             <div class="video-fallback" id="videoFallback">
                 <i class="fab fa-youtube"></i>
                 <p>Watch the latest on YouTube</p>
                 <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-youtube"></i> Go to Channel
+                    <i class="fab fa-youtube"></i> Open Channel
                 </a>
             </div>
         </div>
@@ -868,39 +1013,28 @@
     <div class="container">
         <span class="eyebrow">Who is Jeff Rossen</span>
         <h2 class="section-title">The Reporter<br>On Your Side</h2>
-        <div class="about-grid">
-            <div class="about-panel">
-                <p class="about-quote">
-                    "I'll save you money by revealing the <em>best deals</em>, and exposing the <em>worst scams</em>."
-                </p>
-                <p class="about-quote-attr">— Jeff Rossen, Rossen Reports</p>
+        <div class="about-quote-wrap">
+            <p class="about-quote-text">
+                "I'll save you money by revealing the <em>best deals</em>, and exposing the <em>worst scams</em> — the stories that actually matter to your life."
+            </p>
+            <span class="about-quote-attr">— Jeff Rossen, Rossen Reports</span>
+        </div>
+        <div class="creds-row">
+            <div class="cred-item">
+                <span class="cred-num">15+</span>
+                <span class="cred-label">Years as NBC News National Correspondent</span>
             </div>
-            <div class="timeline">
-                <div class="tl-item">
-                    <span class="tl-year">2025</span>
-                    <div class="tl-dot"></div>
-                    <p class="tl-desc"><strong>Went fully independent</strong> — launched his own YouTube channel and consumer media brand with 2.4 million followers across platforms.</p>
-                </div>
-                <div class="tl-item">
-                    <span class="tl-year">2019</span>
-                    <div class="tl-dot"></div>
-                    <p class="tl-desc"><strong>Joined Hearst Television</strong> — Rossen Reports syndicated nationally across NBC, ABC, and CBS affiliate stations.</p>
-                </div>
-                <div class="tl-item">
-                    <span class="tl-year">2017</span>
-                    <div class="tl-dot"></div>
-                    <p class="tl-desc">Published <strong>Rossen to the Rescue</strong> — the ultimate guide to avoiding scams, everyday dangers, and major catastrophes.</p>
-                </div>
-                <div class="tl-item">
-                    <span class="tl-year">2012</span>
-                    <div class="tl-dot"></div>
-                    <p class="tl-desc"><strong>Launched Rossen Reports</strong> — named National Investigative Correspondent; segments aired on Today, Nightly News, and Dateline NBC.</p>
-                </div>
-                <div class="tl-item">
-                    <span class="tl-year">2008</span>
-                    <div class="tl-dot"></div>
-                    <p class="tl-desc"><strong>Joined NBC News</strong> — became a fixture on the Today Show and NBC Nightly News with Lester Holt.</p>
-                </div>
+            <div class="cred-item">
+                <span class="cred-num">200+</span>
+                <span class="cred-label">TV Markets via Hearst National Syndication</span>
+            </div>
+            <div class="cred-item">
+                <span class="cred-num">Best-<br>Selling</span>
+                <span class="cred-label">Author of <em>Rossen to the Rescue</em></span>
+            </div>
+            <div class="cred-item">
+                <span class="cred-num">2.4M+</span>
+                <span class="cred-label">Followers Across All Platforms</span>
             </div>
         </div>
     </div>
@@ -925,59 +1059,52 @@
     <div class="container">
         <span class="eyebrow">Stay Connected</span>
         <h2 class="section-title">Follow Jeff<br>Everywhere</h2>
+
         <div class="links-grid">
 
-            <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="link-card">
-                <div class="lc-icon"><i class="fab fa-youtube"></i></div>
-                <div>
+            <!-- Featured YouTube -->
+            <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="link-card-featured">
+                <div class="lc-icon-big"><i class="fab fa-youtube"></i></div>
+                <div class="lc-text">
                     <span class="lc-name">YouTube</span>
                     <span class="lc-handle">@RossenReports</span>
+                    <span class="lc-desc">New episodes every Wednesday &amp; Friday — subscribe for alerts</span>
                 </div>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card">
+            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#e1306c;">
                 <div class="lc-icon"><i class="fab fa-instagram"></i></div>
-                <div>
-                    <span class="lc-name">Instagram</span>
-                    <span class="lc-handle">@jeffrossen</span>
-                </div>
+                <span class="lc-name">Instagram</span>
+                <span class="lc-handle">@jeffrossen</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="link-card">
+            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ff0050;">
                 <div class="lc-icon"><i class="fab fa-tiktok"></i></div>
-                <div>
-                    <span class="lc-name">TikTok</span>
-                    <span class="lc-handle">@rossen.reports</span>
-                </div>
+                <span class="lc-name">TikTok</span>
+                <span class="lc-handle">@rossen.reports</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="link-card">
+            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#1877f2;">
                 <div class="lc-icon"><i class="fab fa-facebook-f"></i></div>
-                <div>
-                    <span class="lc-name">Facebook</span>
-                    <span class="lc-handle">@rossenreports</span>
-                </div>
+                <span class="lc-name">Facebook</span>
+                <span class="lc-handle">@rossenreports</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="link-card">
+            <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ffffff;">
                 <div class="lc-icon"><i class="fab fa-x-twitter"></i></div>
-                <div>
-                    <span class="lc-name">X / Twitter</span>
-                    <span class="lc-handle">@jeffrossen</span>
-                </div>
+                <span class="lc-name">X / Twitter</span>
+                <span class="lc-handle">@jeffrossen</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="link-card">
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ff6719;">
                 <div class="lc-icon"><i class="fas fa-newspaper"></i></div>
-                <div>
-                    <span class="lc-name">Substack</span>
-                    <span class="lc-handle">Rossen Reports Newsletter</span>
-                </div>
+                <span class="lc-name">Substack</span>
+                <span class="lc-handle">Rossen Reports Newsletter</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
@@ -1046,34 +1173,93 @@
 </footer>
 
 <script>
-    // Auto-load latest YouTube video from Rossen Reports channel RSS feed
-    (function () {
-        const rssUrl = 'https://www.youtube.com/feeds/videos.xml?user=RossenReports';
-        const apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+// ── YOUTUBE: fetch latest video, show thumbnail, click-to-play ──
+(function () {
+    var currentVideoId = null;
 
-        fetch(apiUrl)
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    const video = data.items[0];
-                    const videoId = video.link.split('v=')[1]?.split('&')[0];
-                    if (videoId) {
-                        document.getElementById('latestVideo').src =
-                            'https://www.youtube.com/embed/' + videoId + '?rel=0&modestbranding=1';
-                        document.getElementById('videoTitle').textContent = video.title;
-                        return;
-                    }
-                }
-                showFallback();
-            })
-            .catch(showFallback);
+    var rssUrl = 'https://www.youtube.com/feeds/videos.xml?user=RossenReports';
+    var apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
 
-        function showFallback() {
-            document.getElementById('latestVideo').style.display = 'none';
-            document.getElementById('videoFallback').style.display = 'flex';
-            document.getElementById('videoTitle').textContent = '';
+    fetch(apiUrl)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.status === 'ok' && data.items && data.items.length > 0) {
+                var video = data.items[0];
+                var videoId = video.link.split('v=')[1];
+                if (videoId) videoId = videoId.split('&')[0];
+                if (!videoId) throw new Error('no id');
+
+                currentVideoId = videoId;
+                document.getElementById('thumbImg').src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+                document.getElementById('thumbTitle').textContent = video.title;
+                document.getElementById('videoTitle').textContent = video.title;
+                return;
+            }
+            throw new Error('no video');
+        })
+        .catch(function() { showFallback(); });
+
+    window.playVideo = function() {
+        if (!currentVideoId) return;
+        document.getElementById('videoThumb').style.display = 'none';
+        var iframe = document.getElementById('latestVideo');
+        iframe.src = 'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&rel=0&modestbranding=1';
+        iframe.style.display = 'block';
+        document.getElementById('videoWrap').style.cursor = 'default';
+    };
+
+    function showFallback() {
+        document.getElementById('videoThumb').style.display = 'none';
+        document.getElementById('videoFallback').style.display = 'flex';
+        document.getElementById('videoWrap').style.cursor = 'default';
+    }
+})();
+
+// ── COUNT-UP ANIMATION ──
+(function () {
+    var stats = document.querySelectorAll('.stat-num[data-count]');
+    var started = false;
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function runCountUp() {
+        if (started) return;
+        started = true;
+        var duration = 1200;
+        var start = performance.now();
+
+        function tick(now) {
+            var progress = Math.min((now - start) / duration, 1);
+            var ease = easeOut(progress);
+
+            stats.forEach(function(el) {
+                var target = parseFloat(el.dataset.count);
+                var suffix = el.dataset.suffix;
+                var val = ease * target;
+                var decimals = target % 1 !== 0 ? 1 : 0;
+                el.textContent = val.toFixed(decimals) + suffix;
+            });
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                stats.forEach(function(el) {
+                    el.textContent = el.dataset.count + el.dataset.suffix;
+                });
+            }
         }
-    })();
+        requestAnimationFrame(tick);
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+            runCountUp();
+            observer.disconnect();
+        }
+    }, { threshold: 0.3 });
+
+    if (stats.length > 0) observer.observe(stats[0].closest('.hero-stats'));
+})();
 </script>
 
 </body>
