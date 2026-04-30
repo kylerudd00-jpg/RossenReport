@@ -9,17 +9,48 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" type="image/png" href="rossenlogo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="rossenlogo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="rossenlogo.png">
+    <link rel="apple-touch-icon" href="rossenlogo.png">
     <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
     <script defer src="/_vercel/insights/script.js"></script>
     <meta property="og:title" content="Jeff Rossen | Rossen Reports">
-    <meta property="og:description" content="Saving you money, exposing scams, and revealing the best deals. Award-winning consumer journalist Jeff Rossen — live every Wednesday & Friday.">
-    <meta property="og:image" content="rossenbackground.jpg">
+    <meta property="og:description" content="Saving you money, exposing scams, and revealing the best deals. Award-winning consumer journalist Jeff Rossen — new episodes every Wednesday & Friday.">
+    <meta property="og:image" content="jeff-rossennew.png">
+    <meta property="og:image:width" content="800">
+    <meta property="og:image:height" content="1067">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rossen Reports">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@jeffrossen">
     <meta name="twitter:title" content="Jeff Rossen | Rossen Reports">
     <meta name="twitter:description" content="Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.">
-    <meta name="twitter:image" content="rossenbackground.jpg">
+    <meta name="twitter:image" content="jeff-rossennew.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Jeff Rossen",
+      "jobTitle": "Consumer Investigative Journalist",
+      "description": "Award-winning consumer investigative journalist. Saving you money, exposing scams, and revealing the best deals.",
+      "url": "https://rossen-report.vercel.app",
+      "image": "https://rossen-report.vercel.app/jeff-rossennew.png",
+      "sameAs": [
+        "https://www.youtube.com/@RossenReports",
+        "https://www.instagram.com/jeffrossen/",
+        "https://x.com/jeffrossen",
+        "https://www.facebook.com/rossenreports",
+        "https://www.tiktok.com/@rossen.reports",
+        "https://www.linkedin.com/in/jeffrossen/",
+        "https://rossenreports.substack.com/"
+      ],
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Rossen Reports",
+        "url": "https://rossen-report.vercel.app"
+      }
+    }
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -822,6 +853,29 @@
             opacity: 0.55;
             transition: opacity 0.2s, transform 0.2s;
         }
+
+        @keyframes skelPulse {
+            0%, 100% { opacity: 0.4; }
+            50%       { opacity: 0.75; }
+        }
+        .arc-skeleton {
+            flex-shrink: 0;
+            width: 175px;
+        }
+        .arc-skel-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(255,255,255,0.1);
+            animation: skelPulse 1.6s ease-in-out infinite;
+        }
+        .arc-skel-line {
+            height: 0.6rem;
+            margin-top: 0.45rem;
+            background: rgba(255,255,255,0.07);
+            animation: skelPulse 1.6s ease-in-out infinite;
+            animation-delay: 0.15s;
+        }
+        .arc-skel-line.short { width: 50%; margin-top: 0.25rem; }
 
         .archive-card:hover { opacity: 0.9; transform: translateY(-2px); }
         .archive-card.active { opacity: 1; }
@@ -2147,14 +2201,23 @@
 <script>
 // ── YOUTUBE: fetch thumbnail, title, and episode archive ──
 (function () {
-    // Hardcoded fallback — most recent known video
     window._latestVideoId = 'pVH0evvebRw';
 
-    // Show NEW badge on episode-day (Wed=3, Fri=5)
     var dow = new Date().getDay();
     if (dow === 3 || dow === 5) {
         var badge = document.getElementById('newEpBadge');
         if (badge) badge.style.display = 'flex';
+    }
+
+    // show skeleton cards immediately while fetch is in flight
+    var row = document.getElementById('episodeRow');
+    for (var s = 0; s < 6; s++) {
+        var sk = document.createElement('div');
+        sk.className = 'arc-skeleton';
+        sk.innerHTML = '<div class="arc-skel-thumb"></div>' +
+            '<div class="arc-skel-line"></div>' +
+            '<div class="arc-skel-line short"></div>';
+        row.appendChild(sk);
     }
 
     function fmtDate(str) {
@@ -2166,8 +2229,8 @@
 
     function renderVideos(videos) {
         if (!videos.length) return;
+        row.innerHTML = '';
         setMainVideo(videos[0].id, videos[0].title, true);
-        var row = document.getElementById('episodeRow');
         videos.forEach(function (vid, i) {
             var dateStr = vid.published ? fmtDate(vid.published) : '';
             var card = document.createElement('div');
@@ -2184,8 +2247,8 @@
 
     fetch('/api/youtube')
         .then(function (r) { return r.json(); })
-        .then(function (data) { if (data.videos && data.videos.length) renderVideos(data.videos); })
-        .catch(function () {});
+        .then(function (data) { if (data.videos && data.videos.length) renderVideos(data.videos); else row.innerHTML = ''; })
+        .catch(function () { row.innerHTML = ''; });
 
     function setMainVideo(videoId, title, isInit) {
         window._latestVideoId = videoId;
@@ -2240,15 +2303,16 @@
 
 // ── MOBILE BOTTOM NAV ACTIVE STATE ──
 (function () {
-    var sections = ['latest', 'deals', 'follow', 'shop'];
+    var allSections = ['latest', 'subscribe', 'deals', 'wins', 'about', 'show', 'follow', 'feed', 'shop', 'contact'];
+    var navSections = ['latest', 'deals', 'follow', 'shop'];
     function update() {
         var mid = window.scrollY + window.innerHeight * 0.5;
         var active = null;
-        sections.forEach(function (id) {
+        allSections.forEach(function (id) {
             var el = document.getElementById(id);
             if (el && el.offsetTop <= mid) active = id;
         });
-        sections.forEach(function (id) {
+        navSections.forEach(function (id) {
             var item = document.querySelector('.bnav-item[data-section="' + id + '"]');
             if (item) item.classList.toggle('active', id === active);
         });
