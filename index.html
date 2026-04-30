@@ -9,6 +9,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" href="rossenlogo.png">
+    <meta property="og:title" content="Jeff Rossen | Rossen Reports">
+    <meta property="og:description" content="Saving you money, exposing scams, and revealing the best deals. Award-winning consumer journalist Jeff Rossen — live every Wednesday & Friday.">
+    <meta property="og:image" content="rossenbackground.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jeff Rossen | Rossen Reports">
+    <meta name="twitter:description" content="Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.">
+    <meta name="twitter:image" content="rossenbackground.jpg">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1264,6 +1273,136 @@
             .spotlight-card { min-height: 260px; }
         }
 
+        /* ─────────────── PRESS STRIP ─────────────── */
+        .press-strip {
+            background: #07090f;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .press-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .press-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+            padding-right: 2rem;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            margin-right: 2rem;
+            flex-shrink: 0;
+        }
+
+        .press-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.1;
+            color: rgba(255,255,255,0.28);
+            padding: 0 1.75rem;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            transition: color 0.25s;
+            cursor: default;
+        }
+
+        .press-logo:last-child { border-right: none; }
+        .press-logo:hover { color: rgba(255,255,255,0.55); }
+
+        .press-logo .pl-main {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .press-logo .pl-sub {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: 0.52rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.15);
+        }
+
+        @media (max-width: 768px) {
+            .press-strip { padding: 1.25rem; }
+            .press-label { display: none; }
+            .press-logo { padding: 0.4rem 1rem; font-size: 0.85rem; }
+            .press-logo .pl-sub { display: none; }
+        }
+
+        /* ─────────────── FADE-UP SCROLL ANIMATION ─────────────── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        .fade-up.delay-1 { transition-delay: 0.1s; }
+        .fade-up.delay-2 { transition-delay: 0.2s; }
+        .fade-up.delay-3 { transition-delay: 0.3s; }
+
+        /* ─────────────── MOBILE BOTTOM NAV ─────────────── */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 500;
+            background: #07090f;
+            border-top: 2px solid var(--yellow);
+            padding: 0.35rem 0 calc(0.35rem + env(safe-area-inset-bottom));
+        }
+
+        @media (max-width: 768px) {
+            .bottom-nav { display: flex; }
+            body { padding-bottom: 62px; }
+        }
+
+        .bnav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.18rem;
+            text-decoration: none;
+            color: rgba(255,255,255,0.35);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.56rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.5rem 0;
+            transition: color 0.2s;
+        }
+
+        .bnav-item i { font-size: 1.1rem; }
+        .bnav-item.active { color: var(--yellow); }
+        .bnav-item:hover { color: rgba(255,255,255,0.7); }
+
+        /* ─────────────── CREDENTIAL ICONS ─────────────── */
+        .cred-icon {
+            width: 36px; height: 36px;
+            background: var(--yellow);
+            color: var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-bottom: 0.85rem;
+            flex-shrink: 0;
+        }
+
         @media (max-width: 480px) {
             .hero-name { font-size: 3rem; }
             .creds-row { grid-template-columns: 1fr 1fr; }
@@ -1334,6 +1473,37 @@
     <div class="hero-bar"></div>
 </section>
 
+<!-- ── PRESS STRIP ── -->
+<div class="press-strip">
+    <div class="press-inner">
+        <span class="press-label">As Seen On</span>
+        <div class="press-logo">
+            <span class="pl-main">NBC</span>
+            <span class="pl-sub">News</span>
+        </div>
+        <div class="press-logo">
+            <span class="pl-main">TODAY</span>
+            <span class="pl-sub">Show</span>
+        </div>
+        <div class="press-logo">
+            <span class="pl-main">Dateline</span>
+            <span class="pl-sub">NBC</span>
+        </div>
+        <div class="press-logo">
+            <span class="pl-main">Hearst</span>
+            <span class="pl-sub">Television</span>
+        </div>
+        <div class="press-logo">
+            <span class="pl-main">ABC</span>
+            <span class="pl-sub">Affiliates</span>
+        </div>
+        <div class="press-logo">
+            <span class="pl-main">CBS</span>
+            <span class="pl-sub">Affiliates</span>
+        </div>
+    </div>
+</div>
+
 <!-- ── LATEST EPISODE ── -->
 <section class="section latest" id="latest">
     <div class="container">
@@ -1348,7 +1518,7 @@
             </div>
         </div>
 
-        <div class="video-wrap" id="videoWrap">
+        <div class="video-wrap fade-up" id="videoWrap">
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
                 <img id="thumbImg" src="rossenbackground.jpg" alt="Rossen Reports — Latest Episode">
                 <div class="thumb-overlay"></div>
@@ -1357,14 +1527,14 @@
             </div>
             <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
         </div>
-        <div class="episode-row" id="episodeRow"></div>
+        <div class="episode-row fade-up delay-1" id="episodeRow"></div>
     </div>
 </section>
 
 <!-- ── EMAIL SIGNUP ── -->
 <section class="section email-signup" id="subscribe">
     <div class="container">
-        <div class="email-inner">
+        <div class="email-inner fade-up">
             <div>
                 <div class="email-eyebrow"><i class="fas fa-envelope"></i> Free Newsletter</div>
                 <h2 class="email-title">Get Jeff's Best Deals<br><span>In Your Inbox</span></h2>
@@ -1389,7 +1559,7 @@
     <div class="container">
         <span class="eyebrow">Updated Weekly</span>
         <h2 class="section-title">Deals of the Week</h2>
-        <div class="deals-grid">
+        <div class="deals-grid fade-up">
 
             <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
                 <span class="deal-badge">🔒 Home Security</span>
@@ -1433,26 +1603,30 @@
     <div class="container">
         <span class="eyebrow">Who is Jeff Rossen</span>
         <h2 class="section-title">The Reporter<br>On Your Side</h2>
-        <div class="about-quote-wrap">
+        <div class="about-quote-wrap fade-up">
             <p class="about-quote-text">
                 "I'll save you money by revealing the <em>best deals</em>, and exposing the <em>worst scams</em> — the stories that actually matter to your life."
             </p>
             <span class="about-quote-attr">— Jeff Rossen, Rossen Reports</span>
         </div>
-        <div class="creds-row">
+        <div class="creds-row fade-up delay-1">
             <div class="cred-item">
+                <div class="cred-icon"><i class="fas fa-tv"></i></div>
                 <span class="cred-num">15+</span>
                 <span class="cred-label">Years as NBC News National Correspondent</span>
             </div>
             <div class="cred-item">
+                <div class="cred-icon"><i class="fas fa-satellite-dish"></i></div>
                 <span class="cred-num">200+</span>
                 <span class="cred-label">TV Markets via Hearst National Syndication</span>
             </div>
             <div class="cred-item">
+                <div class="cred-icon"><i class="fas fa-book"></i></div>
                 <span class="cred-num">Best-<br>Selling</span>
                 <span class="cred-label">Author of <em>Rossen to the Rescue</em></span>
             </div>
             <div class="cred-item">
+                <div class="cred-icon"><i class="fas fa-users"></i></div>
                 <span class="cred-num">2.4M+</span>
                 <span class="cred-label">Followers Across All Platforms</span>
             </div>
@@ -1480,7 +1654,7 @@
         <span class="eyebrow">Stay Connected</span>
         <h2 class="section-title">Follow Jeff<br>Everywhere</h2>
 
-        <div class="links-grid">
+        <div class="links-grid fade-up">
 
             <!-- Featured YouTube -->
             <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="link-card-featured">
@@ -1537,7 +1711,7 @@
     <div class="container">
         <span class="eyebrow">Join the Conversation</span>
         <h2 class="section-title">Follow Along<br>Every Day</h2>
-        <div class="spotlight-grid">
+        <div class="spotlight-grid fade-up">
 
             <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
                 <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg');"></div>
@@ -1574,7 +1748,7 @@
     <div class="container">
         <span class="eyebrow">Jeff's Picks</span>
         <h2 class="section-title">Shop &amp; Save</h2>
-        <div class="shop-grid">
+        <div class="shop-grid fade-up">
 
             <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="shop-card">
                 <span class="shop-platform">Amazon</span>
@@ -1612,6 +1786,12 @@
                 <p class="footer-bio">
                     Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.
                 </p>
+                <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem;">
+                    <a href="#latest" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Watch Latest Episode</a>
+                    <a href="#deals" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Deals of the Week</a>
+                    <a href="#subscribe" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Newsletter</a>
+                    <a href="#shop" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Shop &amp; Save</a>
+                </div>
             </div>
             <div class="footer-socials">
                 <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="footer-social" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
@@ -1697,6 +1877,36 @@
     };
 })();
 
+// ── SCROLL FADE-UP ANIMATIONS ──
+(function () {
+    var els = document.querySelectorAll('.fade-up');
+    var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+    }, { threshold: 0.08 });
+    els.forEach(function (el) { obs.observe(el); });
+})();
+
+// ── MOBILE BOTTOM NAV ACTIVE STATE ──
+(function () {
+    var sections = ['latest', 'deals', 'follow', 'shop'];
+    function update() {
+        var mid = window.scrollY + window.innerHeight * 0.5;
+        var active = null;
+        sections.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.offsetTop <= mid) active = id;
+        });
+        sections.forEach(function (id) {
+            var item = document.querySelector('.bnav-item[data-section="' + id + '"]');
+            if (item) item.classList.toggle('active', id === active);
+        });
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();
+
 // ── EMAIL SIGNUP ──
 document.getElementById('emailForm').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -1752,6 +1962,26 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     if (stats.length > 0) observer.observe(stats[0].closest('.hero-stats'));
 })();
 </script>
+
+<!-- ── MOBILE BOTTOM NAV ── -->
+<nav class="bottom-nav" id="bottomNav">
+    <a href="#latest" class="bnav-item" data-section="latest">
+        <i class="fab fa-youtube"></i>
+        <span>Watch</span>
+    </a>
+    <a href="#deals" class="bnav-item" data-section="deals">
+        <i class="fas fa-tag"></i>
+        <span>Deals</span>
+    </a>
+    <a href="#follow" class="bnav-item" data-section="follow">
+        <i class="fas fa-share-alt"></i>
+        <span>Follow</span>
+    </a>
+    <a href="#shop" class="bnav-item" data-section="shop">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Shop</span>
+    </a>
+</nav>
 
 </body>
 </html>
