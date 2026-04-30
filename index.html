@@ -2155,12 +2155,6 @@
         if (badge) badge.style.display = 'flex';
     }
 
-    var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC7PYy5Tx1WhbnGKc3KJeRKw';
-    var proxies = [
-        'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl),
-        'https://corsproxy.io/?' + encodeURIComponent(rssUrl)
-    ];
-
     function fmtDate(str) {
         try {
             var d = new Date(str);
@@ -2168,43 +2162,28 @@
         } catch(e) { return ''; }
     }
 
-    function parseAndRender(xml) {
-        var ids    = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(function(m){ return m[1]; });
-        var titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(function(m){ return m[1]; });
-        var dates  = [...xml.matchAll(/<published>([^<]+)<\/published>/g)].map(function(m){ return m[1]; });
-        if (!ids.length) throw new Error('no videos');
-
-        setMainVideo(ids[0], titles[0] || 'Latest Episode', true);
-
+    function renderVideos(videos) {
+        if (!videos.length) return;
+        setMainVideo(videos[0].id, videos[0].title, true);
         var row = document.getElementById('episodeRow');
-        ids.slice(0, 8).forEach(function (vid, i) {
-            var t = titles[i] || 'Episode';
-            var dateStr = dates[i + 1] ? fmtDate(dates[i + 1]) : '';
+        videos.forEach(function (vid, i) {
+            var dateStr = vid.published ? fmtDate(vid.published) : '';
             var card = document.createElement('div');
             card.className = 'archive-card' + (i === 0 ? ' active' : '');
-            card.id = 'arc-' + vid;
+            card.id = 'arc-' + vid.id;
             card.innerHTML =
-                '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
-                '<div class="arc-title">' + t + '</div>' +
+                '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid.id + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
+                '<div class="arc-title">' + vid.title + '</div>' +
                 (dateStr ? '<div class="arc-date">' + dateStr + '</div>' : '');
-            card.addEventListener('click', function () { loadArchiveVideo(vid, t); });
+            card.addEventListener('click', function () { loadArchiveVideo(vid.id, vid.title); });
             row.appendChild(card);
         });
     }
 
-    function tryProxy(index) {
-        if (index >= proxies.length) return;
-        fetch(proxies[index])
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                var xml = data.contents || data;
-                if (typeof xml !== 'string') throw new Error('bad response');
-                parseAndRender(xml);
-            })
-            .catch(function () { tryProxy(index + 1); });
-    }
-
-    tryProxy(0);
+    fetch('/api/youtube')
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data.videos && data.videos.length) renderVideos(data.videos); })
+        .catch(function () {});
 
     function setMainVideo(videoId, title, isInit) {
         window._latestVideoId = videoId;
@@ -2281,10 +2260,23 @@
 // ── EMAIL SIGNUP ──
 document.getElementById('emailForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    var email = encodeURIComponent(document.getElementById('emailInput').value);
-    window.open('https://rossenreports.substack.com/subscribe?email=' + email, '_blank');
-    document.getElementById('emailForm').style.display = 'none';
-    document.getElementById('emailSuccess').style.display = 'flex';
+    var email = document.getElementById('emailInput').value;
+    fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function () {
+        document.getElementById('emailForm').style.display = 'none';
+        document.getElementById('emailSuccess').style.display = 'flex';
+    })
+    .catch(function () {
+        // fallback to Substack if server is unreachable
+        window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
+        document.getElementById('emailForm').style.display = 'none';
+        document.getElementById('emailSuccess').style.display = 'flex';
+    });
 });
 
 // ── CYCLING HERO TAGLINE ──
