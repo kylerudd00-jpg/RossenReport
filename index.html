@@ -789,6 +789,184 @@
             margin-top: 0.75rem;
         }
 
+        /* ─────────────── EPISODE ARCHIVE ─────────────── */
+        .episode-row {
+            display: flex;
+            gap: 0.85rem;
+            margin-top: 1.25rem;
+            overflow-x: auto;
+            padding-bottom: 0.75rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+
+        .episode-row::-webkit-scrollbar { height: 4px; }
+        .episode-row::-webkit-scrollbar-track { background: transparent; }
+        .episode-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 2px; }
+
+        .archive-card {
+            flex-shrink: 0;
+            width: 175px;
+            cursor: pointer;
+            opacity: 0.55;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .archive-card:hover { opacity: 0.9; transform: translateY(-2px); }
+        .archive-card.active { opacity: 1; }
+
+        .arc-thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .archive-card.active .arc-thumb { outline: 2px solid var(--yellow); }
+
+        .arc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .arc-title {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.65);
+            margin-top: 0.45rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ─────────────── EMAIL SIGNUP ─────────────── */
+        .email-signup {
+            background: var(--blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-signup::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .email-inner {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .email-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.68rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .email-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            color: var(--white);
+            text-transform: uppercase;
+            line-height: 1.05;
+        }
+
+        .email-title span { color: var(--yellow); }
+
+        .email-sub {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            margin-top: 0.85rem;
+        }
+
+        .email-form {
+            display: flex;
+            gap: 0;
+        }
+
+        .email-form input {
+            flex: 1;
+            padding: 0.95rem 1.25rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-right: none;
+            background: rgba(255,255,255,0.07);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            min-width: 0;
+            transition: border-color 0.2s;
+        }
+
+        .email-form input::placeholder { color: rgba(255,255,255,0.35); }
+        .email-form input:focus { border-color: var(--yellow); }
+
+        .email-form button {
+            background: var(--yellow);
+            color: var(--blue);
+            border: 2px solid var(--yellow);
+            padding: 0.95rem 1.5rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .email-form button:hover { background: transparent; color: var(--yellow); }
+
+        .email-success {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--yellow);
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.95rem 0;
+        }
+
+        .email-note {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 0.85rem;
+        }
+
+        .email-note a { color: rgba(255,255,255,0.5); }
+
+        @media (max-width: 768px) {
+            .email-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .email-form { flex-direction: column; }
+            .email-form input { border-right: 2px solid rgba(255,255,255,0.2); border-bottom: none; }
+            .email-form input:focus { border-color: var(--yellow); }
+        }
+
         /* ─────────────── DEALS OF THE WEEK ─────────────── */
         .deals { background: var(--off-white, #F7F7F5); border-top: 5px solid var(--yellow); }
 
@@ -1179,6 +1357,30 @@
             </div>
             <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
         </div>
+        <div class="episode-row" id="episodeRow"></div>
+    </div>
+</section>
+
+<!-- ── EMAIL SIGNUP ── -->
+<section class="section email-signup" id="subscribe">
+    <div class="container">
+        <div class="email-inner">
+            <div>
+                <div class="email-eyebrow"><i class="fas fa-envelope"></i> Free Newsletter</div>
+                <h2 class="email-title">Get Jeff's Best Deals<br><span>In Your Inbox</span></h2>
+                <p class="email-sub">Weekly money-saving tips, scam alerts, and exclusive deals — straight from Jeff. No spam, ever.</p>
+            </div>
+            <div>
+                <form class="email-form" id="emailForm">
+                    <input type="email" id="emailInput" placeholder="Your email address" required>
+                    <button type="submit">Subscribe Free <i class="fas fa-arrow-right"></i></button>
+                </form>
+                <div class="email-success" id="emailSuccess">
+                    <i class="fas fa-check-circle" style="font-size:1.4rem;"></i> You're in — check your inbox!
+                </div>
+                <p class="email-note">Powered by Jeff's Substack · <a href="https://rossenreports.substack.com" target="_blank" rel="noopener noreferrer">rossenreports.substack.com</a></p>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -1190,30 +1392,30 @@
         <div class="deals-grid">
 
             <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-badge">Amazon Pick</span>
-                <span class="deal-name">Top Amazon Deals This Week</span>
-                <p class="deal-desc">Jeff's hand-picked Amazon finds — the products worth your money right now.</p>
+                <span class="deal-badge">🔒 Home Security</span>
+                <span class="deal-name">Best Security Cameras This Week</span>
+                <p class="deal-desc">Jeff tested dozens — these are the cameras that actually protect your home without breaking the bank.</p>
                 <span class="deal-cta">Shop Now <i class="fas fa-arrow-right"></i></span>
             </a>
 
             <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-badge">Walmart Save</span>
-                <span class="deal-name">Best Walmart Savings Right Now</span>
-                <p class="deal-desc">Quality products at prices that make sense — curated from Jeff's Walmart storefront.</p>
+                <span class="deal-badge">🛒 Grocery Savings</span>
+                <span class="deal-name">Stop Overpaying at the Store</span>
+                <p class="deal-desc">Walmart deals most shoppers walk right past — Jeff's picks for maximum savings on everyday essentials.</p>
                 <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
             <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-badge">Editor's Pick</span>
-                <span class="deal-name">DealSeek Steals of the Week</span>
-                <p class="deal-desc">Exclusive deals from the Rossen Reports team — updated every week so you never miss out.</p>
+                <span class="deal-badge">✈️ Travel Steals</span>
+                <span class="deal-name">Hidden Travel Deals Airlines Won't Tell You</span>
+                <p class="deal-desc">The prices airlines and hotels don't advertise — exposed by Jeff's consumer investigations team.</p>
                 <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
             </a>
 
             <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-badge">Don't Miss</span>
-                <span class="deal-name">Hidden Deals Worth Knowing</span>
-                <p class="deal-desc">The deals retailers hope you don't find — Jeff exposes the best-kept savings secrets.</p>
+                <span class="deal-badge">📱 Top Tech</span>
+                <span class="deal-name">Best Tech Under $50</span>
+                <p class="deal-desc">Consumer gadgets that actually deliver on their promises — vetted and recommended by Jeff's team.</p>
                 <span class="deal-cta">Explore <i class="fas fa-arrow-right"></i></span>
             </a>
 
@@ -1428,10 +1630,9 @@
 </footer>
 
 <script>
-// ── YOUTUBE: fetch real thumbnail + title via CORS proxy, click to play ──
+// ── YOUTUBE: fetch thumbnail, title, and episode archive ──
 (function () {
-    var channelId = 'UC7PYy5Tx1WhbnGKc3KJeRKw';
-    var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channelId;
+    var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC7PYy5Tx1WhbnGKc3KJeRKw';
     var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
 
     fetch(proxyUrl)
@@ -1439,34 +1640,71 @@
         .then(function (data) {
             var xml = data.contents;
 
-            var idMatch = xml.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-            if (!idMatch) throw new Error('no id');
-            var videoId = idMatch[1];
+            var ids    = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(function(m){ return m[1]; });
+            var titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(function(m){ return m[1]; });
 
-            var titleMatch = xml.match(/<media:title>([^<]+)<\/media:title>/);
-            var title = titleMatch ? titleMatch[1] : 'Latest Episode';
+            if (!ids.length) throw new Error('no videos');
 
-            document.getElementById('thumbImg').src =
-                'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
-            document.getElementById('thumbTitle').textContent = title;
-            document.getElementById('videoTitle').textContent = title;
-            window._latestVideoId = videoId;
+            // Main player — latest video
+            setMainVideo(ids[0], titles[0] || 'Latest Episode', true);
+
+            // Episode archive row
+            var row = document.getElementById('episodeRow');
+            ids.slice(0, 8).forEach(function (vid, i) {
+                var t = titles[i] || 'Episode';
+                var card = document.createElement('div');
+                card.className = 'archive-card' + (i === 0 ? ' active' : '');
+                card.id = 'arc-' + vid;
+                card.innerHTML =
+                    '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
+                    '<div class="arc-title">' + t + '</div>';
+                card.addEventListener('click', function () { loadArchiveVideo(vid, t); });
+                row.appendChild(card);
+            });
         })
-        .catch(function () {
-            // banner image stays as fallback, playlist embed used on click
-        });
+        .catch(function () { /* banner image stays as fallback */ });
+
+    function setMainVideo(videoId, title, isInit) {
+        window._latestVideoId = videoId;
+        document.getElementById('thumbImg').src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+        document.getElementById('thumbTitle').textContent = title;
+        document.getElementById('videoTitle').textContent = title;
+        if (!isInit) {
+            var iframe = document.getElementById('latestVideo');
+            iframe.style.display = 'none';
+            iframe.src = '';
+            document.getElementById('videoThumb').style.display = 'block';
+            document.getElementById('videoWrap').style.cursor = 'pointer';
+        }
+    }
+
+    window.loadArchiveVideo = function (videoId, title) {
+        setMainVideo(videoId, title, false);
+        document.getElementById('latest').scrollIntoView({ behavior: 'smooth' });
+        document.querySelectorAll('.archive-card').forEach(function (c) { c.classList.remove('active'); });
+        var card = document.getElementById('arc-' + videoId);
+        if (card) card.classList.add('active');
+    };
 
     window.playVideo = function () {
         document.getElementById('videoThumb').style.display = 'none';
         var iframe = document.getElementById('latestVideo');
-        var src = window._latestVideoId
+        iframe.src = window._latestVideoId
             ? 'https://www.youtube.com/embed/' + window._latestVideoId + '?autoplay=1&rel=0'
             : 'https://www.youtube.com/embed/videoseries?list=UU7PYy5Tx1WhbnGKc3KJeRKw&autoplay=1&rel=0';
-        iframe.src = src;
         iframe.style.display = 'block';
         document.getElementById('videoWrap').style.cursor = 'default';
     };
 })();
+
+// ── EMAIL SIGNUP ──
+document.getElementById('emailForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = encodeURIComponent(document.getElementById('emailInput').value);
+    window.open('https://rossenreports.substack.com/subscribe?email=' + email, '_blank');
+    document.getElementById('emailForm').style.display = 'none';
+    document.getElementById('emailSuccess').style.display = 'flex';
+});
 
 // ── COUNT-UP ANIMATION ──
 (function () {
