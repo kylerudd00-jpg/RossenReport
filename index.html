@@ -1764,7 +1764,7 @@
         <div class="video-wrap fade-up" id="videoWrap">
             <div class="new-ep-badge" id="newEpBadge">New Episode</div>
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
-                <img id="thumbImg" src="rossenbackground.jpg" alt="Rossen Reports — Latest Episode">
+                <img id="thumbImg" src="https://img.youtube.com/vi/pVH0evvebRw/hqdefault.jpg" alt="Rossen Reports — Latest Episode">
                 <div class="thumb-overlay"></div>
                 <div class="play-btn"><i class="fab fa-youtube"></i></div>
                 <div class="thumb-title" id="thumbTitle">Latest Episode</div>
@@ -2189,14 +2189,12 @@
         window._latestVideoId = videoId;
         var thumbImg = document.getElementById('thumbImg');
         thumbImg.onerror = function () {
-            if (this.src.indexOf('maxresdefault') !== -1) {
-                this.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
-            } else if (this.src.indexOf('hqdefault') !== -1) {
-                this.src = 'rossenbackground.jpg';
+            if (this.src.indexOf('hqdefault') !== -1) {
+                this.src = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
                 this.onerror = null;
             }
         };
-        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
         document.getElementById('thumbTitle').textContent = title;
         document.getElementById('videoTitle').textContent = title;
         if (!isInit) {
@@ -2279,25 +2277,6 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     });
 });
 
-// ── CYCLING HERO TAGLINE ──
-(function () {
-    var phrases = [
-        'Saving you money, exposing scams, and revealing the best deals.<br><strong>Your trusted guide to living smarter.</strong>',
-        'Exposing scams before they hit your wallet.<br><strong>Consumer protection you can count on.</strong>',
-        'The best deals of the week, every week.<br><strong>New episodes every Wednesday &amp; Friday.</strong>'
-    ];
-    var idx = 0;
-    var el = document.getElementById('heroTagline');
-    if (!el) return;
-    setInterval(function () {
-        el.classList.add('fading');
-        setTimeout(function () {
-            idx = (idx + 1) % phrases.length;
-            el.innerHTML = phrases[idx];
-            el.classList.remove('fading');
-        }, 420);
-    }, 4500);
-})();
 
 // ── COUNT-UP ANIMATION ──
 (function () {

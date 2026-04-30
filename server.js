@@ -67,7 +67,7 @@ app.get('/api/youtube', async (req, res) => {
         res.json({ videos });
     } catch (err) {
         if (ytCache.data) return res.json(ytCache.data); // serve stale on error
-        res.status(502).json({ error: 'Could not fetch YouTube feed' });
+        res.json({ videos: [{ id: 'pVH0evvebRw', title: 'Latest Episode', published: '' }] });
     }
 });
 
