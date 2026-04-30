@@ -9,8 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -867,19 +865,96 @@
             margin-top: 2.5rem;
         }
 
-        /* ─────────────── FACEBOOK FEED ─────────────── */
-        .fb-feed { background: var(--white); }
+        /* ─────────────── SOCIAL SPOTLIGHT ─────────────── */
+        .social-spotlight { background: var(--white); }
 
-        .fb-feed .eyebrow::before { background: #1877f2; }
-        .fb-feed .eyebrow { color: #1877f2; }
-
-        .fb-embed-wrap {
+        .spotlight-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
             margin-top: 2.5rem;
-            display: flex;
-            justify-content: center;
         }
 
-        .fb-embed-wrap iframe { border: none; }
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+        }
+
+        .spotlight-card-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.4s ease;
+        }
+
+        .spotlight-card:hover .spotlight-card-bg { transform: scale(1.04); }
+
+        .spotlight-card-overlay {
+            position: absolute;
+            inset: 0;
+        }
+
+        .spotlight-card-content {
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+            padding: 2rem;
+        }
+
+        .spotlight-platform {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.85rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .spotlight-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--white);
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .spotlight-sub {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 0.4rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .spotlight-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.65rem 1.4rem;
+            border: 2px solid rgba(255,255,255,0.9);
+            color: var(--white);
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .spotlight-card:hover .spotlight-btn {
+            background: var(--white);
+            color: var(--dark);
+        }
 
         /* ─────────────── FOOTER ─────────────── */
         footer {
@@ -1004,6 +1079,11 @@
             .footer-bottom { flex-direction: column; text-align: center; }
 
             .link-card-featured .lc-desc { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .spotlight-grid { grid-template-columns: 1fr; }
+            .spotlight-card { min-height: 260px; }
         }
 
         @media (max-width: 480px) {
@@ -1250,25 +1330,39 @@
     </div>
 </section>
 
-<!-- ── FACEBOOK FEED ── -->
-<section class="section fb-feed" id="feed">
+<!-- ── SOCIAL SPOTLIGHT ── -->
+<section class="section social-spotlight" id="feed">
     <div class="container">
-        <span class="eyebrow">Latest Posts</span>
-        <h2 class="section-title">Jeff on Facebook</h2>
-        <div class="fb-embed-wrap">
-            <div class="fb-page"
-                 data-href="https://www.facebook.com/rossenreports"
-                 data-tabs="timeline"
-                 data-width="900"
-                 data-height="600"
-                 data-small-header="true"
-                 data-adapt-container-width="true"
-                 data-hide-cover="false"
-                 data-show-facepile="false">
-                <blockquote cite="https://www.facebook.com/rossenreports" class="fb-xfbml-parse-ignore">
-                    <a href="https://www.facebook.com/rossenreports">Rossen Reports on Facebook</a>
-                </blockquote>
-            </div>
+        <span class="eyebrow">Join the Conversation</span>
+        <h2 class="section-title">Follow Along<br>Every Day</h2>
+        <div class="spotlight-grid">
+
+            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
+                <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg');"></div>
+                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(24,119,242,0.92) 0%, rgba(24,119,242,0.55) 50%, rgba(0,0,0,0.3) 100%);"></div>
+                <div class="spotlight-card-content">
+                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </div>
+                    <div class="spotlight-title">Rossen Reports</div>
+                    <p class="spotlight-sub">Daily tips, consumer alerts, and show clips — follow the page for real-time updates.</p>
+                    <div class="spotlight-btn"><i class="fab fa-facebook-f"></i> Follow on Facebook</div>
+                </div>
+            </a>
+
+            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="spotlight-card">
+                <div class="spotlight-card-bg" style="background-image: url('jeff-rossennew.png'); background-position: top center;"></div>
+                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(131,58,180,0.92) 0%, rgba(193,53,132,0.6) 50%, rgba(0,0,0,0.25) 100%);"></div>
+                <div class="spotlight-card-content">
+                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </div>
+                    <div class="spotlight-title">@jeffrossen</div>
+                    <p class="spotlight-sub">Behind-the-scenes, money tips, and more from Jeff's personal Instagram.</p>
+                    <div class="spotlight-btn"><i class="fab fa-instagram"></i> Follow on Instagram</div>
+                </div>
+            </a>
+
         </div>
     </div>
 </section>
