@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -789,6 +791,96 @@
             margin-top: 0.75rem;
         }
 
+        /* ─────────────── DEALS OF THE WEEK ─────────────── */
+        .deals { background: var(--off-white, #F7F7F5); border-top: 5px solid var(--yellow); }
+
+        .deals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+        }
+
+        .deal-card {
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.07);
+            padding: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+            transition: box-shadow 0.2s, transform 0.18s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .deal-card:hover {
+            box-shadow: 0 8px 28px rgba(11,44,107,0.12);
+            transform: translateY(-3px);
+            border-bottom-color: var(--yellow);
+        }
+
+        .deal-badge {
+            display: inline-block;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.2rem 0.6rem;
+            margin-bottom: 0.35rem;
+            width: fit-content;
+        }
+
+        .deal-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--blue);
+            line-height: 1.3;
+        }
+
+        .deal-desc {
+            font-size: 0.8rem;
+            color: var(--gray);
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .deal-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue-mid);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .deals-footer {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+
+        /* ─────────────── FACEBOOK FEED ─────────────── */
+        .fb-feed { background: var(--white); }
+
+        .fb-feed .eyebrow::before { background: #1877f2; }
+        .fb-feed .eyebrow { color: #1877f2; }
+
+        .fb-embed-wrap {
+            margin-top: 2.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .fb-embed-wrap iframe { border: none; }
+
         /* ─────────────── FOOTER ─────────────── */
         footer {
             background: #0a0f1a;
@@ -859,12 +951,17 @@
 
         @media (max-width: 768px) {
             .hero {
-                padding: 5.5rem 1.25rem 5rem;
+                padding: 5.5rem 1.25rem 4rem;
                 min-height: auto;
             }
 
-            .hero-logo { left: 1.25rem; top: 1.25rem; }
-            .hero-logo img { height: 60px; }
+            /* center logo on mobile */
+            .hero-logo {
+                left: 50%;
+                top: 1rem;
+                transform: translateX(-50%);
+            }
+            .hero-logo img { height: 52px; }
 
             .hero-inner {
                 grid-template-columns: 1fr;
@@ -912,6 +1009,11 @@
         @media (max-width: 480px) {
             .hero-name { font-size: 3rem; }
             .creds-row { grid-template-columns: 1fr 1fr; }
+            .deals-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 960px) {
+            .deals-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -996,6 +1098,50 @@
                 <div class="thumb-title" id="thumbTitle">Latest Episode</div>
             </div>
             <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- ── DEALS OF THE WEEK ── -->
+<section class="section deals" id="deals">
+    <div class="container">
+        <span class="eyebrow">Updated Weekly</span>
+        <h2 class="section-title">Deals of the Week</h2>
+        <div class="deals-grid">
+
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-badge">Amazon Pick</span>
+                <span class="deal-name">Top Amazon Deals This Week</span>
+                <p class="deal-desc">Jeff's hand-picked Amazon finds — the products worth your money right now.</p>
+                <span class="deal-cta">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-badge">Walmart Save</span>
+                <span class="deal-name">Best Walmart Savings Right Now</span>
+                <p class="deal-desc">Quality products at prices that make sense — curated from Jeff's Walmart storefront.</p>
+                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-badge">Editor's Pick</span>
+                <span class="deal-name">DealSeek Steals of the Week</span>
+                <p class="deal-desc">Exclusive deals from the Rossen Reports team — updated every week so you never miss out.</p>
+                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
+                <span class="deal-badge">Don't Miss</span>
+                <span class="deal-name">Hidden Deals Worth Knowing</span>
+                <p class="deal-desc">The deals retailers hope you don't find — Jeff exposes the best-kept savings secrets.</p>
+                <span class="deal-cta">Explore <i class="fas fa-arrow-right"></i></span>
+            </a>
+
+        </div>
+        <div class="deals-footer">
+            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;background:var(--blue);border-color:var(--blue);color:var(--yellow);">
+                <i class="fas fa-tag"></i> See All Deals
+            </a>
         </div>
     </div>
 </section>
@@ -1100,6 +1246,29 @@
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
+        </div>
+    </div>
+</section>
+
+<!-- ── FACEBOOK FEED ── -->
+<section class="section fb-feed" id="feed">
+    <div class="container">
+        <span class="eyebrow">Latest Posts</span>
+        <h2 class="section-title">Jeff on Facebook</h2>
+        <div class="fb-embed-wrap">
+            <div class="fb-page"
+                 data-href="https://www.facebook.com/rossenreports"
+                 data-tabs="timeline"
+                 data-width="900"
+                 data-height="600"
+                 data-small-header="true"
+                 data-adapt-container-width="true"
+                 data-hide-cover="false"
+                 data-show-facepile="false">
+                <blockquote cite="https://www.facebook.com/rossenreports" class="fb-xfbml-parse-ignore">
+                    <a href="https://www.facebook.com/rossenreports">Rossen Reports on Facebook</a>
+                </blockquote>
+            </div>
         </div>
     </div>
 </section>
