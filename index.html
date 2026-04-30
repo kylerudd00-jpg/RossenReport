@@ -984,26 +984,18 @@
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
                 <div class="live-badge">Live Every Wednesday &amp; Friday</div>
-                <p class="video-title-display" id="videoTitle"></p>
+                <p class="video-title-display">New episodes drop every week</p>
             </div>
         </div>
 
         <div class="video-wrap" id="videoWrap">
-            <!-- thumbnail shown by default; click to play -->
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
-                <img id="thumbImg" src="" alt="Latest Episode">
+                <img src="rossenbackground.jpg" alt="Rossen Reports — Latest Episode">
                 <div class="thumb-overlay"></div>
                 <div class="play-btn"><i class="fab fa-youtube"></i></div>
-                <div class="thumb-title" id="thumbTitle"></div>
+                <div class="thumb-title">Watch the Latest Episode</div>
             </div>
             <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-            <div class="video-fallback" id="videoFallback">
-                <i class="fab fa-youtube"></i>
-                <p>Watch the latest on YouTube</p>
-                <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-youtube"></i> Open Channel
-                </a>
-            </div>
         </div>
     </div>
 </section>
@@ -1173,47 +1165,15 @@
 </footer>
 
 <script>
-// ── YOUTUBE: fetch latest video, show thumbnail, click-to-play ──
-(function () {
-    var currentVideoId = null;
-
-    var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC7PYy5Tx1WhbnGKc3KJeRKw';
-    var apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
-
-    fetch(apiUrl)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                var video = data.items[0];
-                var videoId = video.link.split('v=')[1];
-                if (videoId) videoId = videoId.split('&')[0];
-                if (!videoId) throw new Error('no id');
-
-                currentVideoId = videoId;
-                document.getElementById('thumbImg').src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
-                document.getElementById('thumbTitle').textContent = video.title;
-                document.getElementById('videoTitle').textContent = video.title;
-                return;
-            }
-            throw new Error('no video');
-        })
-        .catch(function() { showFallback(); });
-
-    window.playVideo = function() {
-        if (!currentVideoId) return;
-        document.getElementById('videoThumb').style.display = 'none';
-        var iframe = document.getElementById('latestVideo');
-        iframe.src = 'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&rel=0&modestbranding=1';
-        iframe.style.display = 'block';
-        document.getElementById('videoWrap').style.cursor = 'default';
-    };
-
-    function showFallback() {
-        document.getElementById('videoThumb').style.display = 'none';
-        document.getElementById('videoFallback').style.display = 'flex';
-        document.getElementById('videoWrap').style.cursor = 'default';
-    }
-})();
+// ── YOUTUBE: click thumbnail to play latest upload from channel ──
+window.playVideo = function () {
+    document.getElementById('videoThumb').style.display = 'none';
+    var iframe = document.getElementById('latestVideo');
+    // UU = uploads playlist for channel UC7PYy5Tx1WhbnGKc3KJeRKw — always the latest video first
+    iframe.src = 'https://www.youtube.com/embed/videoseries?list=UU7PYy5Tx1WhbnGKc3KJeRKw&autoplay=1&rel=0';
+    iframe.style.display = 'block';
+    document.getElementById('videoWrap').style.cursor = 'default';
+};
 
 // ── COUNT-UP ANIMATION ──
 (function () {
