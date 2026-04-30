@@ -1818,40 +1818,58 @@
 // ── YOUTUBE: fetch thumbnail, title, and episode archive ──
 (function () {
     var rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC7PYy5Tx1WhbnGKc3KJeRKw';
-    var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
+    var proxies = [
+        'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl),
+        'https://corsproxy.io/?' + encodeURIComponent(rssUrl)
+    ];
 
-    fetch(proxyUrl)
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            var xml = data.contents;
+    function parseAndRender(xml) {
+        var ids    = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(function(m){ return m[1]; });
+        var titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(function(m){ return m[1]; });
+        if (!ids.length) throw new Error('no videos');
 
-            var ids    = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(function(m){ return m[1]; });
-            var titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(function(m){ return m[1]; });
+        setMainVideo(ids[0], titles[0] || 'Latest Episode', true);
 
-            if (!ids.length) throw new Error('no videos');
+        var row = document.getElementById('episodeRow');
+        ids.slice(0, 8).forEach(function (vid, i) {
+            var t = titles[i] || 'Episode';
+            var card = document.createElement('div');
+            card.className = 'archive-card' + (i === 0 ? ' active' : '');
+            card.id = 'arc-' + vid;
+            card.innerHTML =
+                '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
+                '<div class="arc-title">' + t + '</div>';
+            card.addEventListener('click', function () { loadArchiveVideo(vid, t); });
+            row.appendChild(card);
+        });
+    }
 
-            // Main player — latest video
-            setMainVideo(ids[0], titles[0] || 'Latest Episode', true);
+    function tryProxy(index) {
+        if (index >= proxies.length) return;
+        fetch(proxies[index])
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var xml = data.contents || data;
+                if (typeof xml !== 'string') throw new Error('bad response');
+                parseAndRender(xml);
+            })
+            .catch(function () { tryProxy(index + 1); });
+    }
 
-            // Episode archive row
-            var row = document.getElementById('episodeRow');
-            ids.slice(0, 8).forEach(function (vid, i) {
-                var t = titles[i] || 'Episode';
-                var card = document.createElement('div');
-                card.className = 'archive-card' + (i === 0 ? ' active' : '');
-                card.id = 'arc-' + vid;
-                card.innerHTML =
-                    '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
-                    '<div class="arc-title">' + t + '</div>';
-                card.addEventListener('click', function () { loadArchiveVideo(vid, t); });
-                row.appendChild(card);
-            });
-        })
-        .catch(function () { /* banner image stays as fallback */ });
+    tryProxy(0);
 
     function setMainVideo(videoId, title, isInit) {
         window._latestVideoId = videoId;
-        document.getElementById('thumbImg').src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+        var thumbImg = document.getElementById('thumbImg');
+        thumbImg.onerror = function () {
+            if (this.src.indexOf('maxresdefault') !== -1) {
+                this.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+            } else if (this.src.indexOf('hqdefault') !== -1) {
+                this.src = 'rossenbackground.jpg';
+                this.onerror = null;
+            }
+        };
+        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
         document.getElementById('thumbTitle').textContent = title;
         document.getElementById('videoTitle').textContent = title;
         if (!isInit) {
