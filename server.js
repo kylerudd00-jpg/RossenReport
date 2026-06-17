@@ -1,6 +1,9 @@
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
+const { inject } = require('@vercel/analytics');
+
+inject();
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
