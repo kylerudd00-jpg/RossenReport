@@ -82,7 +82,17 @@
         /* Scroll targets carry tabindex="-1" so activating an in-page link moves
            focus into the section instead of only scrolling it into view (2.4.3).
            They aren't controls, so the programmatic focus ring is suppressed. */
-        section[tabindex="-1"]:focus { outline: none; }
+        /* :focus is suppressed, but :focus-visible is not — browsers do match it
+           on programmatic focus when the last input was a keypress, which is
+           exactly the skip-link and nav-link case. Without a ring there, focus
+           lands silently and nothing on screen says where. */
+        section[tabindex="-1"]:focus,
+        main[tabindex="-1"]:focus { outline: none; }
+        section[tabindex="-1"]:focus-visible,
+        main[tabindex="-1"]:focus-visible {
+            outline: 3px solid var(--yellow);
+            outline-offset: -3px;
+        }
 
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
@@ -170,7 +180,9 @@
         }
         .site-header-nav a:hover { color: var(--white); }
         .site-header-nav a:focus-visible { outline: 3px solid var(--yellow); outline-offset: -3px; }
-        .site-header-nav a[aria-current="true"] {
+        /* Presence, not an exact value: the JS removes the attribute entirely
+           when inactive, so this can't silently stop matching if the token changes. */
+        .site-header-nav a[aria-current] {
             color: var(--yellow);
             border-bottom-color: var(--yellow);
         }
@@ -196,9 +208,17 @@
         /* The fixed header would otherwise cover the top of whichever section an
            in-page link jumps to. */
         section[id] { scroll-margin-top: 80px; }
+        /* Section anchors aren't the only case: the header also covers any
+           ordinary control the browser scrolls flush to the top when it takes
+           focus. Header is 64px, so 80px leaves clearance. */
+        @media (min-width: 769px) {
+            a, button, input, select, textarea, summary, [tabindex] { scroll-margin-top: 80px; }
+        }
 
-        /* Below 768px the bottom nav takes over. */
-        @media (max-width: 900px) {
+        /* Must match .bottom-nav's own 768px breakpoint exactly. At 900px this
+           left 769–900px with no navigation at all: the header was already
+           hidden and the bottom nav hadn't appeared yet. */
+        @media (max-width: 768px) {
             .site-header { display: none; }
             section[id] { scroll-margin-top: 0; }
         }
@@ -779,6 +799,16 @@
            each draw into the shared 1px gap and read as one hairline — and a cell
            with no card in it simply draws nothing. */
         .links-grid > * { outline: 1px solid rgba(255,255,255,0.10); }
+        /* An element paints one outline, and the author rule above beats the UA
+           focus ring in every state — so without this, focusing these cards
+           changed nothing at all (1.00:1) across eight consecutive tab stops.
+           Inset because the grid gap is 1px: an outward ring would be painted
+           over by the next card. */
+        .link-card:focus-visible,
+        .link-card-featured:focus-visible {
+            outline: 3px solid var(--yellow);
+            outline-offset: -3px;
+        }
 
         /* featured YouTube card spans full width */
         .link-card-featured {
@@ -1429,7 +1459,11 @@
         .alert-title a {
             color: var(--dark);
             text-decoration: underline;
-            text-decoration-color: rgba(143, 29, 20, 0.45);
+            /* 0.45 composited over --paper is 2.35:1, under the 3:1 required for
+               a non-text indicator. This underline is the only thing marking
+               these headlines as links — the text colour is the same as the
+               summary beneath it — so it has to carry the affordance on its own. */
+            text-decoration-color: rgba(143, 29, 20, 0.75);
             text-underline-offset: 3px;
             text-decoration-thickness: 2px;
             transition: color 0.2s ease, text-decoration-color 0.2s ease;
@@ -1910,6 +1944,10 @@
             cursor: pointer;
         }
         .testi-pause:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+        /* .testi-pause sets display:inline-flex, and an author rule beats the UA's
+           [hidden]{display:none} — so btn.hidden alone left a visible, focusable
+           button that toggled a class with no effect under reduced motion. */
+        .testi-pause[hidden] { display: none; }
         @keyframes testiScroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -2142,10 +2180,10 @@
     </div>
 </header>
 
-<main id="main">
+<main id="main" tabindex="-1">
 
 <!-- ── HERO ── -->
-<section class="hero" id="home">
+<section class="hero" id="home" tabindex="-1">
     <div class="hero-glow"></div>
     <div class="hero-filetag" aria-hidden="true">Consumer Investigations Unit</div>
     <div class="hero-logo">
@@ -2327,7 +2365,7 @@
     <div class="testi-header">
         <span class="eyebrow">Viewer Wins</span>
         <h2 class="section-title" style="color:var(--white);">Real Results<br>From Real Viewers</h2>
-        <button type="button" class="testi-pause" id="testiPause" aria-pressed="false">
+        <button type="button" class="testi-pause" id="testiPause">
             <i class="fas fa-pause" aria-hidden="true"></i>
             <span id="testiPauseLabel">Pause scrolling</span>
         </button>
@@ -2457,7 +2495,7 @@
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#0a66c2;">
+            <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#3f9ae0;">
                 <div class="lc-icon"><i class="fab fa-linkedin-in"></i></div>
                 <span class="lc-name">LinkedIn</span>
                 <span class="lc-handle">Jeff Rossen — Rossen Media</span>
@@ -2762,9 +2800,17 @@
             });
         });
 
-        // Put focus back where the rebuild took it from.
+        // Put focus back where the rebuild took it from. Matched by property
+        // rather than an interpolated selector: category names come from feed
+        // data, and a quote in one would make the selector throw — aborting
+        // buildFilters() before render() and blanking the whole section.
         if (focusedCat) {
-            var again = filters.querySelector('.alert-filter[data-cat="' + focusedCat + '"]');
+            var again = null;
+            Array.prototype.forEach.call(filters.querySelectorAll('.alert-filter'), function (b) {
+                if (b.getAttribute('data-cat') === focusedCat) again = b;
+            });
+            // That category can vanish on refresh; land on "All", not <body>.
+            if (!again) again = filters.querySelector('.alert-filter');
             if (again) again.focus();
         }
     }
@@ -2985,19 +3031,29 @@
             item.classList.toggle('active', item.getAttribute('data-section') === mapped);
         });
         Array.prototype.forEach.call(document.querySelectorAll('.site-header-nav a'), function (a) {
-            if (a.getAttribute('data-section') === mapped) a.setAttribute('aria-current', 'true');
+            // "location" rather than "true": these are positions within one page,
+            // not separate pages. The CSS matches on presence, so the two can't
+            // drift apart.
+            if (a.getAttribute('data-section') === mapped) a.setAttribute('aria-current', 'location');
             else a.removeAttribute('aria-current');
         });
 
         // Reveal the header only once the hero is behind us, so it never sits on
         // top of the hero's own logo.
         if (header && hero) {
-            header.classList.toggle('is-visible', window.scrollY > hero.offsetHeight - 120);
+            var show = window.scrollY > hero.offsetHeight - 120;
+            // Hiding it applies visibility:hidden, which blurs whatever is focused
+            // inside and dumps the user back at <body>. Stay open while it holds focus.
+            if (!show && header.contains(document.activeElement)) show = true;
+            header.classList.toggle('is-visible', show);
         }
     }
 
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
+    if (header) {
+        header.addEventListener('focusout', function () { setTimeout(update, 0); });
+    }
     update();
 })();
 
@@ -3128,8 +3184,11 @@ function initCountUp() {
     if (reduced && reduced.matches) { btn.hidden = true; return; }
 
     btn.addEventListener('click', function () {
+        // No aria-pressed: the visible label already carries the state, and
+        // having both said contradictory things ("Resume scrolling ... pressed").
+        // It was also a lie — CSS pauses the marquee on hover and focus-within
+        // with no JS, so the flag could report "not pressed" while it was stopped.
         var paused = track.classList.toggle('is-paused');
-        btn.setAttribute('aria-pressed', String(paused));
         label.textContent = paused ? 'Resume scrolling' : 'Pause scrolling';
         btn.querySelector('i').className = paused ? 'fas fa-play' : 'fas fa-pause';
     });
@@ -3195,25 +3254,25 @@ function initCountUp() {
 </script>
 
 <!-- ── MOBILE BOTTOM NAV ── -->
-<nav class="bottom-nav" id="bottomNav">
+<nav class="bottom-nav" id="bottomNav" aria-label="Primary, mobile">
     <a href="#latest" class="bnav-item" data-section="latest">
-        <i class="fab fa-youtube"></i>
+        <i class="fab fa-youtube" aria-hidden="true"></i>
         <span>Watch</span>
     </a>
     <a href="#deals" class="bnav-item" data-section="deals">
-        <i class="fas fa-tag"></i>
+        <i class="fas fa-tag" aria-hidden="true"></i>
         <span>Deals</span>
     </a>
     <a href="#alerts" class="bnav-item" data-section="alerts">
-        <i class="fas fa-triangle-exclamation"></i>
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
         <span>Alerts</span>
     </a>
     <a href="#follow" class="bnav-item" data-section="follow">
-        <i class="fas fa-share-alt"></i>
+        <i class="fas fa-share-alt" aria-hidden="true"></i>
         <span>Follow</span>
     </a>
     <a href="#shop" class="bnav-item" data-section="shop">
-        <i class="fas fa-shopping-bag"></i>
+        <i class="fas fa-shopping-bag" aria-hidden="true"></i>
         <span>Shop</span>
     </a>
 </nav>
