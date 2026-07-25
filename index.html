@@ -66,6 +66,9 @@
             /* 7.9:1 on --paper, 8.9:1 behind white chip text — reads as "warning"
                without dropping below AA anywhere it's used. */
             --alert:      #8F1D14;
+            /* Padding for sections carrying a clip-path diagonal. One token so
+               the five angled sections can't drift apart the way they had. */
+            --pad-angled: clamp(3.5rem, 7vw, 5.5rem);
         }
 
         /* Scroll targets carry tabindex="-1" so activating an in-page link moves
@@ -75,6 +78,109 @@
 
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
+        }
+
+        /* ─────────────── SKIP LINK ─────────────── */
+        .skip-link {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 1000;
+            transform: translateY(-120%);
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.9rem 1.4rem;
+            text-decoration: none;
+            transition: transform 0.15s ease;
+        }
+        .skip-link:focus { transform: translateY(0); }
+
+        /* ─────────────── DESKTOP HEADER ─────────────── */
+        .site-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 600;
+            background: rgba(7, 9, 15, 0.92);
+            backdrop-filter: saturate(150%) blur(12px);
+            -webkit-backdrop-filter: saturate(150%) blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            transform: translateY(-100%);
+            transition: transform 0.28s ease;
+        }
+        .site-header.is-visible { transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .site-header { transition: none; }
+        }
+
+        .site-header-inner {
+            max-width: min(1280px, 100% - 3rem);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 0.6rem 0;
+        }
+
+        .site-header-logo { display: inline-flex; flex-shrink: 0; }
+        .site-header-logo img { height: 38px; width: auto; display: block; }
+        .site-header-logo:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+        .site-header-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-left: auto;
+        }
+        .site-header-nav a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 0.85rem;
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #C9CDD6;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: color 0.18s ease, border-color 0.18s ease;
+        }
+        .site-header-nav a:hover { color: var(--white); }
+        .site-header-nav a:focus-visible { outline: 3px solid var(--yellow); outline-offset: -3px; }
+        .site-header-nav a[aria-current="true"] {
+            color: var(--yellow);
+            border-bottom-color: var(--yellow);
+        }
+
+        .site-header-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+            padding: 0 1.1rem;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .site-header-cta:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+        /* The fixed header would otherwise cover the top of whichever section an
+           in-page link jumps to. */
+        section[id] { scroll-margin-top: 80px; }
+
+        /* Below 768px the bottom nav takes over. */
+        @media (max-width: 900px) {
+            .site-header { display: none; }
+            section[id] { scroll-margin-top: 0; }
         }
 
         .sr-only {
@@ -181,7 +287,7 @@
         .hero-logo img { height: 90px; }
 
         .hero-inner {
-            max-width: 1100px;
+            max-width: min(1280px, 100% - 3rem);
             margin: 0 auto;
             width: 100%;
             display: grid;
@@ -266,7 +372,11 @@
         }
 
         .btn-primary { background: var(--yellow); color: var(--blue); border-color: var(--yellow); }
-        .btn-primary:hover { background: transparent; color: var(--yellow); }
+        /* Guarded: on iOS this state sticks after tapping a link that opens a new
+           tab, leaving the button hollowed out with no way to clear it. */
+        @media (hover: hover) {
+            .btn-primary:hover { background: transparent; color: var(--yellow); }
+        }
         .btn-outline { background: transparent; color: var(--white); border-color: #9CA3AF; }
         .btn-outline:hover { border-color: var(--white); }
 
@@ -340,8 +450,16 @@
         }
 
         /* ─────────────── SHARED ─────────────── */
-        .section { padding: 6rem 2rem; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        /* Fluid rather than two fixed steps. The old pair (6rem desktop / 4rem
+           under 768px) put ~192px of pure padding around every section, which
+           across eleven sections was most of the page's empty space, and it
+           jumped abruptly at the breakpoint. This scales continuously and
+           trims the desktop maximum. */
+        .section { padding: clamp(3.25rem, 6vw, 5rem) clamp(1.25rem, 4vw, 2rem); }
+        /* 1100px was leaving 276px empty per side on a 1440 laptop and 756px on a
+           1920 monitor. This site's content is thumbnails and card grids, which
+           want the width. */
+        .container { max-width: min(1280px, 100% - 3rem); margin: 0 auto; }
 
         .eyebrow {
             display: inline-flex;
@@ -384,6 +502,13 @@
             flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 1.75rem;
+        }
+
+        .latest-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
         }
 
         .live-badge {
@@ -611,82 +736,6 @@
             outline-offset: 2px;
         }
 
-        /* ─────────────── THE SHOW ─────────────── */
-        .show-section {
-            background: var(--blue);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .show-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-            background-size: 48px 48px;
-            pointer-events: none;
-        }
-
-        .show-section::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: var(--yellow);
-        }
-
-        .show-inner {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 680px;
-            margin: 0 auto;
-        }
-
-        .cs-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--yellow);
-            color: var(--blue);
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            padding: 0.4rem 1rem;
-            margin-bottom: 1.75rem;
-        }
-
-        .cs-badge::before {
-            content: '';
-            width: 7px; height: 7px;
-            background: var(--blue);
-            border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .cs-title {
-            font-family: 'Big Shoulders Display', sans-serif;
-            font-weight: 900;
-            font-size: clamp(2.75rem, 7vw, 5rem);
-            color: var(--white);
-            text-transform: uppercase;
-            line-height: 1;
-            margin-bottom: 0.5rem;
-        }
-
-        .cs-title span { color: var(--yellow); }
-
-        .cs-sub {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.62);
-            margin: 1.5rem 0 2.5rem;
-            line-height: 1.75;
-        }
-
         /* ─────────────── SOCIAL LINKS (prominent) ─────────────── */
         .links-section { background: var(--dark); }
         .links-section .eyebrow { color: rgba(255,209,0,0.85); }
@@ -695,11 +744,21 @@
 
         .links-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            /* Seven standard cards don't divide evenly into any sensible column
+               count, so an incomplete last row is unavoidable. What made it look
+               broken was the old technique: a background on the grid showing
+               through 1px gaps to fake hairlines, which turned the missing cell
+               into a visible lighter rectangle. Real borders on the cards mean an
+               empty cell is just empty, and the layout stops depending on the
+               item count dividing evenly. */
+            grid-template-columns: repeat(4, 1fr);
             gap: 1px;
-            margin-top: 3rem;
-            background: rgba(255,255,255,0.06);
+            margin-top: 2.5rem;
         }
+        /* outline, not border: it doesn't take part in layout, so adjacent cards
+           each draw into the shared 1px gap and read as one hairline — and a cell
+           with no card in it simply draws nothing. */
+        .links-grid > * { outline: 1px solid rgba(255,255,255,0.10); }
 
         /* featured YouTube card spans full width */
         .link-card-featured {
@@ -804,7 +863,15 @@
             transition: background 0.2s;
         }
 
-        .link-card:hover .lc-icon { background: var(--platform-color, var(--yellow)); }
+        @media (hover: hover) {
+            .link-card:hover .lc-icon { background: var(--platform-color, var(--yellow)); }
+        }
+        /* Each card carries its platform's brand colour inline, but it was only
+           ever revealed on hover — so on touch all eight social cards rendered
+           identically grey and the colour system was invisible to phone users. */
+        @media (hover: none) {
+            .lc-icon { background: var(--platform-color, var(--yellow)); }
+        }
 
         .lc-name {
             font-family: 'Archivo', sans-serif;
@@ -916,7 +983,9 @@
             flex-shrink: 0;
             width: 175px;
             cursor: pointer;
-            opacity: 0.55;
+            /* Was 0.55 with a hover lift. Touch users never get the hover, so all
+               seven non-playing episodes looked disabled. */
+            opacity: 0.82;
             transition: opacity 0.2s, transform 0.2s;
         }
 
@@ -943,7 +1012,7 @@
         }
         .arc-skel-line.short { width: 50%; margin-top: 0.25rem; }
 
-        .archive-card:hover { opacity: 0.9; transform: translateY(-2px); }
+        .archive-card:hover { opacity: 1; transform: translateY(-2px); }
         .archive-card.active { opacity: 1; }
 
         .arc-thumb {
@@ -1333,16 +1402,21 @@
             margin: 0 0 0.5rem;
         }
 
+        /* Underlined by default. The sweep-in underline is a hover flourish, and
+           on a touch device hover never fires — which left every headline here
+           looking like plain black text, with no hint it was the link through to
+           the government source. That link is the entire point of the section. */
         .alert-title a {
             color: var(--dark);
-            text-decoration: none;
-            background-image: linear-gradient(var(--alert), var(--alert));
-            background-size: 0% 2px;
-            background-repeat: no-repeat;
-            background-position: 0 100%;
-            transition: background-size 0.25s ease, color 0.2s ease;
+            text-decoration: underline;
+            text-decoration-color: rgba(143, 29, 20, 0.45);
+            text-underline-offset: 3px;
+            text-decoration-thickness: 2px;
+            transition: color 0.2s ease, text-decoration-color 0.2s ease;
         }
-        .alert-title a:hover { color: var(--alert); background-size: 100% 2px; }
+        @media (hover: hover) {
+            .alert-title a:hover { color: var(--alert); text-decoration-color: var(--alert); }
+        }
         .alert-title a:focus-visible {
             outline: 3px solid var(--alert);
             outline-offset: 3px;
@@ -1377,97 +1451,6 @@
             .alert-title { font-size: 1.3rem; }
         }
 
-        /* ─────────────── SOCIAL SPOTLIGHT ─────────────── */
-        .social-spotlight { background: var(--white); }
-
-        .spotlight-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 2.5rem;
-        }
-
-        .spotlight-card {
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            min-height: 340px;
-        }
-
-        .spotlight-card-bg {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.4s ease;
-        }
-
-        .spotlight-card:hover .spotlight-card-bg { transform: scale(1.04); }
-
-        .spotlight-card-overlay {
-            position: absolute;
-            inset: 0;
-        }
-
-        .spotlight-card-content {
-            position: relative;
-            z-index: 2;
-            margin-top: auto;
-            padding: 2rem;
-        }
-
-        .spotlight-platform {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            font-size: 0.72rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            padding: 0.3rem 0.85rem;
-            margin-bottom: 0.85rem;
-        }
-
-        .spotlight-title {
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            font-size: 1.6rem;
-            color: var(--white);
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .spotlight-sub {
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.7);
-            margin-top: 0.4rem;
-            margin-bottom: 1.25rem;
-            line-height: 1.5;
-        }
-
-        .spotlight-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            padding: 0.65rem 1.4rem;
-            border: 2px solid rgba(255,255,255,0.9);
-            color: var(--white);
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .spotlight-card:hover .spotlight-btn {
-            background: var(--white);
-            color: var(--dark);
-        }
-
         /* ─────────────── FOOTER ─────────────── */
         footer {
             background: #0a0f1a;
@@ -1475,7 +1458,7 @@
             padding: 3.5rem 2rem 2rem;
         }
 
-        .footer-inner { max-width: 1100px; margin: 0 auto; }
+        .footer-inner { max-width: min(1280px, 100% - 3rem); margin: 0 auto; }
 
         .footer-top {
             display: flex;
@@ -1568,7 +1551,9 @@
                 gap: 1.5rem 2.5rem;
             }
 
-            .section { padding: 4rem 1.25rem; }
+            /* .section padding is fluid now — the clamp() above already covers
+               this breakpoint, and a fixed override here would only re-introduce
+               the jump it was written to smooth out. */
 
             .about-quote-wrap { padding: 2rem; }
             .about-quote-wrap::after { display: none; }
@@ -1584,6 +1569,10 @@
             .lc-arrow { position: static; margin-left: auto; }
 
             .latest-header { flex-direction: column; align-items: flex-start; }
+            /* Was an inline style that the header's mobile stack never reset, so
+               the badge and video title stayed right-aligned under a left-aligned
+               heading. */
+            .latest-meta { align-items: flex-start; }
             .video-title-display { text-align: left; }
             .play-btn { width: 60px; height: 60px; font-size: 1.5rem; }
 
@@ -1591,11 +1580,6 @@
             .footer-bottom { flex-direction: column; text-align: center; }
 
             .link-card-featured .lc-desc { display: none; }
-        }
-
-        @media (max-width: 768px) {
-            .spotlight-grid { grid-template-columns: 1fr; }
-            .spotlight-card { min-height: 260px; }
         }
 
         /* ─────────────── PRESS STRIP ─────────────── */
@@ -1606,7 +1590,7 @@
         }
 
         .press-inner {
-            max-width: 1100px;
+            max-width: min(1280px, 100% - 3rem);
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -1664,11 +1648,14 @@
             height: 24px;
             width: auto;
             filter: brightness(0) invert(1);
-            opacity: 0.3;
+            /* Was 0.3, which only lifted on hover. On touch the whole "As Seen On"
+               strip sat at 30% permanently — and its text label is hidden below
+               768px, so it read as a row of unexplained ghost images. */
+            opacity: 0.6;
             transition: opacity 0.25s;
         }
 
-        .press-logo:hover img { opacity: 0.65; }
+        .press-logo:hover img { opacity: 0.95; }
 
         @media (max-width: 768px) {
             .press-strip { padding: 1.25rem; }
@@ -1703,7 +1690,10 @@
 
         @media (max-width: 768px) {
             .bottom-nav { display: flex; }
-            body { padding-bottom: 62px; }
+            /* The nav's own padding adds env(safe-area-inset-bottom) on top of
+               its 62px, so a flat 62px reserve here left ~33px of the footer
+               permanently under the bar on notched iPhones. */
+            body { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
         }
 
         .bnav-item {
@@ -1715,8 +1705,11 @@
             text-decoration: none;
             color: #9CA3AF;
             font-family: 'Archivo', sans-serif;
-            font-size: 0.56rem;
-            letter-spacing: 0.1em;
+            /* Was 0.56rem — 8.96px, the smallest text on the site, labelling the
+               only navigation mobile users have. The wide letter-spacing made it
+               worse. */
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
             padding: 0.5rem 0;
             transition: color 0.2s;
@@ -1742,11 +1735,16 @@
         @media (max-width: 480px) {
             .hero-name { font-size: 3rem; }
             .creds-row { grid-template-columns: 1fr 1fr; }
-            .deals-grid { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 960px) {
             .deals-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Below 560px two columns left ~80px of usable width inside each card,
+           which wrapped deal names to about five characters per line. */
+        @media (max-width: 560px) {
+            .deals-grid { grid-template-columns: 1fr; }
         }
 
         /* ─── FLOATING PHOTO ANIMATION ─── */
@@ -1757,48 +1755,56 @@
         .hero-card-inner { animation: floatCard 4.5s ease-in-out infinite; }
 
         /* ─── ANGLED SECTION DIVIDERS ─── */
+        /* These sections need extra padding so the clip-path diagonal doesn't
+           slice into content. The diagonal only eats 3–6% of the section, but
+           the padding here was 8–9rem — roughly triple what it protects, and
+           collectively the largest source of empty space on the page.
+           --pad-angled is fluid, so it also removes the need for a separate
+           mobile override. That override was the actual bug: it reset five
+           sections but missed .deals, which kept a hard 128px top padding at
+           every width, eating 46% of the first screen on a small phone. */
         .hero {
             clip-path: polygon(0 0, 100% 0, 100% 94%, 0 100%);
-            padding-bottom: 9rem;
+            padding-bottom: calc(var(--pad-angled) + 1.5rem);
             margin-bottom: -3rem;
         }
         .press-strip {
             clip-path: polygon(0 0, 100% 6%, 100% 100%, 0 94%);
-            padding-top: 3rem;
-            padding-bottom: 3rem;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
             margin-bottom: -1.5rem;
             position: relative;
             z-index: 1;
         }
         .latest {
             clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
-            padding-top: 7rem;
-            padding-bottom: 7rem;
+            padding-top: var(--pad-angled);
+            padding-bottom: var(--pad-angled);
             margin-bottom: -2rem;
         }
         .email-signup {
             clip-path: polygon(0 0, 100% 3%, 100% 100%, 0 97%);
-            padding-top: 8rem;
-            padding-bottom: 8rem;
+            padding-top: var(--pad-angled);
+            padding-bottom: var(--pad-angled);
             margin-bottom: -2rem;
             position: relative;
             z-index: 1;
         }
-        .deals {
-            padding-top: 8rem;
-        }
+        .deals { padding-top: var(--pad-angled); }
         .testimonials {
             clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
-            padding-top: 8rem;
-            padding-bottom: 8rem;
+            padding-top: var(--pad-angled);
+            padding-bottom: var(--pad-angled);
             margin-bottom: -2rem;
         }
         @media (max-width: 768px) {
-            .hero { clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%); padding-bottom: 7rem; margin-bottom: -2rem; }
-            .press-strip { clip-path: none; padding-top: 1.25rem; padding-bottom: 1.25rem; margin-bottom: 0; }
-            .latest { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
-            .email-signup { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
-            .testimonials { clip-path: none; padding-top: 4rem; padding-bottom: 4rem; margin-bottom: 0; }
+            /* Diagonals off on small screens — they read as misalignment at this
+               width. Padding needs no reset now that the token is fluid. */
+            .hero { clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%); margin-bottom: -2rem; }
+            .press-strip,
+            .latest,
+            .email-signup,
+            .testimonials { clip-path: none; margin-bottom: 0; }
         }
 
         /* ─── CYCLING HERO TAGLINE ─── */
@@ -1840,7 +1846,7 @@
 
         /* ─── TESTIMONIALS ─── */
         .testimonials { background: var(--blue); overflow: hidden; padding: 5rem 0; }
-        .testi-header { padding: 0 2rem; max-width: 1100px; margin: 0 auto; }
+        .testi-header { padding: 0 2rem; max-width: min(1280px, 100% - 3rem); margin: 0 auto; }
         .testi-header .eyebrow { color: rgba(255,209,0,0.85); }
         .testi-header .eyebrow::before { background: var(--yellow); }
         .testi-overflow { overflow: hidden; margin-top: 2.75rem; }
@@ -1851,7 +1857,39 @@
             animation: testiScroll 40s linear infinite;
             padding: 0.25rem 0;
         }
-        .testi-track:hover { animation-play-state: paused; }
+        @media (hover: hover) {
+            .testi-track:hover { animation-play-state: paused; }
+        }
+        /* Pausing on hover was the only way to stop a 40s infinite marquee, which
+           touch and keyboard users don't have — WCAG 2.2.2 requires a real
+           mechanism, so .is-paused is driven by a button and by focus. */
+        .testi-track.is-paused { animation-play-state: paused; }
+        .testi-track:focus-within { animation-play-state: paused; }
+
+        @media (prefers-reduced-motion: reduce) {
+            /* Don't auto-scroll at all; let the row be swiped/scrolled instead. */
+            .testi-track { animation: none; }
+            .testi-overflow { overflow-x: auto; }
+        }
+
+        .testi-pause {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+            padding: 0 1rem;
+            margin-top: 1.25rem;
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--blue);
+            background: var(--yellow);
+            border: 1px solid var(--yellow);
+            cursor: pointer;
+        }
+        .testi-pause:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
         @keyframes testiScroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -2055,13 +2093,36 @@
         .contact-form-error { display: none; color: #B3261E; font-size: 0.85rem; margin-top: 0.75rem; }
         @media (max-width: 640px) { .contact-form-row { grid-template-columns: 1fr; } .contact-form-wrap { padding: 1.75rem; } }
 
-        /* ─── SPOTLIGHT 3 CARDS ─── */
-        @media (min-width: 769px) {
-            .spotlight-grid-3 { grid-template-columns: repeat(3, 1fr); }
-        }
     </style>
 </head>
 <body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<!-- ── DESKTOP HEADER ──
+     Desktop visitors previously had no navigation at all: the only nav on the
+     page was .bottom-nav, which is display:none above 768px. This slides in
+     once the hero has scrolled past, so it never competes with the hero logo. -->
+<header class="site-header" id="siteHeader">
+    <div class="site-header-inner">
+        <a href="#home" class="site-header-logo">
+            <img src="rossenlogo.png" alt="Rossen Reports — back to top">
+        </a>
+        <nav class="site-header-nav" aria-label="Primary">
+            <a href="#latest"   data-section="latest">Watch</a>
+            <a href="#alerts"   data-section="alerts">Scam Alerts</a>
+            <a href="#deals"    data-section="deals">Deals</a>
+            <a href="#about"    data-section="about">About</a>
+            <a href="#shop"     data-section="shop">Shop</a>
+            <a href="#contact"  data-section="contact">Work With Jeff</a>
+        </nav>
+        <a href="#subscribe" class="site-header-cta">
+            <i class="fas fa-envelope" aria-hidden="true"></i> Newsletter
+        </a>
+    </div>
+</header>
+
+<main id="main">
 
 <!-- ── HERO ── -->
 <section class="hero" id="home">
@@ -2154,7 +2215,7 @@
                 <span class="eyebrow">Watch Now</span>
                 <h2 class="section-title">Latest Episode</h2>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
+            <div class="latest-meta">
                 <div class="live-badge">Live Every Wednesday &amp; Friday</div>
                 <p class="video-title-display" id="videoTitle">New episodes every week</p>
             </div>
@@ -2246,6 +2307,10 @@
     <div class="testi-header">
         <span class="eyebrow">Viewer Wins</span>
         <h2 class="section-title" style="color:var(--white);">Real Results<br>From Real Viewers</h2>
+        <button type="button" class="testi-pause" id="testiPause" aria-pressed="false">
+            <i class="fas fa-pause" aria-hidden="true"></i>
+            <span id="testiPauseLabel">Pause scrolling</span>
+        </button>
     </div>
     <div class="testi-overflow">
         <div class="testi-track" id="testiTrack">
@@ -2306,19 +2371,10 @@
     </div>
 </section>
 
-<!-- ── THE SHOW ── -->
-<section class="section show-section" id="show" tabindex="-1">
-    <div class="show-inner">
-        <div class="cs-badge">Now Live</div>
-        <h2 class="cs-title">The<br><span>Rossen</span><br>Reports Show</h2>
-        <p class="cs-sub">
-            Consumer investigations, money-saving tips, scam exposés, and the stories that matter to you — straight from the source. New episodes every <strong style="color:var(--yellow)">Wednesday &amp; Friday</strong>.
-        </p>
-        <a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;">
-            <i class="fab fa-youtube"></i> Watch on YouTube
-        </a>
-    </div>
-</section>
+<!-- The "The Show" section was removed: it was a fourth "Watch on YouTube"
+     call to action (after the hero button, the episode player, and the
+     featured YouTube card in Follow), and its schedule line already appears
+     on the Latest Episode badge. It carried no unique information. -->
 
 <!-- ── FOLLOW / SOCIAL LINKS ── -->
 <section class="section links-section" id="follow" tabindex="-1">
@@ -2392,55 +2448,11 @@
     </div>
 </section>
 
-<!-- ── SOCIAL SPOTLIGHT ── -->
-<section class="section social-spotlight" id="feed" tabindex="-1">
-    <div class="container">
-        <span class="eyebrow">Join the Conversation</span>
-        <h2 class="section-title">Follow Along<br>Every Day</h2>
-        <div class="spotlight-grid spotlight-grid-3 fade-up">
-
-            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
-                <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg');"></div>
-                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(24,119,242,0.92) 0%, rgba(24,119,242,0.55) 50%, rgba(0,0,0,0.3) 100%);"></div>
-                <div class="spotlight-card-content">
-                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
-                        <i class="fab fa-facebook-f"></i> Facebook
-                    </div>
-                    <div class="spotlight-title">Rossen Reports</div>
-                    <p class="spotlight-sub">Daily tips, consumer alerts, and show clips — follow the page for real-time updates.</p>
-                    <div class="spotlight-btn"><i class="fab fa-facebook-f"></i> Follow on Facebook</div>
-                </div>
-            </a>
-
-            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="spotlight-card">
-                <div class="spotlight-card-bg" style="background-image: url('jeff-rossennew.png'); background-position: top center;"></div>
-                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(131,58,180,0.92) 0%, rgba(193,53,132,0.6) 50%, rgba(0,0,0,0.25) 100%);"></div>
-                <div class="spotlight-card-content">
-                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
-                        <i class="fab fa-instagram"></i> Instagram
-                    </div>
-                    <div class="spotlight-title">@jeffrossen</div>
-                    <p class="spotlight-sub">Behind-the-scenes, money tips, and more from Jeff's personal Instagram.</p>
-                    <div class="spotlight-btn"><i class="fab fa-instagram"></i> Follow on Instagram</div>
-                </div>
-            </a>
-
-            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="spotlight-card">
-                <div class="spotlight-card-bg" style="background-image: url('rossenbackground.jpg'); background-position: center;"></div>
-                <div class="spotlight-card-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(255,0,80,0.45) 55%, rgba(0,0,0,0.3) 100%);"></div>
-                <div class="spotlight-card-content">
-                    <div class="spotlight-platform" style="background:rgba(255,255,255,0.15); color:#fff;">
-                        <i class="fab fa-tiktok"></i> TikTok
-                    </div>
-                    <div class="spotlight-title">@rossen.reports</div>
-                    <p class="spotlight-sub">Short-form scam alerts and money tips — millions of views and growing fast.</p>
-                    <div class="spotlight-btn"><i class="fab fa-tiktok"></i> Follow on TikTok</div>
-                </div>
-            </a>
-
-        </div>
-    </div>
-</section>
+<!-- The "Social Spotlight" section was removed: its three cards linked to
+     Facebook, Instagram and TikTok, all of which already appear in the Follow
+     directory above and again in the footer — the same three destinations
+     listed three times on one page. Follow now uses a four-column grid, so its
+     eight cards fill two rows exactly instead of leaving an empty cell. -->
 
 <!-- ── SHOP ── -->
 <section class="section shop" id="shop" tabindex="-1">
@@ -2549,6 +2561,8 @@
         </div>
     </div>
 </section>
+
+</main>
 
 <!-- ── FOOTER ── -->
 <footer>
@@ -2922,10 +2936,22 @@
     els.forEach(function (el) { obs.observe(el); });
 })();
 
-// ── MOBILE BOTTOM NAV ACTIVE STATE ──
+// ── NAV ACTIVE STATE + STICKY DESKTOP HEADER ──
 (function () {
-    var allSections = ['latest', 'subscribe', 'deals', 'alerts', 'wins', 'about', 'show', 'follow', 'feed', 'shop', 'contact'];
-    var navSections = ['latest', 'deals', 'follow', 'shop'];
+    var allSections = ['latest', 'subscribe', 'deals', 'alerts', 'wins', 'about', 'follow', 'shop', 'contact'];
+
+    // The scrolled-past section doesn't always have its own nav entry (there are
+    // nine sections and five bottom-nav items), so each section maps to the item
+    // that best represents it. Previously anything unmapped left the whole nav
+    // unhighlighted, which was most of the page.
+    var represents = {
+        latest: 'latest', subscribe: 'alerts', deals: 'deals', alerts: 'alerts',
+        wins: 'about', about: 'about', follow: 'follow', shop: 'shop', contact: 'contact'
+    };
+
+    var header = document.getElementById('siteHeader');
+    var hero = document.getElementById('home');
+
     function update() {
         var mid = window.scrollY + window.innerHeight * 0.5;
         var active = null;
@@ -2933,12 +2959,25 @@
             var el = document.getElementById(id);
             if (el && el.offsetTop <= mid) active = id;
         });
-        navSections.forEach(function (id) {
-            var item = document.querySelector('.bnav-item[data-section="' + id + '"]');
-            if (item) item.classList.toggle('active', id === active);
+        var mapped = represents[active] || null;
+
+        Array.prototype.forEach.call(document.querySelectorAll('.bnav-item'), function (item) {
+            item.classList.toggle('active', item.getAttribute('data-section') === mapped);
         });
+        Array.prototype.forEach.call(document.querySelectorAll('.site-header-nav a'), function (a) {
+            if (a.getAttribute('data-section') === mapped) a.setAttribute('aria-current', 'true');
+            else a.removeAttribute('aria-current');
+        });
+
+        // Reveal the header only once the hero is behind us, so it never sits on
+        // top of the hero's own logo.
+        if (header && hero) {
+            header.classList.toggle('is-visible', window.scrollY > hero.offsetHeight - 120);
+        }
     }
+
     window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
     update();
 })();
 
@@ -3056,6 +3095,26 @@ function initCountUp() {
     if (stats.length > 0) observer.observe(stats[0].closest('.hero-stats'));
 }
 
+// ── TESTIMONIAL MARQUEE: pause control (WCAG 2.2.2) ──
+(function () {
+    var track = document.getElementById('testiTrack');
+    var btn   = document.getElementById('testiPause');
+    var label = document.getElementById('testiPauseLabel');
+    if (!track || !btn) return;
+
+    // If the visitor has asked for reduced motion the marquee never animates,
+    // so a pause control would be a button that does nothing.
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduced && reduced.matches) { btn.hidden = true; return; }
+
+    btn.addEventListener('click', function () {
+        var paused = track.classList.toggle('is-paused');
+        btn.setAttribute('aria-pressed', String(paused));
+        label.textContent = paused ? 'Resume scrolling' : 'Pause scrolling';
+        btn.querySelector('i').className = paused ? 'fas fa-play' : 'fas fa-pause';
+    });
+})();
+
 // ── SITE CONTENT: fetch editable hero/about/testimonials content ──
 (function () {
     function esc(s) {
@@ -3124,6 +3183,10 @@ function initCountUp() {
     <a href="#deals" class="bnav-item" data-section="deals">
         <i class="fas fa-tag"></i>
         <span>Deals</span>
+    </a>
+    <a href="#alerts" class="bnav-item" data-section="alerts">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>Alerts</span>
     </a>
     <a href="#follow" class="bnav-item" data-section="follow">
         <i class="fas fa-share-alt"></i>
