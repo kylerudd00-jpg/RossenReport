@@ -1241,6 +1241,44 @@
             color: #57534E;
         }
 
+        .alerts-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1.25rem 0 0.25rem;
+        }
+
+        .alert-filter {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #4E4A44;
+            background: transparent;
+            border: 1px solid rgba(17,24,39,0.22);
+            border-radius: 999px;
+            /* Explicit min-height rather than padding math: at this font size
+               padding alone only reached 32px. 44px is the comfortable touch
+               target, and these are the section's primary mobile controls. */
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 1rem;
+            cursor: pointer;
+            transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+        .alert-filter:hover { border-color: var(--alert); color: var(--alert); }
+        .alert-filter:focus-visible {
+            outline: 3px solid var(--alert);
+            outline-offset: 2px;
+        }
+        .alert-filter[aria-pressed="true"] {
+            background: var(--alert);
+            border-color: var(--alert);
+            color: var(--white);
+        }
+
         .alerts-list { list-style: none; margin: 0; padding: 0; }
 
         .alert-item {
@@ -2194,6 +2232,8 @@
             <p class="alerts-status" id="alertsStatus" role="status">Loading the latest alerts…</p>
         </div>
 
+        <div class="alerts-filters" id="alertsFilters" role="group" aria-label="Filter alerts by category"></div>
+
         <!-- role="list" is required: list-style:none strips list semantics in WebKit -->
         <ul class="alerts-list" role="list" id="alertsList"></ul>
 
@@ -2549,9 +2589,10 @@
 <script>
 // ── SCAM ALERTS: live federal consumer warnings ──
 (function () {
-    var list   = document.getElementById('alertsList');
-    var status = document.getElementById('alertsStatus');
-    var foot   = document.getElementById('alertsFoot');
+    var list    = document.getElementById('alertsList');
+    var status  = document.getElementById('alertsStatus');
+    var foot    = document.getElementById('alertsFoot');
+    var filters = document.getElementById('alertsFilters');
     if (!list) return;
 
     function esc(s) {
@@ -2629,6 +2670,71 @@
         }).join('');
     }
 
+    // ── category filtering ──
+    var allAlerts = [];
+    var activeCat = 'All';
+
+    function visible() {
+        return activeCat === 'All'
+            ? allAlerts
+            : allAlerts.filter(function (a) { return a.category === activeCat; });
+    }
+
+    var filterSig = null;
+
+    function buildFilters() {
+        var cats = ['All'];
+        allAlerts.forEach(function (a) {
+            if (a.category && cats.indexOf(a.category) === -1) cats.push(a.category);
+        });
+        // One category covering everything is not a filter, it's noise.
+        if (cats.length < 3) { filters.innerHTML = ''; filterSig = null; return; }
+
+        // Rebuilding replaces the buttons, which would drop focus if a keyboard
+        // user were sitting on one when the 15-minute refresh fired. Skip the
+        // rebuild entirely when the categories and counts are unchanged.
+        var sig = cats.map(function (c) {
+            return c + ':' + (c === 'All' ? allAlerts.length
+                : allAlerts.filter(function (a) { return a.category === c; }).length);
+        }).join('|');
+        if (sig === filterSig) return;
+        filterSig = sig;
+
+        var focusedCat = document.activeElement && document.activeElement.classList
+            && document.activeElement.classList.contains('alert-filter')
+            ? document.activeElement.getAttribute('data-cat') : null;
+
+        filters.innerHTML = cats.map(function (c) {
+            var count = c === 'All'
+                ? allAlerts.length
+                : allAlerts.filter(function (a) { return a.category === c; }).length;
+            return '<button type="button" class="alert-filter" data-cat="' + esc(c) + '"' +
+                   ' aria-pressed="' + (c === activeCat) + '">' + esc(c) + ' (' + count + ')</button>';
+        }).join('');
+
+        Array.prototype.forEach.call(filters.querySelectorAll('.alert-filter'), function (btn) {
+            btn.addEventListener('click', function () {
+                activeCat = btn.getAttribute('data-cat');
+                Array.prototype.forEach.call(filters.querySelectorAll('.alert-filter'), function (b) {
+                    b.setAttribute('aria-pressed', String(b === btn));
+                });
+                var shown = visible();
+                render(shown);
+                // Focus stays on the pressed button; the count change is what needs
+                // announcing, since the list itself is not a live region.
+                announce(activeCat === 'All'
+                    ? 'Showing all ' + shown.length + ' alerts'
+                    : 'Showing ' + shown.length + ' ' + activeCat + ' ' + (shown.length === 1 ? 'alert' : 'alerts'));
+            });
+        });
+
+        // Put focus back where the rebuild took it from.
+        if (focusedCat) {
+            var again = filters.querySelector('.alert-filter[data-cat="' + focusedCat + '"]');
+            if (again) again.focus();
+        }
+    }
+
     var newestUrl = null;
     var loaded = false;
 
@@ -2658,7 +2764,14 @@
                     return;
                 }
 
-                render(alerts);
+                allAlerts = alerts;
+                // A refresh must not silently strip the category the user is
+                // reading, so keep it only if it still exists in the new data.
+                if (activeCat !== 'All' && !alerts.some(function (a) { return a.category === activeCat; })) {
+                    activeCat = 'All';
+                }
+                buildFilters();
+                render(visible());
                 renderFoot(data);
                 loaded = true;
 
