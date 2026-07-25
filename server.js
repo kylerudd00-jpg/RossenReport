@@ -4,29 +4,14 @@ const fs      = require('fs');
 const crypto  = require('crypto');
 
 const { getScamFeed } = require('./lib/scamFeed');
+const storage = require('./lib/storage');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// Vercel runs this as a serverless function on a READ-ONLY filesystem, and any
-// instance is thrown away between requests. Reads still work (the db/*.json files
-// ship with the deployment), but writes cannot persist. Rather than accept a
-// write and silently drop a real advertiser lead, writes fail loudly here — see
-// writeDB below.
-const EPHEMERAL_FS = !!process.env.VERCEL;
-
-// ── JSON FILE DATABASE ──
-const dbDir = path.join(__dirname, 'db');
-try {
-    if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir);
-} catch (e) {
-    if (!EPHEMERAL_FS) throw e;   // read-only FS in prod is expected
-}
-
-const SUBSCRIBERS_FILE = path.join(dbDir, 'subscribers.json');
-const CONTACTS_FILE    = path.join(dbDir, 'contacts.json');
-const DEALS_FILE       = path.join(dbDir, 'deals.json');
-const CONTENT_FILE     = path.join(dbDir, 'content.json');
+// Where content actually lives is lib/storage's problem: disk in development,
+// Vercel Blob in production when a store is configured. Vercel's filesystem is
+// read-only and disposable, which is why writes cannot simply go to db/*.json.
 
 const DEFAULT_CONTENT = {
     hero: {
@@ -58,6 +43,42 @@ const DEFAULT_CONTENT = {
         { quote: 'Jeff exposed a contractor scam targeting seniors in my neighborhood. Shared the episode and three families avoided getting ripped off.', name: 'Carol W., Pennsylvania' },
         { quote: 'I negotiated my medical bill down 40% using exactly the script Jeff laid out. The hospital agreed without a fight.', name: 'James R., Georgia' },
     ],
+
+    // Order the sections appear in on the homepage. The server rebuilds
+    // index.html to match, so DOM order always equals visual order — using CSS
+    // `order` instead would leave keyboard and screen-reader users navigating a
+    // different sequence from the one everyone else sees.
+    // 'home' is deliberately absent: the hero is always first.
+    sectionOrder: ['latest', 'alerts', 'deals', 'wins', 'subscribe', 'follow', 'shop', 'about', 'contact'],
+
+    // 'auto' tracks the newest upload on the channel. 'manual' pins a specific
+    // video, for when the newest upload isn't the one to lead with.
+    featuredVideo: { mode: 'auto', videoId: '' },
+
+    socialLinks: {
+        featured: {
+            name: 'YouTube', handle: '@RossenReports',
+            desc: 'New episodes every Wednesday & Friday — subscribe for alerts',
+            url: 'https://www.youtube.com/@RossenReports',
+        },
+        links: [
+            { name: 'Instagram', handle: '@jeffrossen', url: 'https://www.instagram.com/jeffrossen/', icon: 'fab fa-instagram', color: '#e1306c' },
+            { name: 'TikTok', handle: '@rossen.reports', url: 'https://www.tiktok.com/@rossen.reports', icon: 'fab fa-tiktok', color: '#ff0050' },
+            { name: 'Facebook', handle: '@rossenreports', url: 'https://www.facebook.com/rossenreports', icon: 'fab fa-facebook-f', color: '#1877f2' },
+            { name: 'X / Twitter', handle: '@jeffrossen', url: 'https://x.com/jeffrossen', icon: 'fab fa-x-twitter', color: '#ffffff' },
+            { name: 'Substack', handle: 'Rossen Reports Newsletter', url: 'https://rossenreports.substack.com/', icon: 'fas fa-newspaper', color: '#ff6719' },
+            { name: 'Podcast', handle: 'Rossen Reports on Apple Podcasts', url: 'https://podcasts.apple.com/us/podcast/rossen-reports/id1861532501', icon: 'fas fa-podcast', color: '#fc3c44' },
+            // #3f9ae0 rather than LinkedIn's #0a66c2: the brand blue is 2.58:1 on
+            // the card's hover background, under the 3:1 needed for a UI element.
+            { name: 'LinkedIn', handle: 'Jeff Rossen — Rossen Media', url: 'https://www.linkedin.com/in/jeffrossen/', icon: 'fab fa-linkedin-in', color: '#3f9ae0' },
+        ],
+    },
+
+    shopLinks: [
+        { platform: 'Amazon', name: "Jeff's Amazon Shop", desc: "Hand-picked products, deals, and recommendations straight from Jeff's consumer investigations.", url: 'https://www.amazon.com/shop/jeffrossen' },
+        { platform: 'Walmart', name: 'Walmart Storefront', desc: "Jeff's curated Walmart picks — quality products at prices that actually make sense.", url: 'https://www.walmart.com/creator/storefront?creator=rossenreports' },
+        { platform: 'DealSeek', name: 'DealSeek Collection', desc: 'Exclusive deals and steals curated by the Rossen Reports team. Updated regularly.', url: 'https://dealseek.com/collections/rossen_reports' },
+    ],
 };
 
 // ships hardcoded so a fresh clone (db/ is gitignored) still renders the site
@@ -77,21 +98,16 @@ const DEFAULT_DEALS = [
       href: 'https://www.amazon.com/shop/jeffrossen', cta: 'Explore' },
 ];
 
-function readDB(file, fallback) {
-    try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-    catch (_) { return fallback !== undefined ? fallback : []; }
-}
+// Named documents, not file paths — lib/storage picks disk or Blob per environment.
+const DOC = { subscribers: 'subscribers', contacts: 'contacts', deals: 'deals', content: 'content' };
 
-function writeDB(file, data) {
-    if (EPHEMERAL_FS) {
-        // Deliberately throws. A 500 the team can see and fix beats a 200 that
-        // quietly discards a newsletter signup or an advertiser inquiry.
-        const err = new Error('Storage is not configured for this deployment, so this could not be saved.');
-        err.code = 'no_persistent_storage';
-        throw err;
-    }
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
+const readDB  = (doc, fallback) => storage.read(doc, fallback !== undefined ? fallback : []);
+const writeDB = (doc, data) => storage.write(doc, data);
+
+// Storage is async now. Express 4 does not forward a rejected promise to the
+// error middleware, so handlers are wrapped instead of relying on the
+// synchronous throw that the old filesystem writes used.
+const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 // ── MIDDLEWARE ──
 app.use(express.json());
@@ -102,6 +118,54 @@ app.use(function (req, res, next) {
     if (blocked.includes(req.path)) return res.status(403).end();
     next();
 });
+
+// ── HOMEPAGE: sections reordered server-side ──
+// Reordering here rather than in the browser keeps DOM order identical to
+// visual order. Doing it with CSS `order` would be far less code but would
+// leave keyboard and screen-reader users moving through the page in a
+// different sequence from the one shown, which is a WCAG 1.3.2 failure.
+const INDEX_PATH = path.join(__dirname, 'index.html');
+let orderedPage = { key: null, html: null };
+
+function reorderSections(html, order) {
+    const START = '<!-- ── LATEST EPISODE ── -->';
+    const END = '\n</main>';
+    const i = html.indexOf(START), j = html.indexOf(END);
+    if (i < 0 || j < 0 || j < i) return html;         // markup moved; serve as-is
+
+    const blocks = html.slice(i, j).split(/\n(?=<!-- ── )/);
+    const byId = {};
+    for (const b of blocks) {
+        const m = b.match(/<section[^>]*\sid="([\w-]+)"/);
+        if (m) byId[m[1]] = b.replace(/\s+$/, '');
+    }
+    // Anything the saved order doesn't mention still gets rendered, appended in
+    // its original position — a stale order must never silently drop a section.
+    const ids = order.filter(id => byId[id]);
+    for (const id of Object.keys(byId)) if (!ids.includes(id)) ids.push(id);
+    if (!ids.length) return html;
+
+    return html.slice(0, i) + ids.map(id => byId[id]).join('\n\n') + '\n' + html.slice(j);
+}
+
+app.get(['/', '/index.html'], async (req, res, next) => {
+    try {
+        const content = await getContent();
+        const order = Array.isArray(content.sectionOrder) && content.sectionOrder.length
+            ? content.sectionOrder
+            : DEFAULT_CONTENT.sectionOrder;
+        const key = order.join(',');
+        if (orderedPage.key !== key) {
+            orderedPage = { key, html: reorderSections(fs.readFileSync(INDEX_PATH, 'utf8'), order) };
+        }
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.set('Cache-Control', 'no-cache');
+        res.send(orderedPage.html);
+    } catch (e) {
+        next();     // fall through to the static handler below
+    }
+});
+
 app.use(express.static(__dirname, { index: 'index.html', dotfiles: 'deny' }));
 
 // ── YOUTUBE CACHE ──
@@ -156,30 +220,30 @@ app.get('/api/scams', async (req, res) => {
 });
 
 // ── API: Email subscribe ──
-app.post('/api/subscribe', (req, res) => {
+app.post('/api/subscribe', wrap(async (req, res) => {
     const { email } = req.body || {};
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ error: 'Invalid email' });
     }
     const normalized = email.toLowerCase().trim();
-    const subscribers = readDB(SUBSCRIBERS_FILE);
+    const subscribers = await readDB(DOC.subscribers);
 
     if (subscribers.some(s => s.email === normalized)) {
         return res.json({ ok: true }); // already subscribed — success to user
     }
 
     subscribers.push({ id: Date.now(), email: normalized, created_at: new Date().toISOString() });
-    writeDB(SUBSCRIBERS_FILE, subscribers);
+    await writeDB(DOC.subscribers, subscribers);
     res.json({ ok: true });
-});
+}));
 
 // ── API: Contact form ──
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', wrap(async (req, res) => {
     const { name, email, type, message } = req.body || {};
     if (!email || !message) {
         return res.status(400).json({ error: 'Email and message are required' });
     }
-    const contacts = readDB(CONTACTS_FILE);
+    const contacts = await readDB(DOC.contacts);
     contacts.push({
         id:         Date.now(),
         name:       name || null,
@@ -188,9 +252,9 @@ app.post('/api/contact', (req, res) => {
         message,
         created_at: new Date().toISOString()
     });
-    writeDB(CONTACTS_FILE, contacts);
+    await writeDB(DOC.contacts, contacts);
     res.json({ ok: true });
-});
+}));
 
 // ── ADMIN: control board (login-gated) ──
 // derived from the password, not random, so a server restart doesn't log everyone out
@@ -234,66 +298,86 @@ app.post('/admin/logout', (req, res) => {
 });
 app.get('/api/admin/session', (req, res) => res.json({ authed: isAdmin(req) }));
 
-app.get('/api/admin/subscribers', requireAdmin, (req, res) => {
-    const rows = readDB(SUBSCRIBERS_FILE);
+app.get('/api/admin/subscribers', requireAdmin, wrap(async (req, res) => {
+    const rows = await readDB(DOC.subscribers);
     res.json({ count: rows.length, subscribers: rows });
-});
+}));
 
-app.delete('/api/admin/subscribers/:id', requireAdmin, (req, res) => {
+app.delete('/api/admin/subscribers/:id', requireAdmin, wrap(async (req, res) => {
     const id = Number(req.params.id);
-    const rows = readDB(SUBSCRIBERS_FILE);
+    const rows = await readDB(DOC.subscribers);
     const next = rows.filter(r => r.id !== id);
     if (next.length === rows.length) return res.status(404).json({ error: 'not found' });
-    writeDB(SUBSCRIBERS_FILE, next);
+    await writeDB(DOC.subscribers, next);
     res.json({ ok: true });
-});
+}));
 
-app.get('/api/admin/contacts', requireAdmin, (req, res) => {
-    const rows = readDB(CONTACTS_FILE);
+app.get('/api/admin/contacts', requireAdmin, wrap(async (req, res) => {
+    const rows = await readDB(DOC.contacts);
     res.json({ count: rows.length, contacts: rows });
-});
+}));
 
-app.patch('/api/admin/contacts/:id', requireAdmin, (req, res) => {
+app.patch('/api/admin/contacts/:id', requireAdmin, wrap(async (req, res) => {
     const id = Number(req.params.id);
     const { status } = req.body || {};
     if (status !== 'new' && status !== 'handled') return res.status(400).json({ error: 'status must be "new" or "handled"' });
-    const rows = readDB(CONTACTS_FILE);
+    const rows = await readDB(DOC.contacts);
     const row = rows.find(r => r.id === id);
     if (!row) return res.status(404).json({ error: 'not found' });
     row.status = status;
-    writeDB(CONTACTS_FILE, rows);
+    await writeDB(DOC.contacts, rows);
     res.json({ ok: true });
-});
+}));
 
-app.delete('/api/admin/contacts/:id', requireAdmin, (req, res) => {
+app.delete('/api/admin/contacts/:id', requireAdmin, wrap(async (req, res) => {
     const id = Number(req.params.id);
-    const rows = readDB(CONTACTS_FILE);
+    const rows = await readDB(DOC.contacts);
     const next = rows.filter(r => r.id !== id);
     if (next.length === rows.length) return res.status(404).json({ error: 'not found' });
-    writeDB(CONTACTS_FILE, next);
+    await writeDB(DOC.contacts, next);
     res.json({ ok: true });
-});
+}));
 
-// ── SITE CONTENT: hero / about / testimonials — public read, admin-only write ──
-app.get('/api/content', (req, res) => {
-    res.json(readDB(CONTENT_FILE, DEFAULT_CONTENT));
-});
+// ── SITE CONTENT: public read, admin-only write ──
+// A document saved before a field existed simply won't have it, so stored
+// content is layered over the defaults rather than replacing them. Without
+// this, every field added from here on would read as undefined for anyone who
+// had already used the control board once.
+function withDefaults(stored) {
+    return Object.assign({}, DEFAULT_CONTENT, stored || {});
+}
 
-app.post('/api/admin/content', requireAdmin, (req, res) => {
+async function getContent() {
+    return withDefaults(await readDB(DOC.content, null));
+}
+
+app.get('/api/content', wrap(async (req, res) => {
+    res.json(await getContent());
+}));
+
+app.post('/api/admin/content', requireAdmin, wrap(async (req, res) => {
     const content = req.body || {};
     if (!content.hero || !content.about || !Array.isArray(content.testimonials)) {
         return res.status(400).json({ error: 'content must include hero, about, and testimonials' });
     }
-    writeDB(CONTENT_FILE, content);
+    if (content.sectionOrder !== undefined) {
+        const known = DEFAULT_CONTENT.sectionOrder;
+        const order = content.sectionOrder;
+        if (!Array.isArray(order) || order.some(id => !known.includes(id)) || new Set(order).size !== order.length) {
+            return res.status(400).json({ error: 'sectionOrder must be a list of known section ids with no duplicates' });
+        }
+    }
+    // Merge so a panel that only edits one area can't blank out the others.
+    await writeDB(DOC.content, Object.assign({}, await getContent(), content));
     res.json({ ok: true });
-});
+}));
 
 // ── DEALS OF THE WEEK: public read, admin-only write ──
-app.get('/api/deals', (req, res) => {
-    res.json({ deals: readDB(DEALS_FILE, DEFAULT_DEALS) });
-});
+app.get('/api/deals', wrap(async (req, res) => {
+    res.json({ deals: await readDB(DOC.deals, DEFAULT_DEALS) });
+}));
 
-app.post('/api/admin/deals', requireAdmin, (req, res) => {
+app.post('/api/admin/deals', requireAdmin, wrap(async (req, res) => {
     const { deals } = req.body || {};
     if (!Array.isArray(deals) || !deals.length) {
         return res.status(400).json({ error: 'deals must be a non-empty array' });
@@ -303,9 +387,9 @@ app.post('/api/admin/deals', requireAdmin, (req, res) => {
             return res.status(400).json({ error: 'each deal needs category, name, desc, href, and cta' });
         }
     }
-    writeDB(DEALS_FILE, deals);
+    await writeDB(DOC.deals, deals);
     res.json({ ok: true });
-});
+}));
 
 // Surfaces the "can't persist here" case as a readable 503. Express forwards
 // synchronous throws from route handlers here automatically, so no per-route
