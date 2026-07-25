@@ -69,6 +69,14 @@
             /* Padding for sections carrying a clip-path diagonal. One token so
                the five angled sections can't drift apart the way they had. */
             --pad-angled: clamp(3.5rem, 7vw, 5.5rem);
+
+            /* One card recipe. Shop, deal and contact cards read as the same
+               component but had four border widths, four paddings, three resting
+               shadows and two hover shadows between them. */
+            --card-pad: 2rem;
+            --card-rule: 4px;
+            --card-shadow: 0 2px 12px rgba(17, 24, 39, 0.07);
+            --card-shadow-hover: 0 12px 32px rgba(11, 44, 107, 0.14);
         }
 
         /* Scroll targets carry tabindex="-1" so activating an in-page link moves
@@ -251,7 +259,7 @@
             font-weight: 600;
             letter-spacing: 0.28em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.32);
+            color: rgba(255,255,255,0.62);
             white-space: nowrap;
             z-index: 2;
             pointer-events: none;
@@ -400,7 +408,7 @@
 
         .stat-lbl {
             font-size: 0.7rem;
-            color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.62);
             letter-spacing: 0.12em;
             text-transform: uppercase;
             display: block;
@@ -412,7 +420,7 @@
 
         .hero-card-inner {
             overflow: hidden;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            box-shadow: 0 18px 44px rgba(4, 14, 38, 0.45);
             border: 1px solid rgba(255,209,0,0.25);
         }
 
@@ -536,7 +544,7 @@
 
         .video-title-display {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.62);
             font-style: italic;
             max-width: 480px;
             text-align: right;
@@ -549,7 +557,7 @@
             height: 0;
             overflow: hidden;
             background: #000;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+            box-shadow: 0 18px 44px rgba(4, 14, 38, 0.5);
             cursor: pointer;
         }
 
@@ -587,7 +595,7 @@
             font-size: 2rem;
             color: #fff;
             transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            box-shadow: 0 6px 20px rgba(4, 14, 38, 0.45);
             z-index: 5;
         }
 
@@ -633,7 +641,7 @@
         .video-fallback p {
             font-family: 'Archivo', sans-serif;
             font-size: 1rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.62);
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
@@ -688,7 +696,7 @@
 
         .about-quote-attr {
             font-size: 0.78rem;
-            color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.62);
             letter-spacing: 0.1em;
             text-transform: uppercase;
             margin-top: 1.5rem;
@@ -700,7 +708,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 0;
             margin-top: 3.5rem;
-            border-top: 3px solid var(--yellow);
+            border-top: var(--card-rule) solid var(--yellow);
         }
 
         .cred-item {
@@ -800,21 +808,21 @@
 
         .link-card-featured .lc-handle {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.62);
             display: block;
             margin-top: 0.2rem;
         }
 
         .link-card-featured .lc-desc {
             font-size: 0.82rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.62);
             margin-top: 0.4rem;
             display: block;
         }
 
         .link-card-featured .lc-arrow {
             font-size: 1.5rem;
-            color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.42);
             flex-shrink: 0;
             transition: color 0.2s, transform 0.2s;
         }
@@ -885,7 +893,7 @@
 
         .lc-handle {
             font-size: 0.78rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.62);
             display: block;
             margin-top: 0.3rem;
         }
@@ -893,7 +901,7 @@
         .lc-arrow {
             position: absolute;
             bottom: 1.5rem; right: 1.5rem;
-            color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.42);
             font-size: 0.8rem;
             transition: color 0.2s, transform 0.2s;
         }
@@ -915,18 +923,18 @@
 
         .shop-card {
             background: var(--white);
-            border-top: 4px solid var(--yellow);
+            border-top: var(--card-rule) solid var(--yellow);
             padding: 2rem;
             text-decoration: none;
             display: flex;
             flex-direction: column;
             gap: 0.6rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: var(--card-shadow);
             transition: box-shadow 0.2s, transform 0.18s;
         }
 
         .shop-card:hover {
-            box-shadow: 0 10px 32px rgba(11,44,107,0.13);
+            box-shadow: var(--card-shadow-hover);
             transform: translateY(-2px);
         }
 
@@ -972,7 +980,7 @@
             overflow-x: auto;
             padding-bottom: 0.75rem;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.2) transparent;
+            scrollbar-color: rgba(255,255,255,0.62) transparent;
         }
 
         .episode-row::-webkit-scrollbar { height: 4px; }
@@ -1154,11 +1162,11 @@
 
         .email-note {
             font-size: 0.72rem;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.62);
             margin-top: 0.85rem;
         }
 
-        .email-note a { color: rgba(255,255,255,0.5); }
+        .email-note a { color: rgba(255,255,255,0.62); }
 
         @media (max-width: 768px) {
             .email-inner { grid-template-columns: 1fr; gap: 2rem; }
@@ -1189,18 +1197,18 @@
 
         .deal-card {
             background: var(--white);
-            border-top: 3px solid var(--yellow);
-            padding: 1.75rem 1.5rem 1.5rem;
+            border-top: var(--card-rule) solid var(--yellow);
+            padding: var(--card-pad);
             text-decoration: none;
             display: flex;
             flex-direction: column;
             gap: 0.6rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            box-shadow: var(--card-shadow);
             transition: box-shadow 0.2s, transform 0.18s;
         }
 
         .deal-card:hover {
-            box-shadow: 0 8px 28px rgba(11,44,107,0.13);
+            box-shadow: var(--card-shadow-hover);
             transform: translateY(-3px);
         }
 
@@ -1454,7 +1462,7 @@
         /* ─────────────── FOOTER ─────────────── */
         footer {
             background: #0a0f1a;
-            color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.62);
             padding: 3.5rem 2rem 2rem;
         }
 
@@ -1604,7 +1612,7 @@
             font-size: 0.6rem;
             letter-spacing: 0.22em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.62);
             padding-right: 2rem;
             border-right: 1px solid rgba(255,255,255,0.08);
             margin-right: 2rem;
@@ -1616,7 +1624,7 @@
             flex-direction: column;
             align-items: center;
             line-height: 1.1;
-            color: rgba(255,255,255,0.28);
+            color: rgba(255,255,255,0.62);
             padding: 0 1.75rem;
             border-right: 1px solid rgba(255,255,255,0.06);
             transition: color 0.25s;
@@ -1640,7 +1648,7 @@
             font-size: 0.52rem;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.62);
         }
 
         .press-logo img {
@@ -1839,7 +1847,7 @@
         /* ─── ARC DATE ─── */
         .arc-date {
             font-size: 0.6rem;
-            color: rgba(255,255,255,0.28);
+            color: rgba(255,255,255,0.62);
             margin-top: 0.2rem;
             letter-spacing: 0.04em;
         }
@@ -1950,18 +1958,18 @@
             position: relative;
             background: var(--white);
             padding: 2rem;
-            border-top: 4px solid var(--blue);
+            border-top: var(--card-rule) solid var(--blue);
             text-decoration: none;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            box-shadow: var(--card-shadow);
             transition: box-shadow 0.2s, transform 0.18s;
             color: var(--dark);
             overflow: hidden;
         }
         .contact-card:hover {
-            box-shadow: 0 10px 32px rgba(11,44,107,0.13);
+            box-shadow: var(--card-shadow-hover);
             transform: translateY(-2px);
             border-top-color: var(--yellow);
         }
@@ -2028,8 +2036,8 @@
             margin: 3rem auto 0;
             background: var(--white);
             padding: 2.5rem;
-            border-top: 4px solid var(--blue);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border-top: var(--card-rule) solid var(--blue);
+            box-shadow: var(--card-shadow);
         }
         .contact-form-title {
             font-family: 'Archivo', sans-serif;
