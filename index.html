@@ -115,9 +115,21 @@
             -webkit-backdrop-filter: saturate(150%) blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.10);
             transform: translateY(-100%);
+            /* visibility, not just transform: a transform-hidden element keeps its
+               place in the tab order, so a keyboard user tabbing from the skip
+               link would land on six links sitting off-screen above the viewport
+               with no visible focus. visibility:hidden takes them out of the tab
+               order; it's delayed on the way out so the slide still animates. */
+            visibility: hidden;
+            /* visibility is deliberately NOT in the transition list: transitioning
+               it (even at 0s) left the links unfocusable after the class flipped,
+               which would have made the new nav keyboard-unusable. */
             transition: transform 0.28s ease;
         }
-        .site-header.is-visible { transform: translateY(0); }
+        .site-header.is-visible {
+            transform: translateY(0);
+            visibility: visible;
+        }
         @media (prefers-reduced-motion: reduce) {
             .site-header { transition: none; }
         }
