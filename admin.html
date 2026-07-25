@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Board | Rossen Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Archivo:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" type="image/png" href="rossenlogo.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #0B2C6B; --blue-mid: #1E4DB7; --yellow: #FFD100;
+    --white: #FFFFFF; --gray-light: #F0F2F5; --gray: #6B7280; --dark: #111827;
+    --paper: #F6F1E6; --down: #B3261E; --up: #1D7A3E;
+  }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { font-family: 'Newsreader', serif; color: var(--dark); background: var(--gray-light); }
+  a { color: var(--blue-mid); }
+  :focus-visible { outline: 3px solid var(--blue-mid); outline-offset: 2px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .skip-link { position:absolute; left:8px; top:-48px; z-index:1000; background:var(--dark); color:#fff; padding:8px 14px; text-decoration:none; font-size:13px; }
+  .skip-link:focus { top:8px; }
+  h1, h2, h3, .num-font { font-family: 'Big Shoulders Display', sans-serif; }
+  button, input, select, textarea, label { font-family: 'Archivo', sans-serif; }
+
+  /* ── login gate ── */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .login-panel {
+    width: 100%; max-width: 360px; background: var(--white); padding: 2.5rem 2rem;
+    border-top: 4px solid var(--blue); box-shadow: 0 2px 20px rgba(0,0,0,0.08); text-align: center;
+  }
+  .login-panel img { width: 48px; margin-bottom: 0.75rem; }
+  .login-panel h1 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; color: var(--blue); margin-bottom: 0.25rem; }
+  .login-panel p.sub { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+  .login-panel label { display: block; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--gray); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .login-panel input { width: 100%; font-size: 0.95rem; padding: 0.7rem 0.85rem; border: 1px solid var(--gray-light); background: var(--gray-light); margin-bottom: 1rem; }
+  .login-panel input:focus { outline: 2px solid var(--blue); background: var(--white); }
+  .login-panel input[aria-invalid="true"] { outline: 2px solid var(--down); }
+  .login-panel button {
+    width: 100%; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    background: var(--blue); color: var(--yellow); border: 2px solid var(--blue); padding: 0.8rem 0; cursor: pointer;
+  }
+  .login-panel button:hover { background: transparent; color: var(--blue); }
+  .login-error { color: var(--down); font-size: 0.82rem; text-align: left; }
+  .login-error.show { background: #FDECEA; border: 1px solid var(--down); padding: 0.6rem 0.8rem; margin-bottom: 1rem; }
+
+  /* ── shell: sidebar + content ── */
+  .board { display: none; min-height: 100vh; }
+  .shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 230px; flex-shrink: 0; background: var(--blue); color: var(--white);
+    display: flex; flex-direction: column; border-right: 4px solid var(--yellow);
+  }
+  .sidebar-brand { display: flex; align-items: center; gap: 0.65rem; padding: 1.5rem 1.25rem 1.25rem; }
+  .sidebar-brand img { height: 32px; }
+  .sidebar-brand span { font-family: 'Archivo', sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.55); display: block; }
+  .sidebar-brand h1 { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+
+  .nav-list { list-style: none; flex: 1; padding: 0.5rem 0.75rem; }
+  .nav-btn {
+    width: 100%; display: flex; align-items: center; gap: 0.65rem; text-align: left;
+    background: none; border: 0; color: rgba(255,255,255,0.75); font-size: 0.88rem; font-weight: 600;
+    padding: 0.7rem 0.85rem; cursor: pointer; border-radius: 3px; margin-bottom: 0.15rem;
+  }
+  .nav-btn i { width: 16px; text-align: center; font-size: 0.9rem; }
+  .nav-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+  .nav-btn[aria-current="page"] { background: var(--white); color: var(--blue); }
+
+  .sidebar-footer { padding: 0.85rem 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.15); }
+  .btn-logout {
+    width: 100%; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.4); padding: 0.6rem 0; cursor: pointer;
+  }
+  .btn-logout:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  .content { flex: 1; min-width: 0; padding: 2.5rem 3rem; }
+  .content-section { display: none; }
+  .content-section.active { display: block; }
+  .section-head { margin-bottom: 1.75rem; }
+  .section-head h2 { font-size: 1.7rem; font-weight: 800; text-transform: uppercase; color: var(--blue); }
+  .section-head p { font-size: 0.88rem; color: var(--gray); margin-top: 0.3rem; max-width: 560px; }
+
+  .panel { background: var(--white); box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.75rem; }
+  .panel h3 {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray);
+    margin-bottom: 1.1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--gray-light);
+  }
+
+  /* ── shared form field styles ── */
+  .field-row { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.9rem; }
+  .field-row label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray); }
+  .field-row input, .field-row textarea {
+    font-family: 'Archivo', sans-serif; font-size: 0.85rem; padding: 0.55rem 0.65rem; border: 1px solid var(--gray-light); background: var(--gray-light); width: 100%;
+  }
+  .field-row input:focus, .field-row textarea:focus { outline: 2px solid var(--blue); background: var(--white); }
+  .field-row textarea { min-height: 56px; resize: vertical; }
+  .field-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 720px) { .field-grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── deal / testimonial editor cards ── */
+  .edit-card { border: 1px solid var(--gray-light); padding: 1.1rem; margin-bottom: 1rem; position: relative; }
+  .edit-card legend { padding: 0 0.3rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray); }
+  .edit-card-tools { display: flex; gap: 0.4rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .tool-btn {
+    font-family: 'Archivo', sans-serif; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+    background: var(--gray-light); color: var(--dark); border: 0; padding: 0.4rem 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .tool-btn:hover { background: #e4e8ee; }
+  .tool-btn:disabled { opacity: 0.35; cursor: default; }
+  .tool-btn.danger { color: var(--down); }
+  .tool-btn.danger:hover { background: #FDECEA; }
+
+  .btn-primary {
+    font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;
+    background: var(--blue); color: var(--yellow); border: 2px solid var(--blue); padding: 0.75rem 1.5rem; cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--blue-mid); border-color: var(--blue-mid); }
+  .btn-primary[aria-disabled="true"] { opacity: 0.6; cursor: wait; }
+  .btn-secondary {
+    font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem;
+    background: var(--white); color: var(--blue); border: 2px solid var(--blue); padding: 0.65rem 1.2rem; cursor: pointer;
+  }
+  .btn-secondary:hover { background: var(--blue); color: var(--yellow); }
+  .btn-add {
+    width: 100%; font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem;
+    background: none; color: var(--blue-mid); border: 2px dashed var(--gray-light); padding: 0.85rem; cursor: pointer; margin-bottom: 1rem;
+  }
+  .btn-add:hover { border-color: var(--blue-mid); background: #F5F8FF; }
+
+  .save-status { font-size: 0.82rem; margin-left: 1rem; }
+  .save-status.ok { color: var(--up); font-weight: 600; }
+  .save-status.err { color: var(--down); font-weight: 600; }
+  .action-row { display: flex; align-items: center; margin-top: 0.5rem; }
+
+  /* ── tables ── */
+  table { width: 100%; border-collapse: collapse; font-family: 'Archivo', sans-serif; font-size: 0.84rem; }
+  th, td { text-align: left; padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--gray-light); vertical-align: top; }
+  th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray); font-weight: 700; }
+  td.msg-cell { max-width: 280px; }
+  .empty-row td { color: var(--gray); font-style: italic; padding: 1.5rem 0.75rem; }
+  .count-pill { display: inline-flex; align-items: center; font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--blue); margin-left: 0.5rem; }
+  .table-wrap { overflow-x: auto; }
+  .table-toolbar { display: flex; justify-content: flex-end; margin-bottom: 0.85rem; }
+  .status-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.2rem 0.5rem; }
+  .status-badge.new { background: #FFF4CC; color: #6b5500; }
+  .status-badge.handled { background: #E5F3EA; color: var(--up); }
+  .row-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <form class="login-panel" id="loginForm">
+    <img src="rossenlogo.png" alt="">
+    <h1>Control Board</h1>
+    <p class="sub">Rossen Reports</p>
+    <div class="login-error" id="loginError" role="alert"></div>
+    <label for="adminKey">Password</label>
+    <input type="password" id="adminKey" name="key" autocomplete="current-password" required autofocus aria-describedby="loginError">
+    <button type="submit">Enter</button>
+  </form>
+</div>
+
+<div class="board" id="board">
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="shell">
+    <nav class="sidebar" aria-label="Control board sections">
+      <div class="sidebar-brand">
+        <img src="rossenlogo.png" alt="">
+        <div>
+          <span>Rossen Reports</span>
+          <h1>Control Board</h1>
+        </div>
+      </div>
+      <ul class="nav-list">
+        <li><button class="nav-btn" data-section="deals" type="button"><i class="fas fa-tag" aria-hidden="true"></i> Deals of the Week</button></li>
+        <li><button class="nav-btn" data-section="content" type="button"><i class="fas fa-file-lines" aria-hidden="true"></i> Site Content</button></li>
+        <li><button class="nav-btn" data-section="subscribers" type="button"><i class="fas fa-envelope" aria-hidden="true"></i> Subscribers</button></li>
+        <li><button class="nav-btn" data-section="contacts" type="button"><i class="fas fa-inbox" aria-hidden="true"></i> Contacts</button></li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="logoutBtn" type="button">Log Out</button>
+      </div>
+    </nav>
+
+    <main class="content" id="main" tabindex="-1">
+
+      <!-- ── DEALS ── -->
+      <section class="content-section" id="section-deals" data-section="deals">
+        <div class="section-head">
+          <h2 id="dealsHeading">Deals of the Week</h2>
+          <p>Edit, add, remove, or reorder the cards shown on the public site's "Deals of the Week" section. Changes go live immediately.</p>
+        </div>
+        <div class="panel">
+          <div id="dealsEditList"></div>
+          <button class="btn-add" id="addDealBtn" type="button"><i class="fas fa-plus" aria-hidden="true"></i> Add a Deal</button>
+          <div class="action-row">
+            <button class="btn-primary" id="saveDealsBtn" type="button">Save Deals</button>
+            <span class="save-status" id="dealsSaveStatus" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SITE CONTENT ── -->
+      <section class="content-section" id="section-content" data-section="content">
+        <div class="section-head">
+          <h2 id="contentHeading">Site Content</h2>
+          <p>Edit the hero introduction, the About section, and viewer testimonials.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Hero</h3>
+          <div class="field-row"><label for="heroEyebrowInput">Eyebrow Text</label><input type="text" id="heroEyebrowInput"></div>
+          <div class="field-row"><label for="heroLine1Input">Tagline — Line 1</label><input type="text" id="heroLine1Input"></div>
+          <div class="field-row"><label for="heroLine2Input">Tagline — Line 2 (bold)</label><input type="text" id="heroLine2Input"></div>
+          <div id="heroStatsEdit"></div>
+        </div>
+
+        <div class="panel">
+          <h3>About</h3>
+          <div class="field-row"><label for="aboutQuoteInput">Pull Quote</label><textarea id="aboutQuoteInput"></textarea></div>
+          <div id="credsEdit"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Testimonials</h3>
+          <div id="testimonialsEdit"></div>
+          <button class="btn-add" id="addTestimonialBtn" type="button"><i class="fas fa-plus" aria-hidden="true"></i> Add a Testimonial</button>
+        </div>
+
+        <div class="panel">
+          <div class="action-row">
+            <button class="btn-primary" id="saveContentBtn" type="button">Save Site Content</button>
+            <span class="save-status" id="contentSaveStatus" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SUBSCRIBERS ── -->
+      <section class="content-section" id="section-subscribers" data-section="subscribers">
+        <div class="section-head">
+          <h2 id="subscribersHeading">Newsletter Subscribers<span class="count-pill" id="subCount">0</span><span class="sr-only"> subscribers</span></h2>
+          <p>Everyone who signed up through the site's email form.</p>
+        </div>
+        <div class="panel">
+          <div class="table-toolbar"><button class="btn-secondary" id="exportSubsBtn" type="button"><i class="fas fa-download" aria-hidden="true"></i> Export CSV</button></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Newsletter Subscribers</caption>
+              <thead><tr><th scope="col">Email</th><th scope="col">Subscribed</th><th scope="col">Action</th></tr></thead>
+              <tbody id="subscribersBody"><tr class="empty-row"><td colspan="3">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CONTACTS ── -->
+      <section class="content-section" id="section-contacts" data-section="contacts">
+        <div class="section-head">
+          <h2 id="contactsHeading">Contact Submissions<span class="count-pill" id="contactCount">0</span><span class="sr-only"> submissions</span></h2>
+          <p>Advertiser inquiries, speaking requests, and press contacts submitted through the site.</p>
+        </div>
+        <div class="panel">
+          <div class="table-toolbar"><button class="btn-secondary" id="exportContactsBtn" type="button"><i class="fas fa-download" aria-hidden="true"></i> Export CSV</button></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Contact Submissions</caption>
+              <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Type</th><th scope="col">Message</th><th scope="col">Received</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+              <tbody id="contactsBody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  catch (e) { return iso; }
+}
+function csvEsc(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+function downloadCSV(filename, columns, rows) {
+  var lines = [columns.map(function (c) { return csvEsc(c.label); }).join(',')];
+  rows.forEach(function (r) { lines.push(columns.map(function (c) { return csvEsc(r[c.key]); }).join(',')); });
+  var blob = new Blob([lines.join('\r\n')], { type: 'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
+
+var loginWrap = document.getElementById('loginWrap');
+var board = document.getElementById('board');
+
+function showBoard() {
+  loginWrap.style.display = 'none';
+  board.style.display = 'block';
+  document.getElementById('main').focus();
+  loadDeals();
+  loadContent();
+  loadSubscribers();
+  loadContacts();
+}
+
+// ── login ──
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var errEl = document.getElementById('loginError');
+  var keyInput = document.getElementById('adminKey');
+  errEl.classList.remove('show');
+  errEl.textContent = '';
+  keyInput.removeAttribute('aria-invalid');
+  fetch('/admin/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: keyInput.value })
+  })
+  .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+  .then(function (res) {
+    if (res.ok) { showBoard(); }
+    else { showLoginError(res.data.error || 'Incorrect password. Try again.'); }
+  })
+  .catch(function () { showLoginError('Could not reach the server. Try again.'); });
+
+  function showLoginError(message) {
+    errEl.textContent = message;
+    errEl.classList.add('show');
+    keyInput.setAttribute('aria-invalid', 'true');
+    keyInput.focus();
+    keyInput.select();
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', function () {
+  fetch('/admin/logout', { method: 'POST' }).finally(function () {
+    board.style.display = 'none';
+    loginWrap.style.display = 'flex';
+    var keyInput = document.getElementById('adminKey');
+    keyInput.value = '';
+    keyInput.focus();
+  });
+});
+
+fetch('/api/admin/session')
+  .then(function (r) { return r.json(); })
+  .then(function (data) { if (data.authed) showBoard(); });
+
+// ── sidebar navigation ──
+var sections = ['deals', 'content', 'subscribers', 'contacts'];
+function showSection(name) {
+  if (sections.indexOf(name) === -1) name = 'deals';
+  sections.forEach(function (s) {
+    document.getElementById('section-' + s).classList.toggle('active', s === name);
+    var btn = document.querySelector('.nav-btn[data-section="' + s + '"]');
+    if (s === name) btn.setAttribute('aria-current', 'page'); else btn.removeAttribute('aria-current');
+  });
+  // move focus to the newly-shown section's heading so keyboard/SR users land
+  // somewhere sensible instead of on a nav button that's now mid-list visually
+  var heading = document.getElementById(name + 'Heading');
+  if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus(); }
+  if (history.replaceState) history.replaceState(null, '', '#' + name);
+}
+document.querySelectorAll('.nav-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () { showSection(btn.dataset.section); });
+});
+showSection((location.hash || '#deals').slice(1));
+
+// ══════════════════════════ DEALS ══════════════════════════
+var currentDeals = [];
+
+function loadDeals() {
+  fetch('/api/deals')
+    .then(function (r) { return r.json(); })
+    .then(function (data) { currentDeals = data.deals || []; renderDeals(); });
+}
+
+function renderDeals() {
+  var list = document.getElementById('dealsEditList');
+  list.innerHTML = currentDeals.map(function (d, i) {
+    return '<fieldset class="edit-card" data-index="' + i + '">' +
+      '<legend>Deal ' + (i + 1) + '</legend>' +
+      '<div class="edit-card-tools">' +
+        '<button type="button" class="tool-btn" data-act="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '><i class="fas fa-arrow-up" aria-hidden="true"></i> Move Up</button>' +
+        '<button type="button" class="tool-btn" data-act="down" data-i="' + i + '"' + (i === currentDeals.length - 1 ? ' disabled' : '') + '><i class="fas fa-arrow-down" aria-hidden="true"></i> Move Down</button>' +
+        '<button type="button" class="tool-btn danger" data-act="remove" data-i="' + i + '"><i class="fas fa-trash" aria-hidden="true"></i> Remove</button>' +
+      '</div>' +
+      dField('Category', 'deal-' + i + '-category', d.category) +
+      dField('Item Name', 'deal-' + i + '-name', d.name) +
+      dArea('Description', 'deal-' + i + '-desc', d.desc) +
+      dField('Link URL', 'deal-' + i + '-href', d.href) +
+      dField('Button Text', 'deal-' + i + '-cta', d.cta) +
+      '</fieldset>';
+  }).join('');
+
+  list.querySelectorAll('[data-act]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      // sync any live-typed edits into currentDeals FIRST, while the DOM still
+      // matches currentDeals's current order — swapping/splicing the array
+      // before this would make the sync read stale positions and undo the change.
+      syncDealsFromForm();
+      var i = Number(btn.dataset.i);
+      var act = btn.dataset.act;
+      if (act === 'remove') {
+        if (currentDeals.length <= 1) { alert('At least one deal is required.'); return; }
+        if (!confirm('Remove Deal ' + (i + 1) + ' ("' + currentDeals[i].name + '")?')) return;
+        currentDeals.splice(i, 1);
+        renderDeals();
+        document.getElementById('dealsHeading').focus();
+        return;
+      }
+      var newIndex = i;
+      if (act === 'up' && i > 0) {
+        var tmp = currentDeals[i - 1]; currentDeals[i - 1] = currentDeals[i]; currentDeals[i] = tmp;
+        newIndex = i - 1;
+      } else if (act === 'down' && i < currentDeals.length - 1) {
+        var tmp2 = currentDeals[i + 1]; currentDeals[i + 1] = currentDeals[i]; currentDeals[i] = tmp2;
+        newIndex = i + 1;
+      }
+      renderDeals();
+      // reordering is typically clicked repeatedly — sending focus back to the
+      // heading every time (like the one-off Remove action does) would force
+      // re-navigating the whole list after each click. Keep focus on the moved
+      // card's own move button instead, falling back if it's now disabled
+      // (e.g. just moved to the top, so its own "up" button is disabled).
+      var card = document.querySelector('#dealsEditList .edit-card[data-index="' + newIndex + '"]');
+      var target = card && card.querySelector('[data-act="' + act + '"]:not(:disabled)');
+      if (!target) target = card && card.querySelector('[data-act="up"]:not(:disabled), [data-act="down"]:not(:disabled)');
+      if (!target) target = card && card.querySelector('input, textarea');
+      (target || document.getElementById('dealsHeading')).focus();
+    });
+  });
+}
+
+function dField(label, id, val) {
+  return '<div class="field-row"><label for="' + id + '">' + esc(label) + '</label>' +
+    '<input type="text" id="' + id + '" data-key="' + id.split('-').pop() + '" value="' + esc(val) + '"></div>';
+}
+function dArea(label, id, val) {
+  return '<div class="field-row"><label for="' + id + '">' + esc(label) + '</label>' +
+    '<textarea id="' + id + '" data-key="desc">' + esc(val) + '</textarea></div>';
+}
+
+function syncDealsFromForm() {
+  document.querySelectorAll('#dealsEditList .edit-card').forEach(function (card, i) {
+    if (!currentDeals[i]) return;
+    card.querySelectorAll('[data-key]').forEach(function (el) { currentDeals[i][el.dataset.key] = el.value; });
+  });
+}
+
+document.getElementById('addDealBtn').addEventListener('click', function () {
+  syncDealsFromForm();
+  currentDeals.push({ icon: 'fa-tag', category: 'New Category', name: 'New Item', desc: '', href: 'https://', cta: 'Shop Now' });
+  renderDeals();
+  var last = document.querySelectorAll('#dealsEditList .edit-card');
+  last[last.length - 1].querySelector('input').focus();
+});
+
+document.getElementById('saveDealsBtn').addEventListener('click', function () {
+  var btn = this;
+  if (btn.getAttribute('aria-disabled') === 'true') return;
+  syncDealsFromForm();
+  var statusEl = document.getElementById('dealsSaveStatus');
+  btn.setAttribute('aria-disabled', 'true');
+  statusEl.className = 'save-status'; statusEl.textContent = '';
+  fetch('/api/admin/deals', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deals: currentDeals })
+  })
+  .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+  .then(function (res) {
+    btn.removeAttribute('aria-disabled');
+    if (res.ok) { statusEl.className = 'save-status ok'; statusEl.textContent = 'Saved — live on the site now.'; }
+    else { statusEl.className = 'save-status err'; statusEl.textContent = res.data.error || 'Save failed.'; }
+  })
+  .catch(function () { btn.removeAttribute('aria-disabled'); statusEl.className = 'save-status err'; statusEl.textContent = 'Could not reach the server.'; });
+});
+
+// ══════════════════════════ SITE CONTENT ══════════════════════════
+var currentContent = null;
+
+function loadContent() {
+  fetch('/api/content')
+    .then(function (r) { return r.json(); })
+    .then(function (data) { currentContent = data; renderContent(); });
+}
+
+function renderContent() {
+  document.getElementById('heroEyebrowInput').value = currentContent.hero.eyebrow || '';
+  document.getElementById('heroLine1Input').value = currentContent.hero.taglineLine1 || '';
+  document.getElementById('heroLine2Input').value = currentContent.hero.taglineLine2 || '';
+
+  var statsEl = document.getElementById('heroStatsEdit');
+  statsEl.innerHTML = '<div class="field-grid-2">' + currentContent.hero.stats.map(function (s, i) {
+    return '<div class="field-row"><label for="stat-' + i + '-value">Stat ' + (i + 1) + ' Value</label><input type="text" id="stat-' + i + '-value" value="' + esc(s.value) + '"></div>' +
+      '<div class="field-row"><label for="stat-' + i + '-suffix">Stat ' + (i + 1) + ' Suffix</label><input type="text" id="stat-' + i + '-suffix" value="' + esc(s.suffix) + '"></div>' +
+      '<div class="field-row" style="grid-column:1/-1"><label for="stat-' + i + '-label">Stat ' + (i + 1) + ' Label</label><input type="text" id="stat-' + i + '-label" value="' + esc(s.label) + '"></div>';
+  }).join('') + '</div>';
+
+  document.getElementById('aboutQuoteInput').value = currentContent.about.quote || '';
+
+  var credsEl = document.getElementById('credsEdit');
+  credsEl.innerHTML = currentContent.about.credentials.map(function (c, i) {
+    return '<div class="field-grid-2">' +
+      '<div class="field-row"><label for="cred-' + i + '-num">Credential ' + (i + 1) + ' Number</label><input type="text" id="cred-' + i + '-num" value="' + esc(c.num) + '"></div>' +
+      '<div class="field-row"><label for="cred-' + i + '-label">Credential ' + (i + 1) + ' Label</label><input type="text" id="cred-' + i + '-label" value="' + esc(c.label) + '"></div>' +
+      '</div>';
+  }).join('');
+
+  renderTestimonials();
+}
+
+function renderTestimonials() {
+  var wrap = document.getElementById('testimonialsEdit');
+  wrap.innerHTML = currentContent.testimonials.map(function (t, i) {
+    return '<fieldset class="edit-card" data-index="' + i + '">' +
+      '<legend>Testimonial ' + (i + 1) + '</legend>' +
+      '<div class="edit-card-tools">' +
+        '<button type="button" class="tool-btn danger" data-remove-testi="' + i + '"><i class="fas fa-trash" aria-hidden="true"></i> Remove</button>' +
+      '</div>' +
+      '<div class="field-row"><label for="testi-' + i + '-quote">Quote</label><textarea id="testi-' + i + '-quote">' + esc(t.quote) + '</textarea></div>' +
+      '<div class="field-row"><label for="testi-' + i + '-name">Attribution</label><input type="text" id="testi-' + i + '-name" value="' + esc(t.name) + '"></div>' +
+      '</fieldset>';
+  }).join('');
+
+  wrap.querySelectorAll('[data-remove-testi]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var i = Number(btn.dataset.removeTesti);
+      if (!confirm('Remove this testimonial from ' + (currentContent.testimonials[i].name || 'this person') + '?')) return;
+      syncContentFromForm();
+      currentContent.testimonials.splice(i, 1);
+      renderTestimonials();
+      document.getElementById('contentHeading').focus();
+    });
+  });
+}
+
+document.getElementById('addTestimonialBtn').addEventListener('click', function () {
+  syncContentFromForm();
+  currentContent.testimonials.push({ quote: '', name: '' });
+  renderTestimonials();
+  var areas = document.querySelectorAll('#testimonialsEdit textarea');
+  areas[areas.length - 1].focus();
+});
+
+function syncContentFromForm() {
+  currentContent.hero.eyebrow = document.getElementById('heroEyebrowInput').value;
+  currentContent.hero.taglineLine1 = document.getElementById('heroLine1Input').value;
+  currentContent.hero.taglineLine2 = document.getElementById('heroLine2Input').value;
+  currentContent.hero.stats.forEach(function (s, i) {
+    var v = document.getElementById('stat-' + i + '-value'), sf = document.getElementById('stat-' + i + '-suffix'), l = document.getElementById('stat-' + i + '-label');
+    if (v) s.value = v.value; if (sf) s.suffix = sf.value; if (l) s.label = l.value;
+  });
+  currentContent.about.quote = document.getElementById('aboutQuoteInput').value;
+  currentContent.about.credentials.forEach(function (c, i) {
+    var n = document.getElementById('cred-' + i + '-num'), l = document.getElementById('cred-' + i + '-label');
+    if (n) c.num = n.value; if (l) c.label = l.value;
+  });
+  currentContent.testimonials.forEach(function (t, i) {
+    var q = document.getElementById('testi-' + i + '-quote'), n = document.getElementById('testi-' + i + '-name');
+    if (q) t.quote = q.value; if (n) t.name = n.value;
+  });
+}
+
+document.getElementById('saveContentBtn').addEventListener('click', function () {
+  var btn = this;
+  if (btn.getAttribute('aria-disabled') === 'true') return;
+  syncContentFromForm();
+  var statusEl = document.getElementById('contentSaveStatus');
+  btn.setAttribute('aria-disabled', 'true');
+  statusEl.className = 'save-status'; statusEl.textContent = '';
+  fetch('/api/admin/content', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentContent)
+  })
+  .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+  .then(function (res) {
+    btn.removeAttribute('aria-disabled');
+    if (res.ok) { statusEl.className = 'save-status ok'; statusEl.textContent = 'Saved — live on the site now.'; }
+    else { statusEl.className = 'save-status err'; statusEl.textContent = res.data.error || 'Save failed.'; }
+  })
+  .catch(function () { btn.removeAttribute('aria-disabled'); statusEl.className = 'save-status err'; statusEl.textContent = 'Could not reach the server.'; });
+});
+
+// ══════════════════════════ SUBSCRIBERS ══════════════════════════
+var currentSubscribers = [];
+
+function loadSubscribers() {
+  fetch('/api/admin/subscribers')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      currentSubscribers = (data.subscribers || []).slice().reverse();
+      document.getElementById('subCount').textContent = data.count || 0;
+      renderSubscribers();
+    });
+}
+function renderSubscribers() {
+  var body = document.getElementById('subscribersBody');
+  if (!currentSubscribers.length) { body.innerHTML = '<tr class="empty-row"><td colspan="3">No subscribers yet.</td></tr>'; return; }
+  body.innerHTML = currentSubscribers.map(function (s) {
+    return '<tr><td>' + esc(s.email) + '</td><td>' + esc(fmtDate(s.created_at)) + '</td>' +
+      '<td><button type="button" class="tool-btn danger" data-del-sub="' + s.id + '" aria-label="' + esc('Delete subscriber ' + s.email) + '"><i class="fas fa-trash" aria-hidden="true"></i> Delete</button></td></tr>';
+  }).join('');
+  body.querySelectorAll('[data-del-sub]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.delSub;
+      var sub = currentSubscribers.find(function (s) { return String(s.id) === id; });
+      if (!confirm('Delete subscriber ' + (sub ? sub.email : '') + '?')) return;
+      fetch('/api/admin/subscribers/' + id, { method: 'DELETE' })
+        .then(function () { loadSubscribers(); document.getElementById('subscribersHeading').focus(); });
+    });
+  });
+}
+document.getElementById('exportSubsBtn').addEventListener('click', function () {
+  downloadCSV('subscribers.csv', [{ key: 'email', label: 'Email' }, { key: 'created_at', label: 'Subscribed' }], currentSubscribers);
+});
+
+// ══════════════════════════ CONTACTS ══════════════════════════
+var currentContacts = [];
+
+function loadContacts() {
+  fetch('/api/admin/contacts')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      currentContacts = (data.contacts || []).slice().reverse();
+      document.getElementById('contactCount').textContent = data.count || 0;
+      renderContacts();
+    });
+}
+function renderContacts() {
+  var body = document.getElementById('contactsBody');
+  if (!currentContacts.length) { body.innerHTML = '<tr class="empty-row"><td colspan="7">No submissions yet.</td></tr>'; return; }
+  body.innerHTML = currentContacts.map(function (c) {
+    var status = c.status === 'handled' ? 'handled' : 'new';
+    return '<tr><td>' + esc(c.name || '—') + '</td><td>' + esc(c.email) + '</td><td>' + esc(c.type || '—') + '</td>' +
+      '<td class="msg-cell">' + esc(c.message) + '</td><td>' + esc(fmtDate(c.created_at)) + '</td>' +
+      '<td><span class="status-badge ' + status + '">' + (status === 'handled' ? 'Handled' : 'New') + '</span></td>' +
+      '<td><div class="row-actions">' +
+      '<button type="button" class="tool-btn" data-toggle-contact="' + c.id + '" aria-label="' + esc((status === 'handled' ? 'Mark New' : 'Mark Handled') + ' — ' + (c.name || c.email)) + '">' + (status === 'handled' ? 'Mark New' : 'Mark Handled') + '</button>' +
+      '<button type="button" class="tool-btn danger" data-del-contact="' + c.id + '" aria-label="' + esc('Delete submission from ' + (c.name || c.email)) + '"><i class="fas fa-trash" aria-hidden="true"></i> Delete</button>' +
+      '</div></td></tr>';
+  }).join('');
+  body.querySelectorAll('[data-toggle-contact]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.toggleContact;
+      var c = currentContacts.find(function (x) { return String(x.id) === id; });
+      var next = (c && c.status === 'handled') ? 'new' : 'handled';
+      fetch('/api/admin/contacts/' + id, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: next })
+      // the clicked button is destroyed by the table rebuild below — without this,
+      // focus silently falls back to <body> on what's likely the most-repeated action here.
+      }).then(function () { loadContacts(); document.getElementById('contactsHeading').focus(); });
+    });
+  });
+  body.querySelectorAll('[data-del-contact]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.delContact;
+      var c = currentContacts.find(function (x) { return String(x.id) === id; });
+      if (!confirm('Delete the submission from ' + (c ? (c.name || c.email) : '') + '?')) return;
+      fetch('/api/admin/contacts/' + id, { method: 'DELETE' })
+        .then(function () { loadContacts(); document.getElementById('contactsHeading').focus(); });
+    });
+  });
+}
+document.getElementById('exportContactsBtn').addEventListener('click', function () {
+  downloadCSV('contacts.csv', [
+    { key: 'name', label: 'Name' }, { key: 'email', label: 'Email' }, { key: 'type', label: 'Type' },
+    { key: 'message', label: 'Message' }, { key: 'created_at', label: 'Received' }, { key: 'status', label: 'Status' }
+  ], currentContacts);
+});
+</script>
+</body>
+</html>

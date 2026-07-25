@@ -1,0 +1,12 @@
+# An unrelated project lives in this repo — it must not ship with the site.
+FundedFinder/
+
+node_modules/
+.claude/
+.DS_Store
+*.md
+
+# db/deals.json and db/content.json DO ship — they are the site's editable copy.
+# These two hold real people's email addresses and must never be in a deploy bundle.
+db/subscribers.json
+db/contacts.json

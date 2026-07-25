@@ -7,7 +7,7 @@
     <meta name="description" content="Jeff Rossen — Award-winning consumer investigative journalist. Saving you money, exposing scams, and revealing the best deals.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Archivo:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="rossenlogo.png">
     <link rel="icon" type="image/png" sizes="16x16" href="rossenlogo.png">
@@ -62,12 +62,35 @@
             --gray-light: #F0F2F5;
             --gray:       #6B7280;
             --dark:       #111827;
+            --paper:      #F6F1E6;
+            /* 7.9:1 on --paper, 8.9:1 behind white chip text — reads as "warning"
+               without dropping below AA anywhere it's used. */
+            --alert:      #8F1D14;
+        }
+
+        /* Scroll targets carry tabindex="-1" so activating an in-page link moves
+           focus into the section instead of only scrolling it into view (2.4.3).
+           They aren't controls, so the programmatic focus ring is suppressed. */
+        section[tabindex="-1"]:focus { outline: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Newsreader', serif;
             color: var(--dark);
             background: var(--white);
             overflow-x: hidden;
@@ -99,6 +122,37 @@
             background-size: 48px 48px;
             pointer-events: none;
         }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.06;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-filetag {
+            position: absolute;
+            left: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: left center;
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.32);
+            white-space: nowrap;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .hero-filetag::before { content: '— '; }
+        .hero-filetag::after { content: ' —'; }
+        @media (max-width: 900px) { .hero-filetag { display: none; } }
 
         .hero-bar {
             position: absolute;
@@ -144,7 +198,7 @@
             gap: 0.6rem;
             background: var(--yellow);
             color: var(--blue);
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 600;
             font-size: 0.7rem;
             letter-spacing: 0.18em;
@@ -162,12 +216,13 @@
         }
 
         .hero-name {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
+            font-family: 'Big Shoulders Display', sans-serif;
+            font-weight: 900;
             font-size: clamp(3.5rem, 8vw, 6rem);
             color: var(--white);
             line-height: 0.95;
             text-transform: uppercase;
+            letter-spacing: -0.01em;
         }
 
         .hero-name .yellow { color: var(--yellow); }
@@ -198,7 +253,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 600;
             font-size: 0.85rem;
             letter-spacing: 0.1em;
@@ -212,7 +267,7 @@
 
         .btn-primary { background: var(--yellow); color: var(--blue); border-color: var(--yellow); }
         .btn-primary:hover { background: transparent; color: var(--yellow); }
-        .btn-outline { background: transparent; color: var(--white); border-color: rgba(255,255,255,0.35); }
+        .btn-outline { background: transparent; color: var(--white); border-color: #9CA3AF; }
         .btn-outline:hover { border-color: var(--white); }
 
         /* stats with count-up */
@@ -226,7 +281,7 @@
         }
 
         .stat-num {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Big Shoulders Display', sans-serif;
             font-weight: 700;
             font-size: 2rem;
             color: var(--yellow);
@@ -268,7 +323,7 @@
 
         .lt-yellow { background: var(--yellow); padding: 0.5rem 1.25rem; }
         .lt-yellow span {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.15rem;
             color: var(--blue);
@@ -292,7 +347,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.7rem;
             letter-spacing: 0.2em;
             text-transform: uppercase;
@@ -308,8 +363,8 @@
         }
 
         .section-title {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
+            font-family: 'Big Shoulders Display', sans-serif;
+            font-weight: 800;
             font-size: clamp(2rem, 4.5vw, 3rem);
             color: var(--blue);
             text-transform: uppercase;
@@ -337,7 +392,7 @@
             gap: 0.5rem;
             background: var(--yellow);
             color: var(--blue);
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.72rem;
             letter-spacing: 0.16em;
@@ -420,7 +475,7 @@
             bottom: 0; left: 0; right: 0;
             padding: 2rem 1.5rem 1rem;
             background: linear-gradient(transparent, rgba(0,0,0,0.75));
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 1.05rem;
             font-weight: 500;
             color: var(--white);
@@ -451,7 +506,7 @@
         .video-fallback i.fa-youtube { font-size: 4rem; color: #ff0000; }
 
         .video-fallback p {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 1rem;
             color: rgba(255,255,255,0.5);
             letter-spacing: 0.08em;
@@ -466,7 +521,7 @@
             color: #fff;
             text-decoration: none;
             padding: 0.75rem 1.75rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 600;
             font-size: 0.85rem;
             letter-spacing: 0.1em;
@@ -495,11 +550,12 @@
         }
 
         .about-quote-text {
-            font-family: 'Oswald', sans-serif;
-            font-size: clamp(1.35rem, 3vw, 1.9rem);
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-size: clamp(1.4rem, 3vw, 2rem);
             font-weight: 500;
             color: var(--white);
-            line-height: 1.55;
+            line-height: 1.5;
             max-width: 700px;
         }
 
@@ -530,7 +586,7 @@
         .cred-item:last-child { border-right: none; }
 
         .cred-num {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Big Shoulders Display', sans-serif;
             font-weight: 700;
             font-size: 1.75rem;
             color: var(--blue);
@@ -543,6 +599,16 @@
             line-height: 1.5;
             margin-top: 0.35rem;
             display: block;
+        }
+
+        .cred-item-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+        .cred-item-link:focus {
+            outline: 2px solid var(--yellow);
+            outline-offset: 2px;
         }
 
         /* ─────────────── THE SHOW ─────────────── */
@@ -585,7 +651,7 @@
             gap: 0.5rem;
             background: var(--yellow);
             color: var(--blue);
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.7rem;
             letter-spacing: 0.2em;
@@ -603,8 +669,8 @@
         }
 
         .cs-title {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
+            font-family: 'Big Shoulders Display', sans-serif;
+            font-weight: 900;
             font-size: clamp(2.75rem, 7vw, 5rem);
             color: var(--white);
             text-transform: uppercase;
@@ -664,7 +730,7 @@
         .link-card-featured .lc-text { flex: 1; }
 
         .link-card-featured .lc-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.3rem;
             color: var(--white);
@@ -741,7 +807,7 @@
         .link-card:hover .lc-icon { background: var(--platform-color, var(--yellow)); }
 
         .lc-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1rem;
             color: var(--white);
@@ -771,7 +837,7 @@
         }
 
         /* ─────────────── SHOP ─────────────── */
-        .shop { background: var(--gray-light); }
+        .shop { background: var(--paper); }
 
         .shop-grid {
             display: grid;
@@ -806,7 +872,7 @@
         }
 
         .shop-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.35rem;
             color: var(--blue);
@@ -820,7 +886,7 @@
         }
 
         .shop-link {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.78rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -936,7 +1002,7 @@
             gap: 0.6rem;
             background: var(--yellow);
             color: var(--blue);
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.68rem;
             letter-spacing: 0.18em;
@@ -946,8 +1012,8 @@
         }
 
         .email-title {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
+            font-family: 'Big Shoulders Display', sans-serif;
+            font-weight: 800;
             font-size: clamp(2rem, 4vw, 2.75rem);
             color: var(--white);
             text-transform: uppercase;
@@ -975,14 +1041,14 @@
             border-right: none;
             background: rgba(255,255,255,0.07);
             color: var(--white);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.9rem;
             outline: none;
             min-width: 0;
             transition: border-color 0.2s;
         }
 
-        .email-form input::placeholder { color: rgba(255,255,255,0.35); }
+        .email-form input::placeholder { color: #9CA3AF; }
         .email-form input:focus { border-color: var(--yellow); }
 
         .email-form button {
@@ -990,7 +1056,7 @@
             color: var(--blue);
             border: 2px solid var(--yellow);
             padding: 0.95rem 1.5rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.82rem;
             letter-spacing: 0.1em;
@@ -1010,7 +1076,7 @@
             align-items: center;
             gap: 0.75rem;
             color: var(--yellow);
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 1rem;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -1043,6 +1109,8 @@
             line-height: 1.65;
         }
 
+        .deals-loading { grid-column: 1 / -1; color: var(--gray); font-size: 0.9rem; }
+
         .deals-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -1071,7 +1139,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 600;
             font-size: 0.62rem;
             letter-spacing: 0.16em;
@@ -1082,7 +1150,7 @@
         .deal-category i { font-size: 0.7rem; }
 
         .deal-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.05rem;
             color: var(--blue);
@@ -1090,7 +1158,7 @@
         }
 
         .deal-desc {
-            font-size: 0.82rem;
+            font-size: 0.9rem;
             color: var(--gray);
             line-height: 1.65;
             flex: 1;
@@ -1106,7 +1174,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.75rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -1117,6 +1185,158 @@
         .deals-footer {
             text-align: center;
             margin-top: 2.5rem;
+        }
+
+        /* ─────────────── SCAM ALERTS ─────────────── */
+        /* Deliberately a ledger, not a card grid — this is a wire feed, and rows
+           read as "newest first" in a way that equal-weight cards don't. */
+        .scam-alerts { background: var(--paper); }
+
+        .alerts-intro {
+            font-family: 'Newsreader', Georgia, serif;
+            font-size: 1.05rem;
+            color: #4E4A44;
+            max-width: 46rem;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .alerts-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 2.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--alert);
+        }
+
+        .alerts-bar-label {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--alert);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alerts-pulse {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--alert);
+            animation: alertPulse 2.4s ease-in-out infinite;
+        }
+        @keyframes alertPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+        @media (prefers-reduced-motion: reduce) {
+            .alerts-pulse { animation: none; }
+        }
+
+        .alerts-status {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.78rem;
+            color: #57534E;
+        }
+
+        .alerts-list { list-style: none; margin: 0; padding: 0; }
+
+        .alert-item {
+            display: grid;
+            grid-template-columns: 8.5rem 1fr;
+            gap: 0 2rem;
+            padding: 1.6rem 0;
+            border-bottom: 1px solid rgba(17,24,39,0.12);
+        }
+        .alert-item:last-child { border-bottom: none; }
+
+        .alert-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.45rem;
+            padding-top: 0.2rem;
+        }
+
+        .alert-cat {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.63rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--alert);
+            padding: 0.28rem 0.5rem;
+            border-radius: 2px;
+        }
+
+        .alert-date {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #57534E;
+        }
+
+        .alert-agency {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.66rem;
+            letter-spacing: 0.06em;
+            color: #57534E;
+        }
+
+        .alert-title {
+            font-family: 'Big Shoulders Display', 'Archivo', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.12;
+            letter-spacing: -0.005em;
+            margin: 0 0 0.5rem;
+        }
+
+        .alert-title a {
+            color: var(--dark);
+            text-decoration: none;
+            background-image: linear-gradient(var(--alert), var(--alert));
+            background-size: 0% 2px;
+            background-repeat: no-repeat;
+            background-position: 0 100%;
+            transition: background-size 0.25s ease, color 0.2s ease;
+        }
+        .alert-title a:hover { color: var(--alert); background-size: 100% 2px; }
+        .alert-title a:focus-visible {
+            outline: 3px solid var(--alert);
+            outline-offset: 3px;
+            border-radius: 2px;
+        }
+
+        .alert-sum {
+            font-family: 'Newsreader', Georgia, serif;
+            font-size: 0.97rem;
+            line-height: 1.6;
+            color: #2B2B2B;
+            margin: 0;
+        }
+
+        .alerts-foot {
+            margin-top: 2rem;
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            color: #57534E;
+        }
+        .alerts-foot a { color: var(--alert); text-decoration: underline; }
+        .alerts-foot a:focus-visible {
+            outline: 3px solid var(--alert);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 700px) {
+            .alert-item { grid-template-columns: 1fr; gap: 0.7rem; }
+            .alert-meta { flex-direction: row; align-items: center; gap: 0.7rem; }
+            .alert-title { font-size: 1.3rem; }
         }
 
         /* ─────────────── SOCIAL SPOTLIGHT ─────────────── */
@@ -1164,7 +1384,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.72rem;
             letter-spacing: 0.18em;
@@ -1174,7 +1394,7 @@
         }
 
         .spotlight-title {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.6rem;
             color: var(--white);
@@ -1194,7 +1414,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.8rem;
             letter-spacing: 0.12em;
@@ -1358,7 +1578,7 @@
         }
 
         .press-label {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.6rem;
             letter-spacing: 0.22em;
             text-transform: uppercase;
@@ -1385,7 +1605,7 @@
         .press-logo:hover { color: rgba(255,255,255,0.55); }
 
         .press-logo .pl-main {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1rem;
             letter-spacing: 0.05em;
@@ -1393,7 +1613,7 @@
         }
 
         .press-logo .pl-sub {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 400;
             font-size: 0.52rem;
             letter-spacing: 0.2em;
@@ -1455,8 +1675,8 @@
             align-items: center;
             gap: 0.18rem;
             text-decoration: none;
-            color: rgba(255,255,255,0.35);
-            font-family: 'Oswald', sans-serif;
+            color: #9CA3AF;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.56rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -1554,7 +1774,7 @@
             z-index: 10;
             background: #ff0000;
             color: #fff;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.65rem;
             letter-spacing: 0.15em;
@@ -1631,7 +1851,7 @@
             z-index: 1;
         }
         .testi-name {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.68rem;
             letter-spacing: 0.15em;
             text-transform: uppercase;
@@ -1651,6 +1871,7 @@
             margin-top: 2.5rem;
         }
         .contact-card {
+            position: relative;
             background: var(--white);
             padding: 2rem;
             border-top: 4px solid var(--blue);
@@ -1661,13 +1882,30 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
             transition: box-shadow 0.2s, transform 0.18s;
             color: var(--dark);
+            overflow: hidden;
         }
         .contact-card:hover {
             box-shadow: 0 10px 32px rgba(11,44,107,0.13);
             transform: translateY(-2px);
             border-top-color: var(--yellow);
         }
+        .contact-file-num {
+            position: absolute;
+            top: -0.4rem;
+            right: 0.6rem;
+            font-family: 'Big Shoulders Display', sans-serif;
+            font-weight: 800;
+            font-size: 4.5rem;
+            line-height: 1;
+            color: var(--gray-light);
+            z-index: 0;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+        .contact-card:hover .contact-file-num { color: #E4EAF5; }
         .contact-icon {
+            position: relative;
+            z-index: 1;
             width: 44px; height: 44px;
             background: var(--blue);
             color: var(--yellow);
@@ -1679,8 +1917,9 @@
             transition: background 0.2s;
         }
         .contact-card:hover .contact-icon { background: var(--blue-mid); }
+        .contact-type, .contact-desc, .contact-cta { position: relative; z-index: 1; }
         .contact-type {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 1.05rem;
             color: var(--blue);
@@ -1688,13 +1927,13 @@
             letter-spacing: 0.04em;
         }
         .contact-desc {
-            font-size: 0.83rem;
+            font-size: 0.9rem;
             color: var(--gray);
             line-height: 1.65;
             flex: 1;
         }
         .contact-cta {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Archivo', sans-serif;
             font-size: 0.75rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -1708,6 +1947,76 @@
         @media (max-width: 960px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 600px) { .contact-grid { grid-template-columns: 1fr; } }
 
+        .contact-form-wrap {
+            max-width: 640px;
+            margin: 3rem auto 0;
+            background: var(--white);
+            padding: 2.5rem;
+            border-top: 4px solid var(--blue);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .contact-form-title {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.35rem;
+        }
+        .contact-form-sub { font-size: 0.85rem; color: var(--gray); margin-bottom: 1.5rem; }
+        .contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .contact-form-wrap label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .contact-form-wrap input,
+        .contact-form-wrap select,
+        .contact-form-wrap textarea {
+            width: 100%;
+            padding: 0.7rem 0.85rem;
+            border: 1px solid var(--gray-light);
+            background: var(--gray-light);
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        .contact-form-wrap input:focus,
+        .contact-form-wrap select:focus,
+        .contact-form-wrap textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; background: var(--white); }
+        .contact-form-field { margin-bottom: 1rem; }
+        .contact-form-wrap textarea { min-height: 110px; resize: vertical; }
+        .contact-form-wrap button {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--blue);
+            color: var(--yellow);
+            border: 2px solid var(--blue);
+            padding: 0.85rem 1.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .contact-form-wrap button:focus { outline: 2px solid var(--yellow); outline-offset: 2px; }
+        .contact-form-wrap button:hover { background: transparent; color: var(--blue); }
+        .contact-form-wrap button:disabled { opacity: 0.6; cursor: wait; }
+        .contact-form-success {
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--blue);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .contact-form-error { display: none; color: #B3261E; font-size: 0.85rem; margin-top: 0.75rem; }
+        @media (max-width: 640px) { .contact-form-row { grid-template-columns: 1fr; } .contact-form-wrap { padding: 1.75rem; } }
+
         /* ─── SPOTLIGHT 3 CARDS ─── */
         @media (min-width: 769px) {
             .spotlight-grid-3 { grid-template-columns: repeat(3, 1fr); }
@@ -1719,12 +2028,13 @@
 <!-- ── HERO ── -->
 <section class="hero" id="home">
     <div class="hero-glow"></div>
+    <div class="hero-filetag" aria-hidden="true">Consumer Investigations Unit</div>
     <div class="hero-logo">
         <img src="rossenlogo.png" alt="Rossen Reports">
     </div>
     <div class="hero-inner">
         <div>
-            <div class="hero-eyebrow">Award-Winning Consumer Journalist</div>
+            <div class="hero-eyebrow" id="heroEyebrow">Award-Winning Consumer Journalist</div>
             <h1 class="hero-name">
                 Jeff<br>
                 <span class="yellow">Rossen</span>
@@ -1742,13 +2052,13 @@
                     <i class="fas fa-share-alt"></i> Follow Jeff
                 </a>
             </div>
-            <div class="hero-stats">
+            <div class="hero-stats" id="heroStats">
                 <div>
                     <span class="stat-num" data-count="2.4" data-suffix="M+">2.4M+</span>
                     <span class="stat-lbl">Followers</span>
                 </div>
                 <div>
-                    <span class="stat-num" data-count="18" data-suffix="K+">18K+</span>
+                    <span class="stat-num" data-count="40" data-suffix="K+">40K+</span>
                     <span class="stat-lbl">Subscribers</span>
                 </div>
                 <div>
@@ -1799,7 +2109,7 @@
 </div>
 
 <!-- ── LATEST EPISODE ── -->
-<section class="section latest" id="latest">
+<section class="section latest" id="latest" tabindex="-1">
     <div class="container">
         <div class="latest-header">
             <div>
@@ -1827,7 +2137,7 @@
 </section>
 
 <!-- ── EMAIL SIGNUP ── -->
-<section class="section email-signup" id="subscribe">
+<section class="section email-signup" id="subscribe" tabindex="-1">
     <div class="container">
         <div class="email-inner fade-up">
             <div>
@@ -1850,45 +2160,13 @@
 </section>
 
 <!-- ── DEALS OF THE WEEK ── -->
-<section class="section deals" id="deals">
+<section class="section deals" id="deals" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Updated Weekly</span>
         <h2 class="section-title">Deals of the Week</h2>
         <p class="deals-intro">Jeff's team-vetted picks — products and savings worth your attention right now.</p>
-        <div class="deals-grid fade-up">
-
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-category"><i class="fas fa-shield-alt"></i> Home Security</span>
-                <span class="deal-name">Best Security Cameras This Week</span>
-                <p class="deal-desc">Jeff tested dozens — these are the cameras that actually protect your home without breaking the bank.</p>
-                <hr class="deal-divider">
-                <span class="deal-cta">Shop Now <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-category"><i class="fas fa-shopping-cart"></i> Grocery Savings</span>
-                <span class="deal-name">Stop Overpaying at the Store</span>
-                <p class="deal-desc">Walmart deals most shoppers walk right past — Jeff's picks for maximum savings on everyday essentials.</p>
-                <hr class="deal-divider">
-                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-category"><i class="fas fa-plane"></i> Travel Steals</span>
-                <span class="deal-name">Hidden Travel Deals Airlines Won't Tell You</span>
-                <p class="deal-desc">The prices airlines and hotels don't advertise — exposed by Jeff's consumer investigations team.</p>
-                <hr class="deal-divider">
-                <span class="deal-cta">See Deals <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="deal-card">
-                <span class="deal-category"><i class="fas fa-microchip"></i> Top Tech</span>
-                <span class="deal-name">Best Tech Under $50</span>
-                <p class="deal-desc">Consumer gadgets that actually deliver on their promises — vetted and recommended by Jeff's team.</p>
-                <hr class="deal-divider">
-                <span class="deal-cta">Explore <i class="fas fa-arrow-right"></i></span>
-            </a>
-
+        <div class="deals-grid fade-up" id="dealsGrid">
+            <p class="deals-loading">Loading this week's picks…</p>
         </div>
         <div class="deals-footer">
             <a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display:inline-flex;background:var(--blue);border-color:var(--blue);color:var(--yellow);">
@@ -1898,8 +2176,33 @@
     </div>
 </section>
 
+<!-- ── SCAM ALERTS (live, federal sources only) ── -->
+<section class="section scam-alerts" id="alerts" tabindex="-1" aria-labelledby="alertsHeading">
+    <div class="container">
+        <span class="eyebrow">Straight From the Watchdogs</span>
+        <h2 class="section-title" id="alertsHeading">Scam Alerts</h2>
+        <p class="alerts-intro">
+            The newest consumer warnings, pulled automatically from the federal agencies that
+            investigate this stuff for a living. Every alert below links straight to the
+            government source — no middleman, nothing embellished.
+        </p>
+
+        <div class="alerts-bar">
+            <span class="alerts-bar-label"><span class="alerts-pulse" aria-hidden="true"></span> Live Feed</span>
+            <!-- Always in the DOM and never display-toggled, so screen readers
+                 reliably announce load results and errors. -->
+            <p class="alerts-status" id="alertsStatus" role="status">Loading the latest alerts…</p>
+        </div>
+
+        <!-- role="list" is required: list-style:none strips list semantics in WebKit -->
+        <ul class="alerts-list" role="list" id="alertsList"></ul>
+
+        <p class="alerts-foot" id="alertsFoot"></p>
+    </div>
+</section>
+
 <!-- ── VIEWER WINS / TESTIMONIALS ── -->
-<section class="testimonials" id="wins">
+<section class="testimonials" id="wins" tabindex="-1">
     <div class="testi-header">
         <span class="eyebrow">Viewer Wins</span>
         <h2 class="section-title" style="color:var(--white);">Real Results<br>From Real Viewers</h2>
@@ -1928,32 +2231,32 @@
 </section>
 
 <!-- ── ABOUT ── -->
-<section class="section about" id="about">
+<section class="section about" id="about" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Who is Jeff Rossen</span>
         <h2 class="section-title">The Reporter<br>On Your Side</h2>
         <div class="about-quote-wrap fade-up">
-            <p class="about-quote-text">
-                "I'll save you money by revealing the <em>best deals</em>, and exposing the <em>worst scams</em> — the stories that actually matter to your life."
+            <p class="about-quote-text" id="aboutQuoteText">
+                "I'll save you money by revealing the best deals, and exposing the worst scams — the stories that actually matter to your life."
             </p>
             <span class="about-quote-attr">— Jeff Rossen, Rossen Reports</span>
         </div>
-        <div class="creds-row fade-up delay-1">
+        <div class="creds-row fade-up delay-1" id="credsRow">
             <div class="cred-item">
                 <div class="cred-icon"><i class="fas fa-tv"></i></div>
                 <span class="cred-num">15+</span>
-                <span class="cred-label">Years as NBC News National Correspondent</span>
+                <span class="cred-label">Years as a National News Correspondent (NBC &amp; Hearst)</span>
             </div>
             <div class="cred-item">
-                <div class="cred-icon"><i class="fas fa-satellite-dish"></i></div>
-                <span class="cred-num">200+</span>
-                <span class="cred-label">TV Markets via Hearst National Syndication</span>
+                <div class="cred-icon"><i class="fas fa-award"></i></div>
+                <span class="cred-num">Peabody &amp; Murrow</span>
+                <span class="cred-label">Award Winner for 9/11 Coverage, Plus an Emmy</span>
             </div>
-            <div class="cred-item">
+            <a href="https://www.amazon.com/Rossen-Rescue-Avoiding-Everyday-Catastrophes/dp/125011943X" target="_blank" rel="noopener noreferrer" class="cred-item cred-item-link">
                 <div class="cred-icon"><i class="fas fa-book"></i></div>
-                <span class="cred-num">Best-<br>Selling</span>
-                <span class="cred-label">Author of <em>Rossen to the Rescue</em></span>
-            </div>
+                <span class="cred-num">Best-Selling</span>
+                <span class="cred-label">Author of Rossen to the Rescue — Get the Book</span>
+            </a>
             <div class="cred-item">
                 <div class="cred-icon"><i class="fas fa-users"></i></div>
                 <span class="cred-num">2.4M+</span>
@@ -1964,7 +2267,7 @@
 </section>
 
 <!-- ── THE SHOW ── -->
-<section class="section show-section" id="show">
+<section class="section show-section" id="show" tabindex="-1">
     <div class="show-inner">
         <div class="cs-badge">Now Live</div>
         <h2 class="cs-title">The<br><span>Rossen</span><br>Reports Show</h2>
@@ -1978,7 +2281,7 @@
 </section>
 
 <!-- ── FOLLOW / SOCIAL LINKS ── -->
-<section class="section links-section" id="follow">
+<section class="section links-section" id="follow" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Stay Connected</span>
         <h2 class="section-title">Follow Jeff<br>Everywhere</h2>
@@ -2050,7 +2353,7 @@
 </section>
 
 <!-- ── SOCIAL SPOTLIGHT ── -->
-<section class="section social-spotlight" id="feed">
+<section class="section social-spotlight" id="feed" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Join the Conversation</span>
         <h2 class="section-title">Follow Along<br>Every Day</h2>
@@ -2100,7 +2403,7 @@
 </section>
 
 <!-- ── SHOP ── -->
-<section class="section shop" id="shop">
+<section class="section shop" id="shop" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Jeff's Picks</span>
         <h2 class="section-title">Shop &amp; Save</h2>
@@ -2132,13 +2435,14 @@
 </section>
 
 <!-- ── WORK WITH JEFF ── -->
-<section class="section contact-section" id="contact">
+<section class="section contact-section" id="contact" tabindex="-1">
     <div class="container">
         <span class="eyebrow">Get In Touch</span>
         <h2 class="section-title">Work With Jeff</h2>
         <div class="contact-grid fade-up">
 
             <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <span class="contact-file-num" aria-hidden="true">01</span>
                 <div class="contact-icon"><i class="fas fa-microphone-alt"></i></div>
                 <span class="contact-type">Speaking Engagements</span>
                 <p class="contact-desc">Book Jeff for your next conference, corporate event, or keynote. He brings the same energy and insight that's earned millions of viewers.</p>
@@ -2146,6 +2450,7 @@
             </a>
 
             <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <span class="contact-file-num" aria-hidden="true">02</span>
                 <div class="contact-icon"><i class="fas fa-handshake"></i></div>
                 <span class="contact-type">Brand Partnerships</span>
                 <p class="contact-desc">Partner with Jeff and the Rossen Reports team to connect with millions of engaged, trust-driven consumers actively seeking deals and products.</p>
@@ -2153,12 +2458,54 @@
             </a>
 
             <a href="https://rossenreports.substack.com/about" target="_blank" rel="noopener noreferrer" class="contact-card">
+                <span class="contact-file-num" aria-hidden="true">03</span>
                 <div class="contact-icon"><i class="fas fa-envelope-open-text"></i></div>
                 <span class="contact-type">Media &amp; Press</span>
                 <p class="contact-desc">Interview requests, podcast appearances, and press inquiries — reach the Rossen Reports team through Substack.</p>
                 <span class="contact-cta">Visit Substack <i class="fas fa-arrow-right"></i></span>
             </a>
 
+        </div>
+
+        <div class="contact-form-wrap fade-up">
+            <div class="contact-form-title">Advertise With Rossen Reports</div>
+            <p class="contact-form-sub">Brands and agencies — send the details of your inquiry directly and the team will follow up.</p>
+            <form id="advertiserForm">
+                <div class="contact-form-row">
+                    <div class="contact-form-field">
+                        <label for="advName">Name</label>
+                        <input type="text" id="advName" name="name" autocomplete="name" required>
+                    </div>
+                    <div class="contact-form-field">
+                        <label for="advEmail">Email</label>
+                        <input type="email" id="advEmail" name="email" autocomplete="email" required>
+                    </div>
+                </div>
+                <div class="contact-form-row">
+                    <div class="contact-form-field">
+                        <label for="advCompany">Company / Brand</label>
+                        <input type="text" id="advCompany" name="company" autocomplete="organization">
+                    </div>
+                    <div class="contact-form-field">
+                        <label for="advType">Inquiry Type</label>
+                        <select id="advType" name="type">
+                            <option value="Advertising / Brand Partnership" selected>Advertising / Brand Partnership</option>
+                            <option value="Speaking Engagement">Speaking Engagement</option>
+                            <option value="Media / Press">Media / Press</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="contact-form-field">
+                    <label for="advMessage">Message</label>
+                    <textarea id="advMessage" name="message" required></textarea>
+                </div>
+                <button type="submit" id="advSubmitBtn">Send Inquiry</button>
+                <div class="contact-form-error" id="advError" role="alert">This form couldn't be submitted right now. Please reach out through the Brand Partnerships or Media &amp; Press links just above — those go straight to the team.</div>
+            </form>
+            <div class="contact-form-success" id="advSuccess" role="status">
+                <i class="fas fa-check-circle" style="font-size:1.2rem;"></i> Thanks — Jeff's team will be in touch.
+            </div>
         </div>
     </div>
 </section>
@@ -2175,11 +2522,12 @@
                     Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.
                 </p>
                 <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem;">
-                    <a href="#latest" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Watch Latest Episode</a>
-                    <a href="#deals" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Deals of the Week</a>
-                    <a href="#subscribe" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Newsletter</a>
-                    <a href="#shop" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Shop &amp; Save</a>
-                    <a href="#contact" style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Work With Jeff</a>
+                    <a href="#latest" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Watch Latest Episode</a>
+                    <a href="#deals" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Deals of the Week</a>
+                    <a href="#alerts" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Scam Alerts</a>
+                    <a href="#subscribe" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Newsletter</a>
+                    <a href="#shop" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Shop &amp; Save</a>
+                    <a href="#contact" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Work With Jeff</a>
                 </div>
             </div>
             <div class="footer-socials">
@@ -2193,12 +2541,172 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 Rossen Reports. All rights reserved.</span>
-            <a href="https://rossenreports.substack.com" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.35);text-decoration:none;">rossenreports.substack.com</a>
+            <a href="https://rossenreports.substack.com" target="_blank" rel="noopener noreferrer" style="color:#9CA3AF;text-decoration:none;">rossenreports.substack.com</a>
         </div>
     </div>
 </footer>
 
 <script>
+// ── SCAM ALERTS: live federal consumer warnings ──
+(function () {
+    var list   = document.getElementById('alertsList');
+    var status = document.getElementById('alertsStatus');
+    var foot   = document.getElementById('alertsFoot');
+    if (!list) return;
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    // encodeURI alone would happily pass through a javascript: URL. The server
+    // already restricts these to .gov, but the check is cheap and this is the one
+    // place untrusted-ish strings become href attributes.
+    function safeUrl(u) {
+        var s = String(u == null ? '' : u);
+        return /^https?:\/\//i.test(s) ? esc(s) : '';
+    }
+
+    function shortDate(iso) {
+        var d = new Date(iso);
+        if (isNaN(d)) return '';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function relative(iso) {
+        var days = Math.floor((Date.now() - Date.parse(iso)) / 86400000);
+        if (!isFinite(days) || days < 0) return '';
+        if (days === 0) return 'Today';
+        if (days === 1) return 'Yesterday';
+        if (days < 7)  return days + ' days ago';
+        return '';
+    }
+
+    // A live region ignores a write identical to its current text, so an unchanged
+    // count would announce nothing on refresh. Clear first, then set on a delay.
+    function announce(msg) {
+        status.textContent = '';
+        setTimeout(function () { status.textContent = msg; }, 120);
+    }
+
+    function countLabel(n) {
+        return n === 1 ? '1 current scam alert' : n + ' current scam alerts';
+    }
+
+    function renderFoot(data) {
+        var srcs = (data.sources || []).filter(function (s, i, arr) { return arr.indexOf(s) === i; });
+        foot.innerHTML = 'Sources: ' + esc(srcs.join(' · ')) +
+            '. Updated automatically every 30 minutes. Think you\'ve spotted a scam? ' +
+            '<a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer">' +
+            'Report it to the FTC<span class="sr-only"> (opens in a new tab)</span></a>.';
+    }
+
+    function render(alerts) {
+        list.innerHTML = alerts.map(function (a) {
+            var url = safeUrl(a.url);
+            // Fall back to a non-empty name: an anchor labelled only
+            // "(opens in a new tab)" is useless in a links list.
+            var name = esc(a.title) || 'Read this consumer alert';
+            var when = relative(a.published);
+            var headline = url
+                ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + name +
+                  '<span class="sr-only"> (opens in a new tab)</span></a>'
+                : name;
+
+            return '<li class="alert-item">' +
+                '<div class="alert-meta">' +
+                    '<span class="alert-cat">' + esc(a.category || 'Alert') + '</span>' +
+                    '<time class="alert-date" datetime="' + esc(a.published) + '">' +
+                        esc(when || shortDate(a.published)) + '</time>' +
+                    '<span class="alert-agency">' + esc(a.agency || '') + '</span>' +
+                '</div>' +
+                '<div class="alert-body">' +
+                    '<h3 class="alert-title">' + headline + '</h3>' +
+                    '<p class="alert-sum">' + esc(a.summary || '') + '</p>' +
+                '</div>' +
+            '</li>';
+        }).join('');
+    }
+
+    var newestUrl = null;
+    var loaded = false;
+
+    function load(isRefresh) {
+        var settled = false;
+        // A stalled connection makes fetch neither resolve nor reject, which would
+        // leave "Loading…" on screen indefinitely and never announce anything.
+        var slow = setTimeout(function () {
+            if (!settled && !loaded) announce('Still loading the latest alerts…');
+        }, 10000);
+
+        fetch('/api/scams')
+            .then(function (r) {
+                // fetch only rejects on network failure — a 500 resolves, and
+                // without this check it would land in the "no new alerts" branch
+                // and tell the user the feed is quiet when it's actually broken.
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function (data) {
+                settled = true; clearTimeout(slow);
+                if (!data || !data.alerts) throw new Error('malformed response');
+
+                var alerts = data.alerts;
+                if (!alerts.length) {
+                    if (!isRefresh) status.textContent = 'No new alerts right now — check back soon.';
+                    return;
+                }
+
+                render(alerts);
+                renderFoot(data);
+                loaded = true;
+
+                // Announced last, so every node the message refers to already exists.
+                var top = alerts[0].url;
+                if (!isRefresh) status.textContent = countLabel(alerts.length);
+                else if (top !== newestUrl) announce('New scam alert published. ' + countLabel(alerts.length));
+                newestUrl = top;
+            })
+            .catch(function () {
+                settled = true; clearTimeout(slow);
+                // A failed refresh must not wipe alerts that are already on screen.
+                if (!loaded) status.textContent = 'Alerts are unavailable right now. Please try again later.';
+            });
+    }
+
+    load(false);
+    // Makes "updated automatically" true on a tab left open, rather than a claim
+    // that only holds for the server's cache.
+    setInterval(function () { load(true); }, 15 * 60 * 1000);
+})();
+
+// ── DEALS OF THE WEEK: fetch editable content from the admin control board ──
+(function () {
+    var grid = document.getElementById('dealsGrid');
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    fetch('/api/deals')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            var deals = data.deals || [];
+            if (!deals.length) { grid.innerHTML = ''; return; }
+            grid.innerHTML = deals.map(function (d) {
+                return '<a href="' + esc(d.href) + '" target="_blank" rel="noopener noreferrer" class="deal-card">' +
+                    '<span class="deal-category"><i class="fas ' + esc(d.icon || 'fa-tag') + '"></i> ' + esc(d.category) + '</span>' +
+                    '<span class="deal-name">' + esc(d.name) + '</span>' +
+                    '<p class="deal-desc">' + esc(d.desc) + '</p>' +
+                    '<hr class="deal-divider">' +
+                    '<span class="deal-cta">' + esc(d.cta) + ' <i class="fas fa-arrow-right"></i></span>' +
+                    '</a>';
+            }).join('');
+        })
+        .catch(function () { grid.innerHTML = ''; });
+})();
+
 // ── YOUTUBE: fetch thumbnail, title, and episode archive ──
 (function () {
     window._latestVideoId = 'pVH0evvebRw';
@@ -2303,7 +2811,7 @@
 
 // ── MOBILE BOTTOM NAV ACTIVE STATE ──
 (function () {
-    var allSections = ['latest', 'subscribe', 'deals', 'wins', 'about', 'show', 'follow', 'feed', 'shop', 'contact'];
+    var allSections = ['latest', 'subscribe', 'deals', 'alerts', 'wins', 'about', 'show', 'follow', 'feed', 'shop', 'contact'];
     var navSections = ['latest', 'deals', 'follow', 'shop'];
     function update() {
         var mid = window.scrollY + window.innerHeight * 0.5;
@@ -2330,13 +2838,16 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
     })
-    .then(function (r) { return r.json(); })
+    // r.ok MUST be checked. Without it a 503 still resolves, and the form cheerfully
+    // reported "You're in!" while the address was thrown away.
+    .then(function (r) { if (!r.ok) throw new Error('subscribe unavailable'); return r.json(); })
     .then(function () {
         document.getElementById('emailForm').style.display = 'none';
         document.getElementById('emailSuccess').style.display = 'flex';
     })
     .catch(function () {
-        // fallback to Substack if server is unreachable
+        // Hand off to Substack, where the newsletter actually lives. The signup
+        // completes for real rather than being silently dropped.
         window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
         document.getElementById('emailForm').style.display = 'none';
         document.getElementById('emailSuccess').style.display = 'flex';
@@ -2344,8 +2855,50 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
 });
 
 
-// ── COUNT-UP ANIMATION ──
-(function () {
+// ── ADVERTISER CONTACT FORM ──
+document.getElementById('advertiserForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var submitBtn = document.getElementById('advSubmitBtn');
+    var successEl = document.getElementById('advSuccess');
+    var errorEl = document.getElementById('advError');
+    errorEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: document.getElementById('advName').value,
+            email: document.getElementById('advEmail').value,
+            type: document.getElementById('advType').value + (document.getElementById('advCompany').value ? ' — ' + document.getElementById('advCompany').value : ''),
+            message: document.getElementById('advMessage').value
+        })
+    })
+    .then(function (r) { if (!r.ok) throw new Error('request failed'); return r.json(); })
+    .then(function () {
+        form.hidden = true;
+        successEl.style.display = 'flex';
+        // moving focus here does double duty: it's what reliably triggers most
+        // screen readers to announce the message, and it stops focus from silently
+        // falling back to <body> now that the (previously focused) submit button is gone.
+        successEl.setAttribute('tabindex', '-1');
+        successEl.focus();
+    })
+    .catch(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Inquiry';
+        errorEl.style.display = 'block';
+        errorEl.setAttribute('tabindex', '-1');
+        errorEl.focus();
+    });
+});
+
+// ── COUNT-UP ANIMATION ── (called from the site-content fetch below, once
+// the real stat values are in the DOM — not run standalone, to avoid racing
+// the fetch and animating up from stale/placeholder numbers)
+function initCountUp() {
     var stats = document.querySelectorAll('.stat-num[data-count]');
     var started = false;
 
@@ -2388,6 +2941,64 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     }, { threshold: 0.3 });
 
     if (stats.length > 0) observer.observe(stats[0].closest('.hero-stats'));
+}
+
+// ── SITE CONTENT: fetch editable hero/about/testimonials content ──
+(function () {
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    fetch('/api/content')
+        .then(function (r) { return r.json(); })
+        .then(function (content) {
+            var hero = content.hero, about = content.about, testimonials = content.testimonials || [];
+
+            var eyebrowEl = document.getElementById('heroEyebrow');
+            if (eyebrowEl && hero.eyebrow) eyebrowEl.textContent = hero.eyebrow;
+
+            var taglineEl = document.getElementById('heroTagline');
+            if (taglineEl && hero.taglineLine1) {
+                taglineEl.innerHTML = esc(hero.taglineLine1) + '<br><strong>' + esc(hero.taglineLine2 || '') + '</strong>';
+            }
+
+            var statsEl = document.getElementById('heroStats');
+            if (statsEl && hero.stats && hero.stats.length) {
+                statsEl.innerHTML = hero.stats.map(function (s) {
+                    return '<div><span class="stat-num" data-count="' + esc(s.value) + '" data-suffix="' + esc(s.suffix) + '">0' + esc(s.suffix) + '</span>' +
+                        '<span class="stat-lbl">' + esc(s.label) + '</span></div>';
+                }).join('');
+            }
+
+            var quoteEl = document.getElementById('aboutQuoteText');
+            if (quoteEl && about.quote) quoteEl.textContent = '"' + about.quote + '"';
+
+            var credsEl = document.getElementById('credsRow');
+            if (credsEl && about.credentials && about.credentials.length) {
+                var icons = ['fa-tv', 'fa-award', 'fa-book', 'fa-users'];
+                var bookHref = 'https://www.amazon.com/Rossen-Rescue-Avoiding-Everyday-Catastrophes/dp/125011943X';
+                credsEl.innerHTML = about.credentials.map(function (c, i) {
+                    var inner = '<div class="cred-icon"><i class="fas ' + (icons[i] || 'fa-star') + '"></i></div>' +
+                        '<span class="cred-num">' + esc(c.num) + '</span>' +
+                        '<span class="cred-label">' + esc(c.label) + '</span>';
+                    return i === 2
+                        ? '<a href="' + bookHref + '" target="_blank" rel="noopener noreferrer" class="cred-item cred-item-link">' + inner + '</a>'
+                        : '<div class="cred-item">' + inner + '</div>';
+                }).join('');
+            }
+
+            var track = document.getElementById('testiTrack');
+            if (track && testimonials.length) {
+                var cardsHtml = testimonials.map(function (t) {
+                    return '<div class="testi-card"><p class="testi-quote">"' + esc(t.quote) + '"</p><span class="testi-name">— ' + esc(t.name) + '</span></div>';
+                }).join('');
+                track.innerHTML = cardsHtml + cardsHtml; // duplicated once for the seamless scroll loop
+            }
+        })
+        .catch(function () { /* static fallback markup already in the page stays as-is */ })
+        .finally(function () { initCountUp(); });
 })();
 </script>
 
