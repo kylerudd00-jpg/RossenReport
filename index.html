@@ -60,12 +60,35 @@
             --yellow:     #FFD100;
             --white:      #FFFFFF;
             --gray-light: #F0F2F5;
+            --gray-light-hover: #E4EAF5;   /* one step down, as --surface is to --surface-hover */
             --gray:       #6B7280;
             --dark:       #111827;
             --paper:      #F6F1E6;
             /* 7.9:1 on --paper, 8.9:1 behind white chip text — reads as "warning"
                without dropping below AA anywhere it's used. */
             --alert:      #8F1D14;
+            /* The YouTube accent — the one place a foreign brand colour is correct,
+               so it is named rather than repeated as a bare literal in seven places.
+               Not literally #FF0000: white on that is 4.00:1, and this red carries
+               white button and badge text. Ten percent darker reads as the same
+               brand red and clears every use — 4.8:1 under white text, 3.5:1 as an
+               icon or rule on --surface, 4.0:1 on --ink. */
+            --youtube:    #E60000;
+
+            /* Dark surfaces. There used to be four near-blacks — #07090f, #0d0d0d,
+               #0a0f1a and --dark — sitting within a few points of each other and
+               indistinguishable side by side, so the alternating-section rhythm the
+               page was reaching for never actually read. Two now: --dark for
+               sections, --ink for the deepest chrome. */
+            --ink:            #0A0F1A;
+            --surface:        #161E2E;   /* a card raised off a dark section */
+            --surface-hover:  #1D2840;
+
+            /* Text. Six greys collapsed to three, one per background family, each
+               chosen to clear 4.5:1 where it is actually used. */
+            --text:         #2B2B2B;   /* body copy on paper  — 12.6:1 */
+            --text-muted:   #57534E;   /* secondary on paper  —  6.8:1 */
+            --text-on-dark: #9CA3AF;   /* secondary on --ink  —  7.5:1 */
             /* Padding for sections carrying a clip-path diagonal. One token so
                the five angled sections can't drift apart the way they had. */
             --pad-angled: clamp(3.5rem, 7vw, 5.5rem);
@@ -173,7 +196,7 @@
             font-weight: 600;
             letter-spacing: 0.09em;
             text-transform: uppercase;
-            color: #C9CDD6;
+            color: var(--text-on-dark);
             text-decoration: none;
             border-bottom: 2px solid transparent;
             transition: color 0.18s ease, border-color 0.18s ease;
@@ -417,7 +440,7 @@
         @media (hover: hover) {
             .btn-primary:hover { background: transparent; color: var(--yellow); }
         }
-        .btn-outline { background: transparent; color: var(--white); border-color: #9CA3AF; }
+        .btn-outline { background: transparent; color: var(--white); border-color: var(--text-on-dark); }
         .btn-outline:hover { border-color: var(--white); }
 
         /* stats with count-up */
@@ -588,7 +611,7 @@
             padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
-            background: #000;
+            background: var(--ink);
             box-shadow: 0 18px 44px rgba(4, 14, 38, 0.5);
             cursor: pointer;
         }
@@ -619,13 +642,13 @@
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 80px; height: 80px;
-            background: #ff0000;
+            background: var(--youtube);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
-            color: #fff;
+            color: var(--white);
             transition: transform 0.2s, background 0.2s;
             box-shadow: 0 6px 20px rgba(4, 14, 38, 0.45);
             z-index: 5;
@@ -664,11 +687,11 @@
             align-items: center;
             justify-content: center;
             gap: 1.25rem;
-            background: #0d0d0d;
+            background: var(--ink);
             cursor: default;
         }
 
-        .video-fallback i.fa-youtube { font-size: 4rem; color: #ff0000; }
+        .video-fallback i.fa-youtube { font-size: 4rem; color: var(--youtube); }
 
         .video-fallback p {
             font-family: 'Archivo', sans-serif;
@@ -682,8 +705,8 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: #ff0000;
-            color: #fff;
+            background: var(--youtube);
+            color: var(--white);
             text-decoration: none;
             padding: 0.75rem 1.75rem;
             font-family: 'Archivo', sans-serif;
@@ -813,22 +836,22 @@
         /* featured YouTube card spans full width */
         .link-card-featured {
             grid-column: 1 / -1;
-            background: #1a0000;
+            background: var(--surface);
             padding: 2rem 2.5rem;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 2rem;
-            border-left: 5px solid #ff0000;
+            border-left: 5px solid var(--youtube);
             transition: background 0.2s;
         }
 
-        .link-card-featured:hover { background: #200000; }
+        .link-card-featured:hover { background: var(--surface-hover); }
 
         .link-card-featured .lc-icon-big {
             width: 72px; height: 72px; min-width: 72px;
-            background: #ff0000;
-            color: #fff;
+            background: var(--youtube);
+            color: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -870,13 +893,13 @@
         }
 
         .link-card-featured:hover .lc-arrow {
-            color: #ff0000;
+            color: var(--youtube);
             transform: translateX(4px);
         }
 
         /* standard social cards */
         .link-card {
-            background: #161e2e;
+            background: var(--surface);
             padding: 1.75rem 1.5rem;
             text-decoration: none;
             display: flex;
@@ -899,8 +922,12 @@
         }
 
         .link-card:hover::before { transform: scaleX(1); }
-        .link-card:hover { background: #1d2840; }
+        .link-card:hover { background: var(--surface-hover); }
 
+        /* --platform-ink is the glyph on top of --platform-color. It defaults to
+           white because every brand colour here is dark enough to carry it, except
+           X, whose brand colour is white — that card rendered a white glyph on a
+           white chip, invisible on hover and permanently invisible on touch. */
         .lc-icon {
             width: 54px; height: 54px;
             background: rgba(255,255,255,0.07);
@@ -914,13 +941,20 @@
         }
 
         @media (hover: hover) {
-            .link-card:hover .lc-icon { background: var(--platform-color, var(--yellow)); }
+            .link-card:hover .lc-icon,
+            .link-card:focus-visible .lc-icon {
+                background: var(--platform-color, var(--yellow));
+                color: var(--platform-ink, var(--white));
+            }
         }
         /* Each card carries its platform's brand colour inline, but it was only
            ever revealed on hover — so on touch all eight social cards rendered
            identically grey and the colour system was invisible to phone users. */
         @media (hover: none) {
-            .lc-icon { background: var(--platform-color, var(--yellow)); }
+            .lc-icon {
+                background: var(--platform-color, var(--yellow));
+                color: var(--platform-ink, var(--white));
+            }
         }
 
         .lc-name {
@@ -1070,7 +1104,7 @@
             width: 100%;
             aspect-ratio: 16/9;
             overflow: hidden;
-            background: #000;
+            background: var(--ink);
         }
 
         .archive-card.active .arc-thumb { outline: 2px solid var(--yellow); }
@@ -1167,7 +1201,7 @@
             transition: border-color 0.2s;
         }
 
-        .email-form input::placeholder { color: #9CA3AF; }
+        .email-form input::placeholder { color: var(--text-on-dark); }
         .email-form input:focus { border-color: var(--yellow); }
 
         .email-form button {
@@ -1314,7 +1348,7 @@
         .alerts-intro {
             font-family: 'Newsreader', Georgia, serif;
             font-size: 1.05rem;
-            color: #4E4A44;
+            color: var(--text-muted);
             max-width: 46rem;
             margin-top: 1rem;
             line-height: 1.6;
@@ -1357,7 +1391,7 @@
         .alerts-status {
             font-family: 'Archivo', sans-serif;
             font-size: 0.78rem;
-            color: #57534E;
+            color: var(--text-muted);
         }
 
         .alerts-filters {
@@ -1373,7 +1407,7 @@
             font-weight: 600;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: #4E4A44;
+            color: var(--text-muted);
             background: transparent;
             border: 1px solid rgba(17,24,39,0.22);
             border-radius: 999px;
@@ -1433,14 +1467,14 @@
             font-family: 'Archivo', sans-serif;
             font-size: 0.72rem;
             font-weight: 600;
-            color: #57534E;
+            color: var(--text-muted);
         }
 
         .alert-agency {
             font-family: 'Archivo', sans-serif;
             font-size: 0.66rem;
             letter-spacing: 0.06em;
-            color: #57534E;
+            color: var(--text-muted);
         }
 
         .alert-title {
@@ -1481,7 +1515,7 @@
             font-family: 'Newsreader', Georgia, serif;
             font-size: 0.97rem;
             line-height: 1.6;
-            color: #2B2B2B;
+            color: var(--text);
             margin: 0;
         }
 
@@ -1490,7 +1524,7 @@
             font-family: 'Archivo', sans-serif;
             font-size: 0.78rem;
             line-height: 1.6;
-            color: #57534E;
+            color: var(--text-muted);
         }
         .alerts-foot a { color: var(--alert); text-decoration: underline; }
         .alerts-foot a:focus-visible {
@@ -1507,7 +1541,7 @@
 
         /* ─────────────── FOOTER ─────────────── */
         footer {
-            background: #0a0f1a;
+            background: var(--ink);
             color: rgba(255,255,255,0.62);
             padding: 3.5rem 2rem 2rem;
         }
@@ -1532,6 +1566,27 @@
             line-height: 1.65;
         }
 
+        /* These links carried the grey twice each as inline style plus an
+           onmouseover handler — thirteen copies of one hex, and a hover state no
+           keyboard user could reach. One rule, one token, focus included. */
+        .footer-links { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
+
+        .footer-link {
+            font-size: 0.75rem;
+            color: var(--text-on-dark);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        /* Underlined as well as recoloured: the seventh .footer-link sits in
+           .footer-bottom beside the copyright line at the same size and colour,
+           so colour alone left nothing to tell the link from the text next to it. */
+        .footer-link:hover,
+        .footer-link:focus-visible {
+            color: rgba(255,255,255,0.75);
+            text-decoration: underline;
+        }
+
         .footer-socials {
             display: flex;
             gap: 0.6rem;
@@ -1551,7 +1606,8 @@
             transition: background 0.2s, color 0.2s;
         }
 
-        .footer-social:hover { background: var(--yellow); color: var(--blue); }
+        .footer-social:hover,
+        .footer-social:focus-visible { background: var(--yellow); color: var(--blue); }
 
         .footer-bottom {
             border-top: 1px solid rgba(255,255,255,0.06);
@@ -1638,7 +1694,7 @@
 
         /* ─────────────── PRESS STRIP ─────────────── */
         .press-strip {
-            background: #07090f;
+            background: var(--ink);
             padding: 1.5rem 2rem;
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
@@ -1737,7 +1793,7 @@
             position: fixed;
             bottom: 0; left: 0; right: 0;
             z-index: 500;
-            background: #07090f;
+            background: var(--ink);
             border-top: 2px solid var(--yellow);
             padding: 0.35rem 0 calc(0.35rem + env(safe-area-inset-bottom));
         }
@@ -1757,7 +1813,7 @@
             align-items: center;
             gap: 0.18rem;
             text-decoration: none;
-            color: #9CA3AF;
+            color: var(--text-on-dark);
             font-family: 'Archivo', sans-serif;
             /* Was 0.56rem — 8.96px, the smallest text on the site, labelling the
                only navigation mobile users have. The wide letter-spacing made it
@@ -1870,8 +1926,8 @@
             position: absolute;
             top: 1rem; left: 1rem;
             z-index: 10;
-            background: #ff0000;
-            color: #fff;
+            background: var(--youtube);
+            color: var(--white);
             font-family: 'Archivo', sans-serif;
             font-weight: 700;
             font-size: 0.65rem;
@@ -1885,7 +1941,7 @@
         .new-ep-badge::before {
             content: '';
             width: 6px; height: 6px;
-            background: #fff;
+            background: var(--white);
             border-radius: 50%;
             animation: pulse 1.2s ease-in-out infinite;
         }
@@ -2036,7 +2092,7 @@
             pointer-events: none;
             transition: color 0.2s;
         }
-        .contact-card:hover .contact-file-num { color: #E4EAF5; }
+        .contact-card:hover .contact-file-num { color: var(--gray-light-hover); }
         .contact-icon {
             position: relative;
             z-index: 1;
@@ -2148,7 +2204,7 @@
             font-weight: 600;
             font-size: 0.95rem;
         }
-        .contact-form-error { display: none; color: #B3261E; font-size: 0.85rem; margin-top: 0.75rem; }
+        .contact-form-error { display: none; color: var(--alert); font-size: 0.85rem; margin-top: 0.75rem; }
         @media (max-width: 640px) { .contact-form-row { grid-template-columns: 1fr; } .contact-form-wrap { padding: 1.75rem; } }
 
         /* ─────────────── NEWSLETTER MODAL ─────────────── */
@@ -2581,49 +2637,49 @@
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#e1306c;">
+            <a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#E1306C;">
                 <div class="lc-icon"><i class="fab fa-instagram"></i></div>
                 <span class="lc-name">Instagram</span>
                 <span class="lc-handle">@jeffrossen</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ff0050;">
+            <a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#FF0050;">
                 <div class="lc-icon"><i class="fab fa-tiktok"></i></div>
                 <span class="lc-name">TikTok</span>
                 <span class="lc-handle">@rossen.reports</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#1877f2;">
+            <a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#1877F2;">
                 <div class="lc-icon"><i class="fab fa-facebook-f"></i></div>
                 <span class="lc-name">Facebook</span>
                 <span class="lc-handle">@rossenreports</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ffffff;">
+            <a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#FFFFFF;--platform-ink:var(--ink);">
                 <div class="lc-icon"><i class="fab fa-x-twitter"></i></div>
                 <span class="lc-name">X / Twitter</span>
                 <span class="lc-handle">@jeffrossen</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#ff6719;">
+            <a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#E85D19;">
                 <div class="lc-icon"><i class="fas fa-newspaper"></i></div>
                 <span class="lc-name">Substack</span>
                 <span class="lc-handle">Rossen Reports Newsletter</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://podcasts.apple.com/us/podcast/rossen-reports/id1861532501" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#fc3c44;">
+            <a href="https://podcasts.apple.com/us/podcast/rossen-reports/id1861532501" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#FC3C44;">
                 <div class="lc-icon"><i class="fas fa-podcast"></i></div>
                 <span class="lc-name">Podcast</span>
                 <span class="lc-handle">Rossen Reports on Apple Podcasts</span>
                 <i class="fas fa-arrow-right lc-arrow"></i>
             </a>
 
-            <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#3f9ae0;">
+            <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="link-card" style="--platform-color:#0A66C2;">
                 <div class="lc-icon"><i class="fab fa-linkedin-in"></i></div>
                 <span class="lc-name">LinkedIn</span>
                 <span class="lc-handle">Jeff Rossen — Rossen Media</span>
@@ -2802,13 +2858,13 @@
                 <p class="footer-bio">
                     Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.
                 </p>
-                <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem;">
-                    <a href="#latest" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Watch Latest Episode</a>
-                    <a href="#alerts" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Scam Alerts</a>
-                    <a href="#deals" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Deals of the Week</a>
-                    <a href="#subscribe" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Newsletter</a>
-                    <a href="#shop" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Shop &amp; Save</a>
-                    <a href="#contact" style="font-size:0.75rem;color:#9CA3AF;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='#9CA3AF'">Work With Jeff</a>
+                <div class="footer-links">
+                    <a href="#latest" class="footer-link">Watch Latest Episode</a>
+                    <a href="#alerts" class="footer-link">Scam Alerts</a>
+                    <a href="#deals" class="footer-link">Deals of the Week</a>
+                    <a href="#subscribe" class="footer-link">Newsletter</a>
+                    <a href="#shop" class="footer-link">Shop &amp; Save</a>
+                    <a href="#contact" class="footer-link">Work With Jeff</a>
                 </div>
             </div>
             <div class="footer-socials">
@@ -2822,7 +2878,7 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 Rossen Reports. All rights reserved.</span>
-            <a href="https://rossenreports.substack.com" target="_blank" rel="noopener noreferrer" style="color:#9CA3AF;text-decoration:none;">rossenreports.substack.com</a>
+            <a href="https://rossenreports.substack.com" target="_blank" rel="noopener noreferrer" class="footer-link">rossenreports.substack.com</a>
         </div>
     </div>
 </footer>
