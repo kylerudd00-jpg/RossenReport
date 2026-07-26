@@ -15,6 +15,8 @@
     --blue: #0B2C6B; --blue-mid: #1E4DB7; --yellow: #FFD100;
     --white: #FFFFFF; --gray-light: #F0F2F5; --gray: #6B7280; --dark: #111827;
     --paper: #F6F1E6; --down: #B3261E; --up: #1D7A3E;
+    /* 3.04:1 on white. --gray-light would be 1.12:1 — invisible. */
+    --line: #8F949E;
   }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -109,19 +111,34 @@
   .tool-btn {
     font-family: 'Archivo', sans-serif; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
     background: var(--gray-light); color: var(--dark); border: 0; padding: 0.4rem 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;
+    /* Comfortable on a tablet, which is where someone is most likely to be
+       shuffling the page order around. */
+    min-height: 44px;
   }
   .tool-btn:hover { background: #e4e8ee; }
   .tool-btn:disabled { opacity: 0.35; cursor: default; }
   .tool-btn.danger { color: var(--down); }
   .tool-btn.danger:hover { background: #FDECEA; }
-  /* 44px so the reorder controls stay comfortable on a tablet, which is where
-     someone is most likely to be shuffling the page around. */
-  .tool-btn { min-height: 44px; }
+  /* aria-disabled, not :disabled — a disabled button leaves the tab order, so
+     after a re-render there is no element to hand focus back to and it lands on
+     the opposite-direction button instead, undoing the move on the next press.
+     opacity:0.35 is also not usable as the "off" state: it composites the label
+     to 2.13:1 and, since .tool-btn has no border, erases the button outline. */
+  .tool-btn[aria-disabled="true"] { background: #EDEDED; color: #5A5A5A; cursor: default; }
+  .tool-btn[aria-disabled="true"]:hover { background: #EDEDED; }
 
   .panel-note { font-size: 0.85rem; color: #4E4A44; margin: -0.25rem 0 1rem; }
   .field-help { font-size: 0.8rem; color: #4E4A44; margin: 0.35rem 0 0; }
-  .radio-row label { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; cursor: pointer; font-weight: 500; }
-  .radio-row input { width: auto; margin: 0; }
+  /* These are sentences, not field labels — without the resets they inherit
+     .field-row label's 10.9px uppercase letterspaced gray. */
+  .radio-row label {
+    display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; cursor: pointer;
+    font-weight: 500; font-size: 0.85rem; text-transform: none; letter-spacing: normal; color: var(--dark);
+  }
+  .radio-row input { width: auto; margin: 0; padding: 0; border: 0; background: none; accent-color: var(--blue); }
+
+  .field-error { color: var(--down); font-size: 0.8rem; font-weight: 600; margin: 0.35rem 0 0; }
+  .field-error:empty { display: none; }
 
   .order-list { list-style: none; margin: 0; padding: 0; }
   .order-item {
@@ -135,6 +152,8 @@
   }
   .order-name { flex: 1; font-weight: 600; }
   .order-tools { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .order-item.is-fixed .order-num { background: var(--gray); color: var(--white); }
+  .order-fixed-note { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: #4E4A44; }
   @media (max-width: 560px) {
     .order-item { flex-wrap: wrap; }
     .order-name { flex-basis: calc(100% - 3.5rem); }
@@ -242,7 +261,9 @@
           <p>The order sections appear in on the homepage, top to bottom. The introduction always stays first. Visitors see the top of the page most, so put what matters there.</p>
         </div>
         <div class="panel">
-          <ol class="order-list" id="orderList"></ol>
+          <!-- role="list" because list-style:none drops list semantics in WebKit.
+             <ol> is right here: the order IS the rendered page order. -->
+        <ol class="order-list" id="orderList" role="list"></ol>
           <div class="action-row">
             <button class="btn-primary" id="saveOrderBtn" type="button">Save Order</button>
             <button class="tool-btn" id="resetOrderBtn" type="button">Reset to recommended</button>
@@ -298,18 +319,22 @@
           <fieldset class="edit-card">
             <legend>Which video plays on the homepage</legend>
             <div class="field-row radio-row">
-              <label><input type="radio" name="videoMode" value="auto" id="videoModeAuto"> Newest upload, automatically</label>
+              <label><input type="radio" name="videoMode" value="auto" id="videoModeAuto" checked> Newest upload, automatically</label>
             </div>
             <div class="field-row radio-row">
               <label><input type="radio" name="videoMode" value="manual" id="videoModeManual"> A specific video I choose</label>
             </div>
-            <div class="field-row">
-              <label for="videoIdInput">YouTube video ID or link</label>
-              <input type="text" id="videoIdInput" placeholder="dQw4w9WgXcQ  —  or paste the full YouTube link"
-                     aria-describedby="videoIdHelp">
-              <p class="field-help" id="videoIdHelp">Paste the whole link if it's easier; the ID is pulled out of it. Only used when "a specific video" is selected.</p>
-            </div>
           </fieldset>
+          <!-- Outside the fieldset on purpose: inside it, several screen readers
+               prefix the legend to the input, announcing "Which video plays on the
+               homepage, YouTube video ID or link" and implying the text box is a
+               third radio choice. -->
+          <div class="field-row">
+            <label for="videoIdInput">YouTube video ID or link</label>
+            <input type="text" id="videoIdInput" placeholder="dQw4w9WgXcQ" aria-describedby="videoIdHelp">
+            <p class="field-help" id="videoIdHelp">Paste the whole link if it's easier; the ID is pulled out of it. Required when "a specific video" is selected.</p>
+            <p class="field-error" id="videoIdError"></p>
+          </div>
           <div class="action-row">
             <button class="btn-primary" id="saveVideoBtn" type="button">Save Featured Episode</button>
             <span class="save-status" id="videoSaveStatus" role="status"></span>
@@ -525,35 +550,68 @@ var SECTION_LABELS = {
 var RECOMMENDED_ORDER = ['latest', 'alerts', 'deals', 'wins', 'subscribe', 'follow', 'shop', 'about', 'contact'];
 var currentOrder = [];
 
+// Deferred so the polite update lands after the focus announcement — a focus
+// event flushes the pending polite queue — and so repeated clicking coalesces
+// into one message instead of a backlog.
+var orderAnnounceTimer = null;
+function announceOrder(msg) {
+  var s = document.getElementById('orderSaveStatus');
+  clearTimeout(orderAnnounceTimer);
+  s.className = 'save-status';
+  s.textContent = '';
+  orderAnnounceTimer = setTimeout(function () { s.textContent = msg; }, 250);
+}
+
 function renderOrder() {
   var list = document.getElementById('orderList');
-  list.innerHTML = currentOrder.map(function (id, i) {
-    return '<li class="order-item" data-index="' + i + '">' +
-      '<span class="order-num" aria-hidden="true">' + (i + 2) + '</span>' +
-      '<span class="order-name">' + esc(SECTION_LABELS[id] || id) + '</span>' +
-      '<span class="order-tools">' +
-        '<button type="button" class="tool-btn" data-act="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>' +
-          '<i class="fas fa-arrow-up" aria-hidden="true"></i> Up' +
-          '<span class="sr-only"> — move ' + esc(SECTION_LABELS[id] || id) + ' earlier</span></button>' +
-        '<button type="button" class="tool-btn" data-act="down" data-i="' + i + '"' + (i === currentOrder.length - 1 ? ' disabled' : '') + '>' +
-          '<i class="fas fa-arrow-down" aria-hidden="true"></i> Down' +
-          '<span class="sr-only"> — move ' + esc(SECTION_LABELS[id] || id) + ' later</span></button>' +
-      '</span>' +
-    '</li>';
-  }).join('');
+  var total = currentOrder.length + 1;
+  // The hero is rendered as a real, control-free row 1 so the badge numbers and
+  // what a screen reader reports as "n of m" agree, and "the introduction is
+  // always first" becomes visible structure rather than a rule stated in prose.
+  list.innerHTML =
+    '<li class="order-item is-fixed">' +
+      '<span class="order-num" aria-hidden="true">1</span>' +
+      '<span class="order-name">Introduction</span>' +
+      '<span class="order-fixed-note">Always first</span>' +
+    '</li>' +
+    currentOrder.map(function (id, i) {
+      var name = esc(SECTION_LABELS[id] || id);
+      return '<li class="order-item" data-index="' + i + '">' +
+        '<span class="order-num" aria-hidden="true">' + (i + 2) + '</span>' +
+        '<span class="order-name">' + name + '</span>' +
+        '<span class="order-tools">' +
+          '<button type="button" class="tool-btn" data-act="up" data-i="' + i + '"' + (i === 0 ? ' aria-disabled="true"' : '') + '>' +
+            '<i class="fas fa-arrow-up" aria-hidden="true"></i> Up' +
+            '<span class="sr-only">, move ' + name + ' earlier</span></button>' +
+          '<button type="button" class="tool-btn" data-act="down" data-i="' + i + '"' + (i === currentOrder.length - 1 ? ' aria-disabled="true"' : '') + '>' +
+            '<i class="fas fa-arrow-down" aria-hidden="true"></i> Down' +
+            '<span class="sr-only">, move ' + name + ' later</span></button>' +
+        '</span>' +
+      '</li>';
+    }).join('');
 
   list.querySelectorAll('[data-act]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var i = Number(btn.dataset.i), act = btn.dataset.act, moved = i;
-      if (act === 'up' && i > 0) { var a = currentOrder[i - 1]; currentOrder[i - 1] = currentOrder[i]; currentOrder[i] = a; moved = i - 1; }
-      else if (act === 'down' && i < currentOrder.length - 1) { var b = currentOrder[i + 1]; currentOrder[i + 1] = currentOrder[i]; currentOrder[i] = b; moved = i + 1; }
+      var label = SECTION_LABELS[currentOrder[i]] || currentOrder[i];
+      // Still focusable at the ends, so say why nothing happened instead of
+      // being an inert control the user can't diagnose.
+      if (btn.getAttribute('aria-disabled') === 'true') {
+        announceOrder(label + ' is already ' + (act === 'up' ? 'first' : 'last') + '.');
+        return;
+      }
+      if (act === 'up') { var a = currentOrder[i - 1]; currentOrder[i - 1] = currentOrder[i]; currentOrder[i] = a; moved = i - 1; }
+      else { var b = currentOrder[i + 1]; currentOrder[i + 1] = currentOrder[i]; currentOrder[i] = b; moved = i + 1; }
       renderOrder();
-      // Reordering gets clicked repeatedly, so focus follows the row that moved
-      // rather than resetting to the heading each time.
+      // Focus follows the row that moved, onto the same-direction button — which
+      // now always exists, because the end state is aria-disabled rather than
+      // disabled. The old fallback landed on the opposite button, so the next
+      // press undid the move.
       var row = document.querySelector('#orderList .order-item[data-index="' + moved + '"]');
-      var target = row && row.querySelector('[data-act="' + act + '"]:not(:disabled)');
-      if (!target) target = row && row.querySelector('[data-act]:not(:disabled)');
+      var target = row && row.querySelector('[data-act="' + act + '"]');
       (target || document.getElementById('orderHeading')).focus();
+      announceOrder(label + ' moved to position ' + (moved + 2) + ' of ' + total +
+        ' — press Save Order to apply it.');
     });
   });
 }
@@ -587,19 +645,51 @@ function renderVideo() {
   var fv = currentContent.featuredVideo || { mode: 'auto', videoId: '' };
   document.getElementById(fv.mode === 'manual' ? 'videoModeManual' : 'videoModeAuto').checked = true;
   document.getElementById('videoIdInput').value = fv.videoId || '';
+  document.getElementById('videoIdInput').setAttribute('aria-required', fv.mode === 'manual' ? 'true' : 'false');
+  setVideoError('');   // don't let a stale error survive a reload
 }
 
+// Deliberately not a live region. Writing to one and calling focus() in the same
+// tick loses the message: the focus event flushes the pending polite queue, so
+// the user hears the field name and never learns why focus jumped. Tying the
+// error to the input with aria-describedby makes the focus move carry it.
+function setVideoError(msg) {
+  var input = document.getElementById('videoIdInput');
+  document.getElementById('videoIdError').textContent = msg;
+  if (msg) {
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', 'videoIdError videoIdHelp');
+  } else {
+    input.removeAttribute('aria-invalid');
+    input.setAttribute('aria-describedby', 'videoIdHelp');
+  }
+}
+
+document.getElementById('videoIdInput').addEventListener('input', function () { setVideoError(''); });
+document.querySelectorAll('input[name="videoMode"]').forEach(function (radio) {
+  radio.addEventListener('change', function () {
+    setVideoError('');
+    document.getElementById('videoIdInput').setAttribute('aria-required', radio.value === 'manual' ? 'true' : 'false');
+  });
+});
+
 document.getElementById('saveVideoBtn').addEventListener('click', function () {
-  var mode = document.querySelector('input[name="videoMode"]:checked').value;
+  // Guarded: if the content fetch failed, nothing is checked and reading .value
+  // off null would throw, leaving Save as a control that does nothing silently.
+  var picked = document.querySelector('input[name="videoMode"]:checked');
+  var mode = picked ? picked.value : 'auto';
   var status = document.getElementById('videoSaveStatus');
-  var id = extractVideoId(document.getElementById('videoIdInput').value);
+  var input = document.getElementById('videoIdInput');
+  var id = extractVideoId(input.value);
   if (mode === 'manual' && !id) {
-    status.className = 'save-status err';
-    status.textContent = 'Enter a YouTube video ID or paste a YouTube link.';
-    document.getElementById('videoIdInput').focus();
+    status.className = 'save-status';
+    status.textContent = '';
+    setVideoError('Enter a YouTube video ID or paste a YouTube link.');
+    input.focus();
     return;
   }
-  document.getElementById('videoIdInput').value = id;
+  setVideoError('');
+  input.value = id;
   saveContent({ featuredVideo: { mode: mode, videoId: id } }, this, status,
     mode === 'manual' ? 'Saved — that video now leads the page.' : 'Saved — showing the newest upload.');
 });
@@ -648,6 +738,8 @@ document.getElementById('saveSocialBtn').addEventListener('click', function () {
 });
 
 // ══════════════════════════ STOREFRONTS ══════════════════════════
+var shopAnnounceTimer = null;
+
 function renderShop() {
   var rows = currentContent.shopLinks || [];
   document.getElementById('shopEditList').innerHTML = rows.map(function (r, i) {
@@ -656,7 +748,7 @@ function renderShop() {
       '<div class="edit-card-tools">' +
         '<button type="button" class="tool-btn danger" data-shopact="remove" data-i="' + i + '">' +
         '<i class="fas fa-trash" aria-hidden="true"></i> Remove' +
-        '<span class="sr-only"> ' + esc(r.platform || 'storefront') + '</span></button>' +
+        '<span class="sr-only"> ' + esc(r.platform || 'Storefront ' + (i + 1)) + '</span></button>' +
       '</div>' +
       aField('Platform', 'shop-' + i + '-platform', r.platform) +
       aField('Title', 'shop-' + i + '-name', r.name) +
@@ -669,10 +761,26 @@ function renderShop() {
     btn.addEventListener('click', function () {
       syncShopFromForm();
       var i = Number(btn.dataset.i);
-      if (!confirm('Remove "' + (currentContent.shopLinks[i].platform || 'this storefront') + '"?')) return;
+      var removed = currentContent.shopLinks[i].platform || 'Storefront ' + (i + 1);
+      if (!confirm('Remove "' + removed + '"?')) return;
       currentContent.shopLinks.splice(i, 1);
       renderShop();
-      document.getElementById('linksHeading').focus();
+      // Stay in the list. Sending focus to the panel heading rewound a keyboard
+      // user past the Featured Episode and Social Accounts panels on every
+      // delete, and said nothing about what had happened.
+      var remaining = document.querySelectorAll('#shopEditList [data-shopact="remove"]');
+      var next = remaining[i] || remaining[remaining.length - 1];
+      (next || document.getElementById('addShopBtn')).focus();
+
+      var s = document.getElementById('shopSaveStatus');
+      var n = currentContent.shopLinks.length;
+      clearTimeout(shopAnnounceTimer);
+      s.className = 'save-status';
+      s.textContent = '';
+      shopAnnounceTimer = setTimeout(function () {
+        s.textContent = 'Removed ' + removed + '. ' + n + (n === 1 ? ' storefront left' : ' storefronts left') +
+          ' — press Save Storefronts to apply it.';
+      }, 250);
     });
   });
 }
