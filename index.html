@@ -2211,7 +2211,7 @@
             width: 100%; min-height: 48px;
             padding: 0.75rem 1rem;
             font-family: 'Archivo', sans-serif; font-size: 0.95rem;
-            border: 2px solid rgba(255,255,255,0.35);
+            border: 2px solid rgba(255,255,255,0.45);
             background: rgba(255,255,255,0.06);
             color: var(--white);
         }
@@ -2228,7 +2228,13 @@
 
         .nl-note { font-family: 'Archivo', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.72); margin: 0.9rem 0 0; }
         .nl-status { font-family: 'Archivo', sans-serif; font-size: 0.85rem; font-weight: 600; margin: 0.75rem 0 0; color: var(--yellow); }
-        .nl-status:empty { display: none; }
+        /* Collapse the space, don't display:none it. A hidden node isn't in the
+           accessibility tree, so the region isn't being watched — it would then
+           gain both its role and its text in the same tick and announce nothing. */
+        .nl-status:empty { margin: 0; }
+
+        .nl-card:focus { outline: none; }
+        .nl-card:focus-visible { outline: 3px solid var(--yellow); outline-offset: -3px; }
 
         /* ─────────────── STICKY SIGNUP BAR ─────────────── */
         .nl-sticky {
@@ -2254,7 +2260,7 @@
             min-height: 44px; width: min(17rem, 40vw);
             padding: 0.5rem 0.8rem;
             font-family: 'Archivo', sans-serif; font-size: 0.85rem;
-            border: 2px solid rgba(255,255,255,0.35);
+            border: 2px solid rgba(255,255,255,0.45);
             background: rgba(255,255,255,0.06); color: var(--white);
         }
         .nl-sticky input::placeholder { color: rgba(255,255,255,0.62); }
@@ -2279,6 +2285,25 @@
         .nl-sticky-done {
             font-family: 'Archivo', sans-serif; font-size: 0.9rem; font-weight: 700;
             color: var(--yellow); margin: 0; flex: 1;
+        }
+        .nl-sticky-done:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+        .nl-sticky-status {
+            font-family: 'Archivo', sans-serif; font-size: 0.8rem; font-weight: 700;
+            color: var(--yellow); margin: 0;
+        }
+        /* Empty stays rendered so the region is actually monitored; it only claims
+           a row once it has something to say. */
+        .nl-sticky-status:not(:empty) { flex-basis: 100%; }
+        .nl-sticky input[aria-invalid="true"] { border-color: var(--yellow); }
+
+        /* The signup bar — and below 768px the mobile nav under it — are fixed to
+           the bottom, so a control tabbed to near the foot of the viewport gets
+           scrolled flush underneath them. This is the bottom-edge counterpart of
+           the header's scroll-margin-top. */
+        html { scroll-padding-bottom: 104px; }
+        @media (max-width: 768px) {
+            html { scroll-padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
         }
 
         /* Below 768px the mobile bottom nav is fixed at the bottom, so the bar sits
@@ -3233,10 +3258,14 @@ function subscribeEmail(email) {
     // r.ok MUST be checked. Without it a 503 still resolves, and the form cheerfully
     // reported "You're in!" while the address was thrown away.
     .then(function (r) { if (!r.ok) throw new Error('subscribe unavailable'); return r.json(); })
+    .then(function () { return { ok: true, viaSubstack: false }; })
     .catch(function () {
         // Hand off to Substack, where the newsletter actually lives. The signup
-        // completes for real rather than being silently dropped.
-        window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
+        // completes for real rather than being silently dropped — but say so,
+        // because a popup blocker can eat this window and the caller must not
+        // claim success on the strength of a window that never opened.
+        var w = window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
+        return { ok: !!w, viaSubstack: true };
     });
 }
 
@@ -3252,7 +3281,10 @@ function newsletterState() {
 document.getElementById('emailForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var email = document.getElementById('emailInput').value;
-    subscribeEmail(email).then(function () {
+    subscribeEmail(email).then(function (res) {
+        // Only claim success when something actually succeeded. If the API failed
+        // AND the Substack window was blocked, nothing happened.
+        if (!res.ok) return;
         markSubscribed();
         document.getElementById('emailForm').style.display = 'none';
         document.getElementById('emailSuccess').style.display = 'flex';
@@ -3411,6 +3443,7 @@ onReady(function () {
     var SNOOZE_DAYS = 14;
 
     var lastFocused = null;
+    var submitting = false;
 
     function shouldOpen() {
         var state = newsletterState();
@@ -3429,13 +3462,23 @@ onReady(function () {
         );
     }
 
+    // A polite region written twice in quick succession drops the first message,
+    // and one that gains its text in the same tick it becomes visible announces
+    // nothing. Same clear-then-set the scam-alert feed uses.
+    function setStatus(node, msg) {
+        node.textContent = '';
+        setTimeout(function () { node.textContent = msg; }, 120);
+    }
+
     function open() {
         lastFocused = document.activeElement;
         modal.hidden = false;
         // Stop the page behind from scrolling while the dialog owns the screen.
         document.body.style.overflow = 'hidden';
-        var first = document.getElementById('nlModalEmail');
-        (first || document.getElementById('nlClose')).focus();
+        // The dialog itself, not the email field: nobody asked for this to open,
+        // so the title and description have to be heard before an edit field
+        // drops a screen reader into forms mode.
+        card.focus({ preventScroll: true });
         document.addEventListener('keydown', onKeydown, true);
     }
 
@@ -3446,10 +3489,21 @@ onReady(function () {
         if (snooze) {
             try { localStorage.setItem('rrNewsletter', 'dismissed:' + (Date.now() + SNOOZE_DAYS * 864e5)); } catch (_) {}
         }
-        // Put focus back where it was, so keyboard users aren't dumped at the top
-        // of the document by a dialog they never asked to open.
-        if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
-        else { var m = document.getElementById('main'); if (m) m.focus(); }
+        // <body> passes document.contains(), so restoring to it always took the
+        // first branch and called body.focus() — a no-op — meaning the #main
+        // fallback never ran and focus was silently dropped. The dialog opens on
+        // a timer, so <body> is the normal case here, not an edge case.
+        var restore = null;
+        if (lastFocused && lastFocused !== document.body &&
+            document.contains(lastFocused) && typeof lastFocused.focus === 'function') {
+            restore = lastFocused;
+        }
+        if (!restore) restore = document.getElementById('main');
+        // preventScroll because html is scroll-behavior:smooth — a bare focus()
+        // sails the reader back to the top from wherever they were reading.
+        if (restore) {
+            try { restore.focus({ preventScroll: true }); } catch (_) { restore.focus(); }
+        }
     }
 
     function onKeydown(e) {
@@ -3473,19 +3527,26 @@ onReady(function () {
         var status = document.getElementById('nlModalStatus');
         var email = input.value.trim();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            status.textContent = 'Please enter a valid email address.';
+            setStatus(status, 'Please enter a valid email address.');
             input.setAttribute('aria-invalid', 'true');
             input.focus();
             return;
         }
+        if (submitting) return;      // no double-submit
+        submitting = true;
         input.removeAttribute('aria-invalid');
-        status.textContent = 'Signing you up…';
-        subscribeEmail(email).then(function () {
+        setStatus(status, 'Signing you up…');
+        subscribeEmail(email).then(function (res) {
+            submitting = false;
+            if (!res.ok) { setStatus(status, "That didn't go through — please try again."); return; }
             markSubscribed();
-            status.textContent = "You're in — check your inbox!";
             var sticky = document.getElementById('nlSticky');
             if (sticky) sticky.hidden = true;
-            setTimeout(function () { close(false); }, 1600);
+            // No auto-close. Removing the confirmation on a timer takes it away
+            // mid-announcement and gives the reader no way to extend it — that's
+            // a content-set time limit on content they're still consuming.
+            setStatus(status, "You're in — check your inbox! You can close this now.");
+            document.getElementById('nlClose').focus();
         });
     });
 
@@ -3498,9 +3559,14 @@ onReady(function () {
     if (!bar) return;
 
     var dismissed = false;
+    var stickySubmitting = false;
     var SHOW_AFTER = 600;   // px scrolled, so it doesn't cover the hero immediately
 
     function update() {
+        // Hiding the bar while it holds focus blurs what's inside and dumps the
+        // user at <body>. This fires on resize, which on a phone means every time
+        // the on-screen keyboard opens — i.e. mid-typing in this very field.
+        if (!bar.hidden && bar.contains(document.activeElement)) return;
         if (dismissed || newsletterState() === 'subscribed') { bar.hidden = true; return; }
         // Never show it on top of the modal, and never alongside the real signup
         // section — two identical forms on screen is just confusing.
@@ -3535,20 +3601,36 @@ onReady(function () {
             input.focus();
             return;
         }
+        if (stickySubmitting) return;
+        stickySubmitting = true;
         input.removeAttribute('aria-invalid');
-        subscribeEmail(email).then(function () {
+        status.textContent = '';
+        subscribeEmail(email).then(function (res) {
+            stickySubmitting = false;
+            if (!res.ok) { status.textContent = "That didn't go through — please try again."; return; }
+
+            // Never rebuild the bar's innerHTML here: that destroyed the submit
+            // button holding focus and deleted the live region, so the
+            // confirmation was announced to no one. Swap visibility instead and
+            // move focus to the confirmation, which both announces it and leaves
+            // the tab sequence somewhere sensible.
+            document.getElementById('nlStickyForm').hidden = true;
+            document.getElementById('nlStickyText').hidden = true;
+            var done = document.getElementById('nlStickyDone');
+            done.hidden = false;
+            done.focus();
+            // After the swap: update() hides the bar the moment this is set, and
+            // it runs on a 1s interval, so setting it first wiped the message.
             markSubscribed();
-            // Replace the form rather than hiding the bar outright, so the
-            // confirmation is actually seen before it goes.
-            bar.innerHTML = '<p class="nl-sticky-done">You\'re in — check your inbox!</p>';
-            setTimeout(function () { bar.hidden = true; }, 2600);
         });
     });
 
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
+    // update() bails while the bar holds focus, so re-check once focus leaves it.
+    bar.addEventListener('focusout', function () { setTimeout(update, 0); });
     update();
-    // The modal closes on a timer, so re-check shortly after it can have gone.
+    // The modal can be dismissed at any time, so re-check periodically.
     setInterval(update, 1000);
 });
 
@@ -3670,7 +3752,13 @@ onReady(function () {
      tab order until it opens. -->
 <div class="nl-modal" id="nlModal" hidden>
     <div class="nl-backdrop" data-nl-dismiss></div>
-    <div class="nl-card" role="dialog" aria-modal="true" aria-labelledby="nlTitle" aria-describedby="nlSub">
+    <!-- tabindex="-1" so focus can land on the dialog itself rather than straight
+         into the email field: nobody asked for this to open, so the title and
+         description need to be heard before an edit field grabs forms mode.
+         aria-label because the heading contains a <br>, which doesn't reliably
+         contribute a space — the name could compute as "Don't GetRipped Off". -->
+    <div class="nl-card" role="dialog" aria-modal="true" tabindex="-1"
+         aria-label="Don't Get Ripped Off" aria-describedby="nlSub">
         <button type="button" class="nl-close" id="nlClose" data-nl-dismiss aria-label="Close newsletter signup">
             <i class="fas fa-xmark" aria-hidden="true"></i>
         </button>
@@ -3700,7 +3788,13 @@ onReady(function () {
                autocomplete="email" required aria-describedby="nlStickyStatus">
         <button type="submit">Subscribe</button>
     </form>
-    <p class="sr-only" id="nlStickyStatus" role="status"></p>
+    <!-- role="alert", and visible: this was sr-only, so a sighted user who typed a
+         bad address saw nothing change at all. -->
+    <p class="nl-sticky-status" id="nlStickyStatus" role="alert"></p>
+    <!-- Pre-existing rather than injected on success. Replacing the bar's innerHTML
+         destroyed the button holding focus and deleted the live region, so the
+         confirmation was announced to nobody. -->
+    <p class="nl-sticky-done" id="nlStickyDone" tabindex="-1" hidden>You're in — check your inbox!</p>
     <button type="button" class="nl-sticky-close" id="nlStickyClose" aria-label="Dismiss newsletter bar">
         <i class="fas fa-xmark" aria-hidden="true"></i>
     </button>
