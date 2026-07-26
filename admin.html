@@ -114,6 +114,33 @@
   .tool-btn:disabled { opacity: 0.35; cursor: default; }
   .tool-btn.danger { color: var(--down); }
   .tool-btn.danger:hover { background: #FDECEA; }
+  /* 44px so the reorder controls stay comfortable on a tablet, which is where
+     someone is most likely to be shuffling the page around. */
+  .tool-btn { min-height: 44px; }
+
+  .panel-note { font-size: 0.85rem; color: #4E4A44; margin: -0.25rem 0 1rem; }
+  .field-help { font-size: 0.8rem; color: #4E4A44; margin: 0.35rem 0 0; }
+  .radio-row label { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; cursor: pointer; font-weight: 500; }
+  .radio-row input { width: auto; margin: 0; }
+
+  .order-list { list-style: none; margin: 0; padding: 0; }
+  .order-item {
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 0.6rem 0.75rem; border: 1px solid var(--line); margin-bottom: 0.5rem; background: #fff;
+  }
+  .order-num {
+    flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center;
+    background: var(--blue); color: var(--yellow);
+    font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 0.8rem;
+  }
+  .order-name { flex: 1; font-weight: 600; }
+  .order-tools { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  @media (max-width: 560px) {
+    .order-item { flex-wrap: wrap; }
+    .order-name { flex-basis: calc(100% - 3.5rem); }
+    .order-tools { width: 100%; }
+    .order-tools .tool-btn { flex: 1; justify-content: center; }
+  }
 
   .btn-primary {
     font-family: 'Archivo', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;
@@ -179,7 +206,9 @@
       </div>
       <ul class="nav-list">
         <li><button class="nav-btn" data-section="deals" type="button"><i class="fas fa-tag" aria-hidden="true"></i> Deals of the Week</button></li>
+        <li><button class="nav-btn" data-section="order" type="button"><i class="fas fa-arrow-down-1-9" aria-hidden="true"></i> Page Order</button></li>
         <li><button class="nav-btn" data-section="content" type="button"><i class="fas fa-file-lines" aria-hidden="true"></i> Site Content</button></li>
+        <li><button class="nav-btn" data-section="links" type="button"><i class="fas fa-link" aria-hidden="true"></i> Links &amp; Video</button></li>
         <li><button class="nav-btn" data-section="subscribers" type="button"><i class="fas fa-envelope" aria-hidden="true"></i> Subscribers</button></li>
         <li><button class="nav-btn" data-section="contacts" type="button"><i class="fas fa-inbox" aria-hidden="true"></i> Contacts</button></li>
       </ul>
@@ -202,6 +231,22 @@
           <div class="action-row">
             <button class="btn-primary" id="saveDealsBtn" type="button">Save Deals</button>
             <span class="save-status" id="dealsSaveStatus" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PAGE ORDER ── -->
+      <section class="content-section" id="section-order" data-section="order">
+        <div class="section-head">
+          <h2 id="orderHeading">Page Order</h2>
+          <p>The order sections appear in on the homepage, top to bottom. The introduction always stays first. Visitors see the top of the page most, so put what matters there.</p>
+        </div>
+        <div class="panel">
+          <ol class="order-list" id="orderList"></ol>
+          <div class="action-row">
+            <button class="btn-primary" id="saveOrderBtn" type="button">Save Order</button>
+            <button class="tool-btn" id="resetOrderBtn" type="button">Reset to recommended</button>
+            <span class="save-status" id="orderSaveStatus" role="status"></span>
           </div>
         </div>
       </section>
@@ -237,6 +282,58 @@
           <div class="action-row">
             <button class="btn-primary" id="saveContentBtn" type="button">Save Site Content</button>
             <span class="save-status" id="contentSaveStatus" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── LINKS & VIDEO ── -->
+      <section class="content-section" id="section-links" data-section="links">
+        <div class="section-head">
+          <h2 id="linksHeading">Links &amp; Video</h2>
+          <p>The featured episode, Jeff's social accounts, and the storefront links.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Featured Episode</h3>
+          <fieldset class="edit-card">
+            <legend>Which video plays on the homepage</legend>
+            <div class="field-row radio-row">
+              <label><input type="radio" name="videoMode" value="auto" id="videoModeAuto"> Newest upload, automatically</label>
+            </div>
+            <div class="field-row radio-row">
+              <label><input type="radio" name="videoMode" value="manual" id="videoModeManual"> A specific video I choose</label>
+            </div>
+            <div class="field-row">
+              <label for="videoIdInput">YouTube video ID or link</label>
+              <input type="text" id="videoIdInput" placeholder="dQw4w9WgXcQ  —  or paste the full YouTube link"
+                     aria-describedby="videoIdHelp">
+              <p class="field-help" id="videoIdHelp">Paste the whole link if it's easier; the ID is pulled out of it. Only used when "a specific video" is selected.</p>
+            </div>
+          </fieldset>
+          <div class="action-row">
+            <button class="btn-primary" id="saveVideoBtn" type="button">Save Featured Episode</button>
+            <span class="save-status" id="videoSaveStatus" role="status"></span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Social Accounts</h3>
+          <p class="panel-note">Shown in the "Follow Jeff" section. The YouTube card is the large one at the top.</p>
+          <div id="socialEditList"></div>
+          <div class="action-row">
+            <button class="btn-primary" id="saveSocialBtn" type="button">Save Social Links</button>
+            <span class="save-status" id="socialSaveStatus" role="status"></span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Storefronts</h3>
+          <p class="panel-note">The cards in "Shop &amp; Save".</p>
+          <div id="shopEditList"></div>
+          <button class="btn-add" id="addShopBtn" type="button"><i class="fas fa-plus" aria-hidden="true"></i> Add a Storefront</button>
+          <div class="action-row">
+            <button class="btn-primary" id="saveShopBtn" type="button">Save Storefronts</button>
+            <span class="save-status" id="shopSaveStatus" role="status"></span>
           </div>
         </div>
       </section>
@@ -358,7 +455,7 @@ fetch('/api/admin/session')
   .then(function (data) { if (data.authed) showBoard(); });
 
 // ── sidebar navigation ──
-var sections = ['deals', 'content', 'subscribers', 'contacts'];
+var sections = ['deals', 'order', 'content', 'links', 'subscribers', 'contacts'];
 function showSection(name) {
   if (sections.indexOf(name) === -1) name = 'deals';
   sections.forEach(function (s) {
@@ -376,6 +473,230 @@ document.querySelectorAll('.nav-btn').forEach(function (btn) {
   btn.addEventListener('click', function () { showSection(btn.dataset.section); });
 });
 showSection((location.hash || '#deals').slice(1));
+
+// ══════════════════════════ SHARED ══════════════════════════
+// Every panel here edits one area of the same /api/content document. The server
+// merges on save, so sending just the edited area can't blank the others — but
+// hero/about/testimonials must ride along because the endpoint validates them.
+var currentContent = null;
+
+function saveContent(patch, btn, statusEl, okMsg) {
+  if (!currentContent) return;
+  if (btn.getAttribute('aria-disabled') === 'true') return;
+  btn.setAttribute('aria-disabled', 'true');
+  statusEl.className = 'save-status';
+  statusEl.textContent = '';
+
+  var body = {
+    hero: currentContent.hero,
+    about: currentContent.about,
+    testimonials: currentContent.testimonials
+  };
+  for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch, k)) body[k] = patch[k];
+
+  fetch('/api/admin/content', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  })
+  .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+  .then(function (res) {
+    btn.removeAttribute('aria-disabled');
+    if (res.ok) {
+      for (var k2 in patch) if (Object.prototype.hasOwnProperty.call(patch, k2)) currentContent[k2] = patch[k2];
+      statusEl.className = 'save-status ok';
+      statusEl.textContent = okMsg;
+    } else {
+      statusEl.className = 'save-status err';
+      statusEl.textContent = res.data.message || res.data.error || 'Save failed.';
+    }
+  })
+  .catch(function () {
+    btn.removeAttribute('aria-disabled');
+    statusEl.className = 'save-status err';
+    statusEl.textContent = 'Save failed — check your connection.';
+  });
+}
+
+// ══════════════════════════ PAGE ORDER ══════════════════════════
+var SECTION_LABELS = {
+  latest: 'Latest Episode', alerts: 'Scam Alerts', deals: 'Deals of the Week',
+  wins: 'Viewer Wins', subscribe: 'Newsletter Signup', follow: 'Social Links',
+  shop: 'Shop & Save', about: 'About Jeff', contact: 'Work With Jeff'
+};
+var RECOMMENDED_ORDER = ['latest', 'alerts', 'deals', 'wins', 'subscribe', 'follow', 'shop', 'about', 'contact'];
+var currentOrder = [];
+
+function renderOrder() {
+  var list = document.getElementById('orderList');
+  list.innerHTML = currentOrder.map(function (id, i) {
+    return '<li class="order-item" data-index="' + i + '">' +
+      '<span class="order-num" aria-hidden="true">' + (i + 2) + '</span>' +
+      '<span class="order-name">' + esc(SECTION_LABELS[id] || id) + '</span>' +
+      '<span class="order-tools">' +
+        '<button type="button" class="tool-btn" data-act="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>' +
+          '<i class="fas fa-arrow-up" aria-hidden="true"></i> Up' +
+          '<span class="sr-only"> — move ' + esc(SECTION_LABELS[id] || id) + ' earlier</span></button>' +
+        '<button type="button" class="tool-btn" data-act="down" data-i="' + i + '"' + (i === currentOrder.length - 1 ? ' disabled' : '') + '>' +
+          '<i class="fas fa-arrow-down" aria-hidden="true"></i> Down' +
+          '<span class="sr-only"> — move ' + esc(SECTION_LABELS[id] || id) + ' later</span></button>' +
+      '</span>' +
+    '</li>';
+  }).join('');
+
+  list.querySelectorAll('[data-act]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var i = Number(btn.dataset.i), act = btn.dataset.act, moved = i;
+      if (act === 'up' && i > 0) { var a = currentOrder[i - 1]; currentOrder[i - 1] = currentOrder[i]; currentOrder[i] = a; moved = i - 1; }
+      else if (act === 'down' && i < currentOrder.length - 1) { var b = currentOrder[i + 1]; currentOrder[i + 1] = currentOrder[i]; currentOrder[i] = b; moved = i + 1; }
+      renderOrder();
+      // Reordering gets clicked repeatedly, so focus follows the row that moved
+      // rather than resetting to the heading each time.
+      var row = document.querySelector('#orderList .order-item[data-index="' + moved + '"]');
+      var target = row && row.querySelector('[data-act="' + act + '"]:not(:disabled)');
+      if (!target) target = row && row.querySelector('[data-act]:not(:disabled)');
+      (target || document.getElementById('orderHeading')).focus();
+    });
+  });
+}
+
+document.getElementById('saveOrderBtn').addEventListener('click', function () {
+  saveContent({ sectionOrder: currentOrder }, this,
+    document.getElementById('orderSaveStatus'), 'Saved — the homepage is in this order now.');
+});
+
+document.getElementById('resetOrderBtn').addEventListener('click', function () {
+  currentOrder = RECOMMENDED_ORDER.slice();
+  renderOrder();
+  var s = document.getElementById('orderSaveStatus');
+  s.className = 'save-status';
+  s.textContent = 'Reset — press Save Order to apply it.';
+});
+
+// ══════════════════════════ FEATURED VIDEO ══════════════════════════
+// Accepts a bare id or any YouTube URL, because pasting the link is what
+// people actually do.
+function extractVideoId(raw) {
+  var v = String(raw || '').trim();
+  if (!v) return '';
+  var m = v.match(/[?&]v=([\w-]{6,})/) || v.match(/youtu\.be\/([\w-]{6,})/) ||
+          v.match(/\/(?:embed|shorts|live)\/([\w-]{6,})/);
+  if (m) return m[1];
+  return /^[\w-]{6,}$/.test(v) ? v : '';
+}
+
+function renderVideo() {
+  var fv = currentContent.featuredVideo || { mode: 'auto', videoId: '' };
+  document.getElementById(fv.mode === 'manual' ? 'videoModeManual' : 'videoModeAuto').checked = true;
+  document.getElementById('videoIdInput').value = fv.videoId || '';
+}
+
+document.getElementById('saveVideoBtn').addEventListener('click', function () {
+  var mode = document.querySelector('input[name="videoMode"]:checked').value;
+  var status = document.getElementById('videoSaveStatus');
+  var id = extractVideoId(document.getElementById('videoIdInput').value);
+  if (mode === 'manual' && !id) {
+    status.className = 'save-status err';
+    status.textContent = 'Enter a YouTube video ID or paste a YouTube link.';
+    document.getElementById('videoIdInput').focus();
+    return;
+  }
+  document.getElementById('videoIdInput').value = id;
+  saveContent({ featuredVideo: { mode: mode, videoId: id } }, this, status,
+    mode === 'manual' ? 'Saved — that video now leads the page.' : 'Saved — showing the newest upload.');
+});
+
+// ══════════════════════════ SOCIAL LINKS ══════════════════════════
+function renderSocial() {
+  var s = currentContent.socialLinks || { featured: {}, links: [] };
+  var f = s.featured || {};
+  var out = '<fieldset class="edit-card" data-social="featured">' +
+    '<legend>YouTube (featured card)</legend>' +
+    aField('Title', 'soc-f-name', f.name) +
+    aField('Handle', 'soc-f-handle', f.handle) +
+    aField('Description', 'soc-f-desc', f.desc) +
+    aField('Link URL', 'soc-f-url', f.url) +
+    '</fieldset>';
+
+  out += (s.links || []).map(function (l, i) {
+    return '<fieldset class="edit-card" data-social="' + i + '">' +
+      '<legend>' + esc(l.name || 'Link ' + (i + 1)) + '</legend>' +
+      aField('Title', 'soc-' + i + '-name', l.name) +
+      aField('Handle', 'soc-' + i + '-handle', l.handle) +
+      aField('Link URL', 'soc-' + i + '-url', l.url) +
+      '</fieldset>';
+  }).join('');
+
+  document.getElementById('socialEditList').innerHTML = out;
+}
+
+function aField(label, id, val) {
+  var key = id.split('-').pop();
+  return '<div class="field-row"><label for="' + id + '">' + esc(label) + '</label>' +
+    '<input type="text" id="' + id + '" data-key="' + key + '" value="' + esc(val == null ? '' : val) + '"></div>';
+}
+
+document.getElementById('saveSocialBtn').addEventListener('click', function () {
+  var s = currentContent.socialLinks || { featured: {}, links: [] };
+  var next = { featured: Object.assign({}, s.featured), links: (s.links || []).map(function (l) { return Object.assign({}, l); }) };
+  document.querySelectorAll('#socialEditList .edit-card').forEach(function (card) {
+    var which = card.dataset.social;
+    var target = which === 'featured' ? next.featured : next.links[Number(which)];
+    if (!target) return;
+    card.querySelectorAll('[data-key]').forEach(function (el) { target[el.dataset.key] = el.value.trim(); });
+  });
+  saveContent({ socialLinks: next }, this,
+    document.getElementById('socialSaveStatus'), 'Saved — links updated on the site.');
+});
+
+// ══════════════════════════ STOREFRONTS ══════════════════════════
+function renderShop() {
+  var rows = currentContent.shopLinks || [];
+  document.getElementById('shopEditList').innerHTML = rows.map(function (r, i) {
+    return '<fieldset class="edit-card" data-shop="' + i + '">' +
+      '<legend>' + esc(r.platform || 'Storefront ' + (i + 1)) + '</legend>' +
+      '<div class="edit-card-tools">' +
+        '<button type="button" class="tool-btn danger" data-shopact="remove" data-i="' + i + '">' +
+        '<i class="fas fa-trash" aria-hidden="true"></i> Remove' +
+        '<span class="sr-only"> ' + esc(r.platform || 'storefront') + '</span></button>' +
+      '</div>' +
+      aField('Platform', 'shop-' + i + '-platform', r.platform) +
+      aField('Title', 'shop-' + i + '-name', r.name) +
+      aField('Description', 'shop-' + i + '-desc', r.desc) +
+      aField('Link URL', 'shop-' + i + '-url', r.url) +
+      '</fieldset>';
+  }).join('');
+
+  document.querySelectorAll('#shopEditList [data-shopact]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      syncShopFromForm();
+      var i = Number(btn.dataset.i);
+      if (!confirm('Remove "' + (currentContent.shopLinks[i].platform || 'this storefront') + '"?')) return;
+      currentContent.shopLinks.splice(i, 1);
+      renderShop();
+      document.getElementById('linksHeading').focus();
+    });
+  });
+}
+
+function syncShopFromForm() {
+  document.querySelectorAll('#shopEditList .edit-card').forEach(function (card, i) {
+    if (!currentContent.shopLinks[i]) return;
+    card.querySelectorAll('[data-key]').forEach(function (el) { currentContent.shopLinks[i][el.dataset.key] = el.value.trim(); });
+  });
+}
+
+document.getElementById('addShopBtn').addEventListener('click', function () {
+  syncShopFromForm();
+  currentContent.shopLinks = (currentContent.shopLinks || []).concat([{ platform: 'New', name: '', desc: '', url: 'https://' }]);
+  renderShop();
+  var cards = document.querySelectorAll('#shopEditList .edit-card');
+  cards[cards.length - 1].querySelector('input').focus();
+});
+
+document.getElementById('saveShopBtn').addEventListener('click', function () {
+  syncShopFromForm();
+  saveContent({ shopLinks: currentContent.shopLinks }, this,
+    document.getElementById('shopSaveStatus'), 'Saved — storefronts updated.');
+});
 
 // ══════════════════════════ DEALS ══════════════════════════
 var currentDeals = [];
@@ -487,12 +808,21 @@ document.getElementById('saveDealsBtn').addEventListener('click', function () {
 });
 
 // ══════════════════════════ SITE CONTENT ══════════════════════════
-var currentContent = null;
+// currentContent is declared once up in the SHARED block — every panel on this
+// page reads and writes the same document.
 
 function loadContent() {
   fetch('/api/content')
     .then(function (r) { return r.json(); })
-    .then(function (data) { currentContent = data; renderContent(); });
+    .then(function (data) {
+      currentContent = data;
+      currentOrder = (data.sectionOrder || RECOMMENDED_ORDER).slice();
+      renderContent();
+      renderOrder();
+      renderVideo();
+      renderSocial();
+      renderShop();
+    });
 }
 
 function renderContent() {

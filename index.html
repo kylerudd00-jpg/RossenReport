@@ -3142,6 +3142,40 @@ document.getElementById('advertiserForm').addEventListener('submit', function (e
     });
 });
 
+// ── LIVE SUBSCRIBER COUNT ──
+// The hero's subscriber figure used to be typed in by hand and went stale the
+// day it was written. This reads the real one and keeps reading it.
+// YouTube only publishes the count to three significant figures, so what comes
+// back is already rounded — there is no finer number available to round.
+(function () {
+    var REFRESH = 5 * 60 * 1000;
+
+    window.applyLiveStats = function () {
+        var el = document.querySelector('.stat-num[data-source="youtube"]');
+        if (!el) return;
+
+        fetch('/api/stats')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d || !d.subscribers) return;      // keep the fallback figure
+                var n = d.subscribersRounded || d.subscribers;
+                var value, suffix;
+                if (n >= 1000000) { value = (n / 1000000).toFixed(1).replace(/\.0$/, ''); suffix = 'M'; }
+                else if (n >= 1000) { value = String(Math.round(n / 1000)); suffix = 'K'; }
+                else { value = String(n); suffix = ''; }
+
+                el.setAttribute('data-count', value);
+                el.setAttribute('data-suffix', suffix);
+                // If the count-up already ran, it won't run again — write the
+                // final text directly so a refresh still shows the new number.
+                if (el.dataset.counted === 'true') el.textContent = value + suffix;
+            })
+            .catch(function () { /* leave the fallback figure in place */ });
+    };
+
+    setInterval(function () { window.applyLiveStats(); }, REFRESH);
+})();
+
 // ── COUNT-UP ANIMATION ── (called from the site-content fetch below, once
 // the real stat values are in the DOM — not run standalone, to avoid racing
 // the fetch and animating up from stale/placeholder numbers)
@@ -3174,6 +3208,10 @@ function initCountUp() {
             } else {
                 stats.forEach(function(el) {
                     el.textContent = el.dataset.count + el.dataset.suffix;
+                    // Marks the animation as finished, so a later live refresh
+                    // writes the new figure straight in rather than waiting for
+                    // a count-up that will never run again.
+                    el.dataset.counted = 'true';
                 });
             }
         }
@@ -3237,9 +3275,16 @@ function initCountUp() {
             var statsEl = document.getElementById('heroStats');
             if (statsEl && hero.stats && hero.stats.length) {
                 statsEl.innerHTML = hero.stats.map(function (s) {
-                    return '<div><span class="stat-num" data-count="' + esc(s.value) + '" data-suffix="' + esc(s.suffix) + '">0' + esc(s.suffix) + '</span>' +
+                    // Stats saved before `source` existed won't carry it, so fall
+                    // back to matching the label — otherwise the live count would
+                    // silently stop working for anyone who had already used the
+                    // control board once.
+                    var src = s.source || (/subscriber/i.test(s.label || '') ? 'youtube' : '');
+                    return '<div><span class="stat-num" data-count="' + esc(s.value) + '" data-suffix="' + esc(s.suffix) + '"' +
+                        (src ? ' data-source="' + esc(src) + '"' : '') + '>0' + esc(s.suffix) + '</span>' +
                         '<span class="stat-lbl">' + esc(s.label) + '</span></div>';
                 }).join('');
+                applyLiveStats();
             }
 
             var quoteEl = document.getElementById('aboutQuoteText');

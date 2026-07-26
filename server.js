@@ -20,7 +20,10 @@ const DEFAULT_CONTENT = {
         taglineLine2: 'Your trusted guide to living smarter.',
         stats: [
             { value: '2.4', suffix: 'M+', label: 'Followers' },
-            { value: '40', suffix: 'K+', label: 'Subscribers' },
+            // source:'youtube' makes this one read the real subscriber count at
+            // runtime. The typed-in value is only what shows if the API is
+            // unreachable. It said 40K; the channel is well past half a million.
+            { value: '594', suffix: 'K', label: 'YouTube Subscribers', source: 'youtube' },
             { value: '15', suffix: '+', label: 'Years on Air' },
         ],
     },
@@ -191,21 +194,91 @@ async function fetchYouTubeVideos() {
     }));
 }
 
+// Look up a title for a video that isn't in the recent-uploads feed. oEmbed is
+// public and unkeyed, so pinning an older video costs nothing.
+async function fetchVideoTitle(id) {
+    try {
+        const r = await fetch('https://www.youtube.com/oembed?format=json&url=' +
+            encodeURIComponent('https://www.youtube.com/watch?v=' + id));
+        if (!r.ok) return null;
+        const j = await r.json();
+        return j.title || null;
+    } catch (_) { return null; }
+}
+
 // ── API: YouTube feed ──
-app.get('/api/youtube', async (req, res) => {
+app.get('/api/youtube', wrap(async (req, res) => {
     const now = Date.now();
+    let payload;
     if (ytCache.data && now - ytCache.fetchedAt < YT_CACHE_TTL) {
-        return res.json(ytCache.data);
+        payload = ytCache.data;
+    } else {
+        try {
+            const videos = await fetchYouTubeVideos();
+            ytCache = { data: { videos }, fetchedAt: now };
+            payload = ytCache.data;
+        } catch (err) {
+            payload = ytCache.data || { videos: [{ id: 'pVH0evvebRw', title: 'Latest Episode', published: '' }] };
+        }
+    }
+
+    // A pinned episode is promoted to the front rather than replacing the list,
+    // so the archive strip still shows everything.
+    let videos = payload.videos;
+    try {
+        const { featuredVideo } = await getContent();
+        if (featuredVideo && featuredVideo.mode === 'manual' && featuredVideo.videoId) {
+            const id = featuredVideo.videoId;
+            const existing = videos.find(v => v.id === id);
+            if (existing) videos = [existing].concat(videos.filter(v => v.id !== id));
+            else {
+                const title = await fetchVideoTitle(id);
+                if (title) videos = [{ id, title, published: '' }].concat(videos);
+            }
+        }
+    } catch (_) { /* pinning is a nicety; never break the feed over it */ }
+
+    res.json({ videos });
+}));
+
+// ── API: Live channel stats ──
+// The hero's subscriber figure was a number typed in by hand. This reads the
+// real one. Note YouTube itself only publishes the count to three significant
+// figures, so it already arrives rounded — asking for finer precision than
+// that isn't possible through the public API.
+const STATS_TTL = 5 * 60 * 1000;
+let statsCache = { data: null, at: 0 };
+
+app.get('/api/stats', wrap(async (req, res) => {
+    const key = process.env.YT_API_KEY;
+    if (!key) return res.json({ subscribers: null });
+
+    if (statsCache.data && Date.now() - statsCache.at < STATS_TTL) {
+        return res.json(statsCache.data);
     }
     try {
-        const videos = await fetchYouTubeVideos();
-        ytCache = { data: { videos }, fetchedAt: now };
-        res.json({ videos });
-    } catch (err) {
-        if (ytCache.data) return res.json(ytCache.data); // serve stale on error
-        res.json({ videos: [{ id: 'pVH0evvebRw', title: 'Latest Episode', published: '' }] });
+        const r = await fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' +
+            YT_CHANNEL_ID + '&key=' + key);
+        const j = await r.json();
+        const stats = j && j.items && j.items[0] && j.items[0].statistics;
+        if (!stats) throw new Error('no statistics in response');
+
+        const subs = Number(stats.subscriberCount);
+        const data = {
+            subscribers: subs,
+            // Rounded to the nearest thousand for display.
+            subscribersRounded: Math.round(subs / 1000) * 1000,
+            videos: Number(stats.videoCount) || null,
+            views: Number(stats.viewCount) || null,
+            fetchedAt: new Date().toISOString(),
+        };
+        statsCache = { data, at: Date.now() };
+        res.json(data);
+    } catch (_) {
+        // Stale beats blank; blank beats a wrong number.
+        res.json(statsCache.data || { subscribers: null });
     }
-});
+}));
 
 // ── API: Live scam alerts (federal consumer-protection agencies only) ──
 // Read-only and cached in memory by the module, so this works fine on the
