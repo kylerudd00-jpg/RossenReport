@@ -2151,6 +2151,150 @@
         .contact-form-error { display: none; color: #B3261E; font-size: 0.85rem; margin-top: 0.75rem; }
         @media (max-width: 640px) { .contact-form-row { grid-template-columns: 1fr; } .contact-form-wrap { padding: 1.75rem; } }
 
+        /* ─────────────── NEWSLETTER MODAL ─────────────── */
+        /* z-index sits above the sticky header (600) and the mobile nav (500). */
+        .nl-modal { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 1.25rem; }
+        .nl-modal[hidden] { display: none; }
+        .nl-backdrop { position: absolute; inset: 0; background: rgba(4, 10, 26, 0.72); }
+
+        .nl-card {
+            position: relative;
+            width: min(30rem, 100%);
+            max-height: calc(100vh - 2.5rem);
+            overflow-y: auto;
+            background: var(--blue);
+            border-top: 5px solid var(--yellow);
+            padding: 2.25rem 2rem 1.75rem;
+            box-shadow: 0 24px 60px rgba(4, 10, 26, 0.55);
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .nl-card { animation: nlIn 0.22s ease-out; }
+            @keyframes nlIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        }
+
+        .nl-close {
+            position: absolute;
+            top: 0.4rem; right: 0.4rem;
+            width: 44px; height: 44px;
+            display: grid; place-items: center;
+            background: transparent;
+            border: 0;
+            color: var(--white);
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .nl-close:hover { background: rgba(255,255,255,0.14); }
+        .nl-close:focus-visible { outline: 3px solid var(--yellow); outline-offset: -3px; }
+
+        .nl-eyebrow {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--yellow); color: var(--blue);
+            font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 0.66rem;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            padding: 0.3rem 0.8rem; margin-bottom: 1rem;
+        }
+        .nl-title {
+            font-family: 'Big Shoulders Display', sans-serif; font-weight: 800;
+            font-size: clamp(1.9rem, 6vw, 2.5rem); line-height: 1.02;
+            color: var(--white); text-transform: uppercase; margin: 0 0 0.6rem;
+        }
+        .nl-title span { color: var(--yellow); }
+        .nl-sub {
+            font-family: 'Newsreader', Georgia, serif; font-size: 1rem; line-height: 1.6;
+            color: rgba(255,255,255,0.88); margin: 0 0 1.4rem;
+        }
+
+        .nl-form { display: flex; flex-direction: column; gap: 0.6rem; }
+        .nl-form input {
+            width: 100%; min-height: 48px;
+            padding: 0.75rem 1rem;
+            font-family: 'Archivo', sans-serif; font-size: 0.95rem;
+            border: 2px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.06);
+            color: var(--white);
+        }
+        .nl-form input::placeholder { color: rgba(255,255,255,0.62); }
+        .nl-form input:focus-visible { outline: 3px solid var(--yellow); outline-offset: 1px; border-color: var(--yellow); }
+        .nl-form button {
+            min-height: 48px;
+            font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 0.85rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--yellow); color: var(--blue);
+            border: 2px solid var(--yellow); cursor: pointer;
+        }
+        .nl-form button:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+
+        .nl-note { font-family: 'Archivo', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.72); margin: 0.9rem 0 0; }
+        .nl-status { font-family: 'Archivo', sans-serif; font-size: 0.85rem; font-weight: 600; margin: 0.75rem 0 0; color: var(--yellow); }
+        .nl-status:empty { display: none; }
+
+        /* ─────────────── STICKY SIGNUP BAR ─────────────── */
+        .nl-sticky {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 550;
+            background: var(--blue);
+            border-top: 3px solid var(--yellow);
+            padding: 0.7rem clamp(1rem, 4vw, 2rem);
+            padding-bottom: calc(0.7rem + env(safe-area-inset-bottom));
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .nl-sticky[hidden] { display: none; }
+
+        .nl-sticky-text {
+            font-family: 'Archivo', sans-serif; font-size: 0.85rem; font-weight: 600;
+            color: var(--white); margin: 0; flex: 1; min-width: 0;
+        }
+        .nl-sticky-text b { color: var(--yellow); }
+
+        .nl-sticky form { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .nl-sticky input {
+            min-height: 44px; width: min(17rem, 40vw);
+            padding: 0.5rem 0.8rem;
+            font-family: 'Archivo', sans-serif; font-size: 0.85rem;
+            border: 2px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.06); color: var(--white);
+        }
+        .nl-sticky input::placeholder { color: rgba(255,255,255,0.62); }
+        .nl-sticky input:focus-visible { outline: 3px solid var(--yellow); outline-offset: 1px; }
+        .nl-sticky form button {
+            min-height: 44px; padding: 0 1rem;
+            font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 0.75rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            background: var(--yellow); color: var(--blue); border: 0; cursor: pointer;
+        }
+        .nl-sticky form button:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+
+        .nl-sticky-close {
+            width: 44px; height: 44px; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: transparent; border: 0; color: var(--white);
+            font-size: 1.3rem; line-height: 1; cursor: pointer;
+        }
+        .nl-sticky-close:hover { background: rgba(255,255,255,0.14); }
+        .nl-sticky-close:focus-visible { outline: 3px solid var(--yellow); outline-offset: -3px; }
+
+        .nl-sticky-done {
+            font-family: 'Archivo', sans-serif; font-size: 0.9rem; font-weight: 700;
+            color: var(--yellow); margin: 0; flex: 1;
+        }
+
+        /* Below 768px the mobile bottom nav is fixed at the bottom, so the bar sits
+           directly above it instead of covering it. */
+        @media (max-width: 768px) {
+            .nl-sticky {
+                bottom: calc(62px + env(safe-area-inset-bottom));
+                padding-bottom: 0.7rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .nl-sticky-text { flex-basis: calc(100% - 44px); font-size: 0.8rem; }
+            .nl-sticky form { flex: 1; }
+            .nl-sticky input { width: auto; flex: 1; }
+        }
+
     </style>
 </head>
 <body>
@@ -3077,10 +3221,11 @@
 })();
 
 // ── EMAIL SIGNUP ──
-document.getElementById('emailForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var email = document.getElementById('emailInput').value;
-    fetch('/api/subscribe', {
+// Shared by the section form, the popup, and the sticky bar so all three behave
+// identically — including the Substack fallback, which is the part most easily
+// lost when a signup form gets duplicated.
+function subscribeEmail(email) {
+    return fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
@@ -3088,16 +3233,31 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     // r.ok MUST be checked. Without it a 503 still resolves, and the form cheerfully
     // reported "You're in!" while the address was thrown away.
     .then(function (r) { if (!r.ok) throw new Error('subscribe unavailable'); return r.json(); })
-    .then(function () {
-        document.getElementById('emailForm').style.display = 'none';
-        document.getElementById('emailSuccess').style.display = 'flex';
-    })
     .catch(function () {
         // Hand off to Substack, where the newsletter actually lives. The signup
         // completes for real rather than being silently dropped.
         window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
+    });
+}
+
+// One flag for all three forms: once someone has subscribed, neither the popup
+// nor the bar should ask again.
+function markSubscribed() {
+    try { localStorage.setItem('rrNewsletter', 'subscribed'); } catch (_) {}
+}
+function newsletterState() {
+    try { return localStorage.getItem('rrNewsletter') || ''; } catch (_) { return ''; }
+}
+
+document.getElementById('emailForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('emailInput').value;
+    subscribeEmail(email).then(function () {
+        markSubscribed();
         document.getElementById('emailForm').style.display = 'none';
         document.getElementById('emailSuccess').style.display = 'flex';
+        var sticky = document.getElementById('nlSticky');
+        if (sticky) sticky.hidden = true;
     });
 });
 
@@ -3228,6 +3388,170 @@ function initCountUp() {
     if (stats.length > 0) observer.observe(stats[0].closest('.hero-stats'));
 }
 
+// This script block sits above the newsletter markup in the document, so at
+// parse time those elements don't exist yet and a lookup returns null. Anything
+// that grabs them up front has to wait for the document to finish parsing.
+function onReady(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+}
+
+// ── NEWSLETTER POPUP ──
+onReady(function () {
+    var modal = document.getElementById('nlModal');
+    var card  = modal && modal.querySelector('.nl-card');
+    if (!modal) return;
+
+    // Short delay rather than instant: firing during the hero's own load animation
+    // reads as a glitch, and an immediate interruption is the fastest way to get
+    // the popup closed unread.
+    var OPEN_AFTER = 1400;
+    // Dismissing hides it for two weeks. Re-asking on every single visit is what
+    // turns a signup prompt into the reason someone stops coming back.
+    var SNOOZE_DAYS = 14;
+
+    var lastFocused = null;
+
+    function shouldOpen() {
+        var state = newsletterState();
+        if (state === 'subscribed') return false;
+        if (state.indexOf('dismissed:') === 0) {
+            var until = Number(state.split(':')[1]) || 0;
+            if (Date.now() < until) return false;
+        }
+        return true;
+    }
+
+    function focusables() {
+        return Array.prototype.filter.call(
+            card.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+            function (el) { return !el.disabled && el.offsetParent !== null; }
+        );
+    }
+
+    function open() {
+        lastFocused = document.activeElement;
+        modal.hidden = false;
+        // Stop the page behind from scrolling while the dialog owns the screen.
+        document.body.style.overflow = 'hidden';
+        var first = document.getElementById('nlModalEmail');
+        (first || document.getElementById('nlClose')).focus();
+        document.addEventListener('keydown', onKeydown, true);
+    }
+
+    function close(snooze) {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onKeydown, true);
+        if (snooze) {
+            try { localStorage.setItem('rrNewsletter', 'dismissed:' + (Date.now() + SNOOZE_DAYS * 864e5)); } catch (_) {}
+        }
+        // Put focus back where it was, so keyboard users aren't dumped at the top
+        // of the document by a dialog they never asked to open.
+        if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
+        else { var m = document.getElementById('main'); if (m) m.focus(); }
+    }
+
+    function onKeydown(e) {
+        if (e.key === 'Escape') { e.preventDefault(); close(true); return; }
+        if (e.key !== 'Tab') return;
+        // Focus trap: aria-modal alone doesn't stop Tab reaching the page behind.
+        var f = focusables();
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
+    Array.prototype.forEach.call(modal.querySelectorAll('[data-nl-dismiss]'), function (el) {
+        el.addEventListener('click', function () { close(true); });
+    });
+
+    document.getElementById('nlModalForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = document.getElementById('nlModalEmail');
+        var status = document.getElementById('nlModalStatus');
+        var email = input.value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            status.textContent = 'Please enter a valid email address.';
+            input.setAttribute('aria-invalid', 'true');
+            input.focus();
+            return;
+        }
+        input.removeAttribute('aria-invalid');
+        status.textContent = 'Signing you up…';
+        subscribeEmail(email).then(function () {
+            markSubscribed();
+            status.textContent = "You're in — check your inbox!";
+            var sticky = document.getElementById('nlSticky');
+            if (sticky) sticky.hidden = true;
+            setTimeout(function () { close(false); }, 1600);
+        });
+    });
+
+    if (shouldOpen()) setTimeout(open, OPEN_AFTER);
+});
+
+// ── STICKY SIGNUP BAR ──
+onReady(function () {
+    var bar = document.getElementById('nlSticky');
+    if (!bar) return;
+
+    var dismissed = false;
+    var SHOW_AFTER = 600;   // px scrolled, so it doesn't cover the hero immediately
+
+    function update() {
+        if (dismissed || newsletterState() === 'subscribed') { bar.hidden = true; return; }
+        // Never show it on top of the modal, and never alongside the real signup
+        // section — two identical forms on screen is just confusing.
+        var modal = document.getElementById('nlModal');
+        if (modal && !modal.hidden) { bar.hidden = true; return; }
+
+        // Hidden over the signup section (two identical forms is confusing) and
+        // over the footer, which body's padding doesn't account for — the bar
+        // comes and goes, so reserving space for it would make the page jump.
+        var blockers = [document.getElementById('subscribe'), document.querySelector('footer')];
+        for (var i = 0; i < blockers.length; i++) {
+            if (!blockers[i]) continue;
+            var r = blockers[i].getBoundingClientRect();
+            if (r.top < window.innerHeight && r.bottom > 0) { bar.hidden = true; return; }
+        }
+        bar.hidden = window.scrollY < SHOW_AFTER;
+    }
+
+    document.getElementById('nlStickyClose').addEventListener('click', function () {
+        dismissed = true;
+        bar.hidden = true;
+    });
+
+    document.getElementById('nlStickyForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = document.getElementById('nlStickyEmail');
+        var status = document.getElementById('nlStickyStatus');
+        var email = input.value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            status.textContent = 'Please enter a valid email address.';
+            input.setAttribute('aria-invalid', 'true');
+            input.focus();
+            return;
+        }
+        input.removeAttribute('aria-invalid');
+        subscribeEmail(email).then(function () {
+            markSubscribed();
+            // Replace the form rather than hiding the bar outright, so the
+            // confirmation is actually seen before it goes.
+            bar.innerHTML = '<p class="nl-sticky-done">You\'re in — check your inbox!</p>';
+            setTimeout(function () { bar.hidden = true; }, 2600);
+        });
+    });
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+    // The modal closes on a timer, so re-check shortly after it can have gone.
+    setInterval(update, 1000);
+});
+
 // ── TESTIMONIAL MARQUEE: pause control (WCAG 2.2.2) ──
 (function () {
     var track = document.getElementById('testiTrack');
@@ -3340,6 +3664,47 @@ function initCountUp() {
         <span>Shop</span>
     </a>
 </nav>
+
+<!-- ── NEWSLETTER MODAL ── -->
+<!-- hidden (not display:none in CSS alone) so its form controls stay out of the
+     tab order until it opens. -->
+<div class="nl-modal" id="nlModal" hidden>
+    <div class="nl-backdrop" data-nl-dismiss></div>
+    <div class="nl-card" role="dialog" aria-modal="true" aria-labelledby="nlTitle" aria-describedby="nlSub">
+        <button type="button" class="nl-close" id="nlClose" data-nl-dismiss aria-label="Close newsletter signup">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+        <span class="nl-eyebrow"><i class="fas fa-envelope" aria-hidden="true"></i> Free Newsletter</span>
+        <h2 class="nl-title" id="nlTitle">Don't Get<br><span>Ripped Off</span></h2>
+        <p class="nl-sub" id="nlSub">
+            Jeff's scam alerts and money-saving tips, straight to your inbox each week. No spam, ever.
+        </p>
+        <form class="nl-form" id="nlModalForm" novalidate>
+            <label class="sr-only" for="nlModalEmail">Email address</label>
+            <input type="email" id="nlModalEmail" name="email" placeholder="Your email address"
+                   autocomplete="email" required aria-describedby="nlModalStatus">
+            <button type="submit">Sign Me Up — It's Free</button>
+        </form>
+        <p class="nl-status" id="nlModalStatus" role="status"></p>
+        <p class="nl-note">Powered by Jeff's Substack. Unsubscribe any time.</p>
+    </div>
+</div>
+
+<!-- ── STICKY SIGNUP BAR ── -->
+<!-- A region, not a dialog: it never takes focus and never blocks the page. -->
+<div class="nl-sticky" id="nlSticky" hidden role="region" aria-label="Newsletter signup">
+    <p class="nl-sticky-text" id="nlStickyText">Get Jeff's <b>scam alerts</b> every week — free.</p>
+    <form id="nlStickyForm" novalidate>
+        <label class="sr-only" for="nlStickyEmail">Email address</label>
+        <input type="email" id="nlStickyEmail" name="email" placeholder="Your email address"
+               autocomplete="email" required aria-describedby="nlStickyStatus">
+        <button type="submit">Subscribe</button>
+    </form>
+    <p class="sr-only" id="nlStickyStatus" role="status"></p>
+    <button type="button" class="nl-sticky-close" id="nlStickyClose" aria-label="Dismiss newsletter bar">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+</div>
 
 </body>
 </html>

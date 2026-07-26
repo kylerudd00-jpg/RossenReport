@@ -355,6 +355,45 @@ function requireAdmin(req, res, next) {
     next();
 }
 
+const ADMIN_MAX_AGE = 60 * 60 * 24 * 365;
+function setAdminCookie(res) {
+    res.setHeader('Set-Cookie',
+        `${ADMIN_COOKIE}=${ADMIN_TOKEN}; Max-Age=${ADMIN_MAX_AGE}; Path=/; HttpOnly; SameSite=Lax`);
+}
+
+// ── SSO from the Producer Toolkit ──
+// The toolkit and this site are separate origins, so a browser will never share
+// a login cookie between them — the team was being asked to sign in twice for
+// what looks like one product. The toolkit signs a short-lived token with a
+// secret only the two servers know; presenting a valid one here is proof the
+// bearer already passed the toolkit's own password gate.
+//
+// The token is deliberately thin: an expiry and its signature, nothing else. It
+// grants no more than the password does, and it is useless two minutes later.
+const SSO_SECRET = process.env.ADMIN_SSO_SECRET || '';
+
+function ssoTokenValid(token) {
+    if (!SSO_SECRET) return false;
+    const parts = String(token || '').split('.');
+    if (parts.length !== 2) return false;
+    const [expStr, sig] = parts;
+    if (!/^\d+$/.test(expStr)) return false;
+
+    const expected = crypto.createHmac('sha256', SSO_SECRET).update(expStr).digest('hex');
+    const a = Buffer.from(sig, 'utf8'), b = Buffer.from(expected, 'utf8');
+    // Length check first: timingSafeEqual throws on a length mismatch.
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
+
+    return Date.now() <= Number(expStr);
+}
+
+app.get('/admin/sso', (req, res) => {
+    if (ADMIN_TOKEN && ssoTokenValid(req.query.t)) setAdminCookie(res);
+    // Always land on the control board. A bad or expired token just means the
+    // normal login form, which is a better failure than an error page.
+    res.redirect(303, '/admin.html');
+});
+
 app.post('/admin/login', (req, res) => {
     const { key } = req.body || {};
     // The !ADMIN_KEY guard matters: without it a posted null would equal an unset
@@ -362,7 +401,7 @@ app.post('/admin/login', (req, res) => {
     if (!ADMIN_KEY || typeof key !== 'string' || key !== ADMIN_KEY) {
         return res.status(401).json({ error: 'Incorrect password' });
     }
-    res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=${ADMIN_TOKEN}; Max-Age=${60 * 60 * 24 * 365}; Path=/; HttpOnly; SameSite=Lax`);
+    setAdminCookie(res);
     res.json({ ok: true });
 });
 app.post('/admin/logout', (req, res) => {
