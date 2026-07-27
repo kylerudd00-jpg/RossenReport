@@ -61,9 +61,21 @@
             --white:      #FFFFFF;
             --gray-light: #F0F2F5;
             --gray-light-hover: #E4EAF5;   /* one step down, as --surface is to --surface-hover */
-            --gray:       #6B7280;
-            --dark:       #111827;
+            /* Was #6B7280, which failed AA on every light surface it sat on:
+               4.83:1 on white but 4.29:1 on --paper and 4.02:1 on --paper-cool.
+               Darkened until the WORST surface clears 4.5:1 rather than tuning
+               each background around it. Now 5.19:1 at worst, 6.24:1 on white. */
+            --gray:       #5A616D;
+            /* Was #111827 — a neutral gray-navy that read as "some other site's dark
+               mode" against the brand blue. Now a genuine deep blue: the same hue as
+               --blue, just further down. Sections stop announcing themselves as
+               different palettes and start reading as one. */
+            --dark:       #071B45;
             --paper:      #F6F1E6;
+            /* A second paper, one step cooler, so two light sections can sit near
+               each other without either looking like a mistake. Replaces the
+               #F0F2F5 grey that had no relationship to anything else on the page. */
+            --paper-cool: #EFEADC;
             /* 7.9:1 on --paper, 8.9:1 behind white chip text — reads as "warning"
                without dropping below AA anywhere it's used. */
             --alert:      #8F1D14;
@@ -177,7 +189,7 @@
         }
 
         .site-header-logo { display: inline-flex; flex-shrink: 0; }
-        .site-header-logo img { height: 38px; width: auto; display: block; }
+        .site-header-logo img { height: 52px; width: auto; display: block; }
         .site-header-logo:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 
         .site-header-nav {
@@ -254,6 +266,37 @@
             clip: rect(0, 0, 0, 0);
             white-space: nowrap;
             border: 0;
+        }
+
+        /* iOS reads as "alive" because of two things, and neither is more animation:
+           an overshooting curve instead of ease-out, and a physical response to
+           being pressed. Both are defined once here and reused. */
+        :root {
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-soft: cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        /* Press-down. The interface acknowledges the touch before the navigation
+           happens, which is the whole trick. */
+        .btn, .link-card, .link-card-featured, .shop-card, .deal-card,
+        .settings-btn, .filter-chip {
+            transition: transform .22s var(--spring), background .2s var(--ease-soft),
+                        color .2s var(--ease-soft), border-color .2s var(--ease-soft),
+                        box-shadow .22s var(--ease-soft);
+        }
+        .btn:active, .link-card:active, .link-card-featured:active,
+        .shop-card:active, .deal-card:active, .filter-chip:active { transform: scale(0.97); }
+        @media (hover: hover) {
+            .link-card:hover, .link-card-featured:hover, .shop-card:hover, .deal-card:hover {
+                transform: translateY(-3px);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .btn, .link-card, .link-card-featured, .shop-card, .deal-card,
+            .settings-btn, .filter-chip { transition: none; }
+            .btn:active, .link-card:active, .link-card-featured:active,
+            .shop-card:active, .deal-card:active, .filter-chip:active,
+            .link-card:hover, .link-card-featured:hover, .shop-card:hover,
+            .deal-card:hover { transform: none; }
         }
 
         html { scroll-behavior: smooth; }
@@ -391,7 +434,10 @@
             width: 7px; height: 7px;
             background: var(--blue);
             border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
+            /* No longer pulsing. Four infinite pulses were running on one page —
+               this dot, the LIVE badge, the new-episode badge and the alerts dot.
+               Individually each was "a small touch"; together they read as
+               flashing, and none of them carried information the shape did not. */
         }
 
         .hero-name {
@@ -448,7 +494,8 @@
             text-transform: uppercase;
             text-decoration: none;
             padding: 0.875rem 2rem;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            transition: transform .22s var(--spring), background .2s var(--ease-soft),
+                        color .2s var(--ease-soft), border-color .2s var(--ease-soft);
             cursor: pointer;
             border: 2px solid transparent;
         }
@@ -720,7 +767,7 @@
             width: 7px; height: 7px;
             background: var(--blue);
             border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
+            /* stilled: three pulses at once read as flashing */
         }
 
         .video-title-display {
@@ -948,6 +995,12 @@
            each draw into the shared 1px gap and read as one hairline — and a cell
            with no card in it simply draws nothing. */
         .links-grid > * { outline: 1px solid rgba(255,255,255,0.10); }
+        /* Seven standard cards in four columns strands one cell, which reads as a
+           hole rather than as breathing room. When the last card is the third of
+           its row, let it take the leftover width. The 4n+3 test means this only
+           fires when there IS a gap — add an eighth card and the rule stops
+           applying instead of pushing it onto a row of its own. */
+        .links-grid .link-card:nth-child(4n+3):last-child { grid-column: span 2; }
         /* An element paints one outline, and the author rule above beats the UA
            focus ring in every state — so without this, focusing these cards
            changed nothing at all (1.00:1) across eight consecutive tab stops.
@@ -1378,7 +1431,7 @@
         }
 
         /* ─────────────── DEALS OF THE WEEK ─────────────── */
-        .deals { background: var(--gray-light); }
+        .deals { background: var(--paper-cool); }
 
         .deals-intro {
             font-size: 0.92rem;
@@ -1507,7 +1560,10 @@
             width: 7px; height: 7px;
             border-radius: 50%;
             background: var(--alert);
-            animation: alertPulse 2.4s ease-in-out infinite;
+            /* The one surviving pulse — slow enough to read as a heartbeat
+               rather than a blink, and it is the only place where 'live' is
+               a literal claim about the data. */
+            animation: alertPulse 3.6s ease-in-out infinite;
         }
         @keyframes alertPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
         @media (prefers-reduced-motion: reduce) {
@@ -1667,7 +1723,9 @@
 
         /* ─────────────── FOOTER ─────────────── */
         footer {
-            background: var(--ink);
+            /* see .press-strip: the footer was the page's fifth background colour
+               and the only near-black below the fold. */
+            background: var(--dark);
             color: rgba(255,255,255,0.62);
             padding: 3.5rem 2rem 2rem;
         }
@@ -1685,6 +1743,9 @@
 
         .footer-brand { display: flex; flex-direction: column; gap: 0.85rem; }
         .footer-logo { display: inline-flex; text-decoration: none; }
+        /* The footer mark was rendering at 36px, small enough to read as a favicon
+           rather than a sign-off. */
+        .footer-logo img { height: 54px; width: auto; display: block; }
 
         .footer-bio {
             font-size: 0.8rem;
@@ -1834,7 +1895,9 @@
 
         /* ─────────────── PRESS STRIP ─────────────── */
         .press-strip {
-            background: var(--ink);
+            /* was --ink #0A0F1A — a near-black that belonged to no other surface
+               on the page. --dark is the same hue family as the hero. */
+            background: var(--dark);
             padding: 1.5rem 2rem;
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
@@ -1933,7 +1996,7 @@
         .fade-armed {
             opacity: 0;
             transform: translateY(26px);
-            transition: opacity 0.65s ease, transform 0.65s ease;
+            transition: opacity .7s var(--ease-soft), transform .7s var(--spring);
         }
 
         .fade-armed.visible { opacity: 1; transform: translateY(0); }
@@ -2052,7 +2115,27 @@
             0%, 100% { transform: translateY(0px); }
             50%       { transform: translateY(-7px); }
         }
-        .hero-card-inner { animation: floatCard 4.5s ease-in-out infinite; }
+        /* The portrait no longer drifts. Combined with the eyebrow dot it made
+           two things moving continuously in the hero, competing with the type. */
+        .hero-card-inner { }
+
+        /* Every light/dark boundary was a hard edge — cream meeting deep blue with
+           nothing in between, five times down the page. These bleed the incoming
+           surface a short way into the outgoing one so the eye is handed across
+           instead of hitting a wall. Pseudo-elements rather than real nodes: no
+           markup, nothing focusable, invisible to assistive tech. */
+        .scam-alerts, .shop, .deals, .contact-section, .about { position: relative; }
+        .scam-alerts::before, .shop::before {
+            content: ''; position: absolute; left: 0; right: 0; top: 0; height: 90px;
+            background: linear-gradient(to bottom, var(--dark), transparent);
+            opacity: .16; pointer-events: none;
+        }
+        .wins::before, .links-section::before {
+            content: ''; position: absolute; left: 0; right: 0; top: 0; height: 90px;
+            background: linear-gradient(to bottom, var(--paper), transparent);
+            opacity: .10; pointer-events: none;
+        }
+        .wins, .links-section { position: relative; }
 
         /* ─── ANGLED SECTION DIVIDERS ─── */
         /* These sections need extra padding so the clip-path diagonal doesn't
@@ -2133,7 +2216,7 @@
             width: 6px; height: 6px;
             background: var(--white);
             border-radius: 50%;
-            animation: pulse 1.2s ease-in-out infinite;
+            /* stilled: the badge already says NEW */
         }
 
         /* ─── ARC DATE ─── */
@@ -2243,7 +2326,7 @@
         }
 
         /* ─── CONTACT / WORK WITH JEFF ─── */
-        .contact-section { background: var(--gray-light); }
+        .contact-section { background: var(--paper-cool); }
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -3066,7 +3149,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <a href="#home" class="footer-logo">
-                    <img src="rossenlogo.png" alt="Rossen Reports" style="height:36px;">
+                    <img src="rossenlogo.png" alt="Rossen Reports">
                 </a>
                 <p class="footer-bio">
                     Consumer investigations, money-saving tips, and scam exposés from award-winning journalist Jeff Rossen.
