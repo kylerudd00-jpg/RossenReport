@@ -274,8 +274,13 @@
         .hero {
             background: var(--blue);
             min-height: 100vh;
+            /* Column, not row. This was `display:flex; align-items:center` with a
+               single child, so adding the alert wire made it a second COLUMN — it
+               shared width with the hero content, squeezing the copy and landing
+               the alerts behind the portrait. */
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
             overflow: hidden;
             padding: 7rem 2rem 6rem;
@@ -349,17 +354,22 @@
 
         .hero-logo img { height: 90px; }
 
+        /* Was `1fr 300px` with a 5rem gap inside a 1280px cap, which left a ~900px
+           text column holding ~600px of content — the dead band mid-hero on wide
+           screens. The text column is now capped so it stops stretching, and the
+           portrait grows into the space it was leaving behind. */
         .hero-inner {
             max-width: min(1280px, 100% - 3rem);
             margin: 0 auto;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 5rem;
+            grid-template-columns: minmax(0, 1fr) clamp(300px, 27vw, 400px);
+            gap: 3.5rem;
             align-items: center;
             position: relative;
             z-index: 3;
         }
+        .hero-copy { max-width: 40rem; }
 
         .hero-eyebrow {
             display: inline-flex;
@@ -387,7 +397,10 @@
         .hero-name {
             font-family: 'Big Shoulders Display', sans-serif;
             font-weight: 900;
-            font-size: clamp(3.5rem, 8vw, 6rem);
+            /* Down from clamp(3.5rem, 8vw, 6rem). The name was taking ~40% of the
+               hero while the thing a first-time viewer actually needs — what he
+               does for them — sat underneath in body copy. */
+            font-size: clamp(2.6rem, 5.2vw, 4.1rem);
             color: var(--white);
             line-height: 0.95;
             text-transform: uppercase;
@@ -399,22 +412,28 @@
         .hero-rule {
             width: 56px; height: 4px;
             background: var(--yellow);
-            margin: 1.75rem 0;
+            margin: 1.35rem 0;
         }
 
+        /* Promoted to display type. Note this element's innerHTML is replaced by
+           /api/content as `line1<br><strong>line2</strong>`, so it is styled from
+           the outside only — restructuring inside it would be silently reverted a
+           second after load. It is also CMS-editable free text, so it is capped by
+           max-width and allowed to wrap rather than tuned to today's copy. */
         .hero-tagline {
-            font-size: 1.05rem;
-            color: rgba(255,255,255,0.72);
-            line-height: 1.75;
-            max-width: 500px;
+            font-size: clamp(1.3rem, 2.1vw, 1.75rem);
+            font-weight: 500;
+            color: rgba(255,255,255,0.86);
+            line-height: 1.35;
+            max-width: 34rem;
         }
+        .hero-tagline strong { color: var(--white); font-weight: 700; }
 
-        .hero-tagline strong { color: var(--white); }
 
         .hero-cta {
             display: flex;
             gap: 1rem;
-            margin-top: 2.5rem;
+            margin-top: 2rem;
             flex-wrap: wrap;
         }
 
@@ -443,12 +462,119 @@
         .btn-outline { background: transparent; color: var(--white); border-color: var(--text-on-dark); }
         .btn-outline:hover { border-color: var(--white); }
 
+
+        /* ── Live alert wire ──────────────────────────────────────────────────
+           The hero used to be a business card: a name, a portrait, two buttons.
+           This is the site's actual product — government scam alerts — surfaced
+           above the fold so the page has a reason to be revisited.
+
+           min-height, not height: a government headline wrapping to three lines
+           must not clip. The space is reserved in the initial HTML so the feed
+           arriving ~1s later does not shove the page down. On failure the box
+           keeps its size and shows a fallback line rather than collapsing, which
+           would be a second shift. */
+        .hero-wire {
+            max-width: min(1280px, 100% - 3rem);
+            margin: 3.25rem auto 0;
+            width: 100%;
+            position: relative;
+            z-index: 3;
+            border-top: 1px solid rgba(255,255,255,0.16);
+            padding-top: 1.5rem;
+        }
+        .hero-wire-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem;
+        }
+        .hero-wire-label {
+            margin: 0;
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--yellow);
+        }
+        .hero-wire-all {
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.86); text-decoration: underline;
+            text-underline-offset: 3px; padding: 0.3rem 0;
+        }
+        .hero-wire-all:hover { color: var(--yellow); }
+        .hw-title:focus-visible,
+        .hero-wire-all:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+        .hero-wire-list {
+            list-style: none; margin: 0; padding: 0;
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem 2rem;
+            min-height: 5.5rem;
+        }
+        .hero-wire-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 0.6rem 0.7rem;
+            align-items: start;
+            /* 0.45, not the 0.25 used decoratively elsewhere in this hero: at 25%
+               a white border is 2.0:1 and fails 1.4.11 where the border is what
+               defines the component. */
+            border-left: 2px solid rgba(255,255,255,0.45);
+            padding-left: 0.9rem;
+        }
+        .hw-badge {
+            grid-row: 1; align-self: center;
+            background: var(--yellow); color: var(--blue);
+            font-family: 'Archivo', sans-serif;
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 0.2rem 0.5rem; white-space: nowrap;
+        }
+        .hw-title {
+            grid-row: 1; align-self: center;
+            color: var(--white); font-weight: 600;
+            font-size: 0.95rem; line-height: 1.35;
+            text-decoration: none;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+            /* Padding, not a fixed box: gets the tap target over 24px at hero type
+               sizes without a stretched overlay, which would swallow the badge and
+               date into the accessible name. */
+            padding: 0.15rem 0;
+        }
+        .hw-title:hover, .hw-title:focus-visible { color: var(--yellow); text-decoration: underline; }
+        .hw-meta {
+            grid-column: 2; grid-row: 2;
+            font-size: 0.72rem; color: rgba(255,255,255,0.68);
+            letter-spacing: 0.04em;
+        }
+        .hw-ext { font-size: 0.68em; opacity: 0.85; margin-left: 0.35rem; }
+
+        /* Static, never animated — a shimmer here would need a reduced-motion
+           guard for no benefit, and this is visible for about a second. */
+        .hero-wire-item.is-skeleton { border-left-color: rgba(255,255,255,0.18); }
+        .is-skeleton .hw-badge,
+        .is-skeleton .hw-title {
+            background: rgba(255,255,255,0.10); color: transparent;
+            border-radius: 2px; min-height: 0.85rem;
+        }
+        .is-skeleton .hw-title { width: 100%; min-height: 2.2rem; }
+        .is-skeleton .hw-badge { width: 2.4rem; }
+
+        @media (max-width: 900px) {
+            /* One alert below 900px. The other is not lost — the full feed is in
+               the #alerts section on this same page, reachable by scroll, heading
+               navigation and the CTA above. display:none, not visibility or
+               opacity, so it leaves the tab order and the a11y tree together. */
+            .hero-wire-list { grid-template-columns: minmax(0, 1fr); min-height: 3.5rem; }
+            .hero-wire-item:nth-child(2) { display: none; }
+        }
+
         /* stats with count-up */
+        /* Kept as a flex row with wrapping rather than a fixed track count:
+           /api/content renders however many stats the control board holds, so a
+           layout assuming exactly three breaks the day someone adds a fourth. */
         .hero-stats {
             display: flex;
-            gap: 2.5rem;
-            margin-top: 3.5rem;
-            padding-top: 2.5rem;
+            gap: 2.25rem;
+            margin-top: 2.25rem;
+            padding-top: 1.75rem;
             border-top: 1px solid rgba(255,255,255,0.1);
             flex-wrap: wrap;
         }
@@ -1631,7 +1757,7 @@
 
         @media (max-width: 768px) {
             .hero {
-                padding: 5.5rem 1.25rem 4rem;
+                padding: 4.5rem 1.25rem 3rem;
                 min-height: auto;
             }
 
@@ -1645,21 +1771,35 @@
 
             .hero-inner {
                 grid-template-columns: 1fr;
-                gap: 2.5rem;
+                gap: 1.75rem;
             }
 
             /* show Jeff's photo on mobile, smaller */
             .hero-card {
-                width: 200px;
+                width: 168px;
                 margin: 0 auto;
             }
+
+            .hero-wire { margin-top: 2rem; padding-top: 1.25rem; }
 
             .hero-cta { flex-direction: column; }
             .btn { justify-content: center; width: 100%; }
 
+            /* The stats were a wrapping flex row, so at phone widths each one took
+               its own line — 235px of a hero that was already 1565px tall, i.e.
+               over two screens before any real content. auto-fit rather than a
+               fixed three, because /api/content renders however many stats the
+               control board holds and a hard-coded count breaks the day someone
+               adds a fourth. */
             .hero-stats {
-                gap: 1.5rem 2.5rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+                gap: 1.25rem 1rem;
+                margin-top: 1.75rem;
+                padding-top: 1.5rem;
             }
+            .hero-stats .stat-num { font-size: 1.5rem; }
+            .hero-stats .stat-lbl { font-size: 0.62rem; letter-spacing: 0.08em; }
 
             /* .section padding is fluid now — the clamp() above already covers
                this breakpoint, and a fixed override here would only re-introduce
@@ -2415,7 +2555,7 @@
         <img src="rossenlogo.png" alt="Rossen Reports">
     </div>
     <div class="hero-inner">
-        <div>
+        <div class="hero-copy">
             <div class="hero-eyebrow" id="heroEyebrow">Award-Winning Consumer Journalist</div>
             <h1 class="hero-name">
                 Jeff<br>
@@ -2427,11 +2567,11 @@
                 <strong>Your trusted guide to living smarter.</strong>
             </p>
             <div class="hero-cta">
-                <a href="#latest" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Watch Latest Episode
+                <a href="#alerts" class="btn btn-primary">
+                    <i class="fas fa-triangle-exclamation" aria-hidden="true"></i> See the Latest Scam Alerts
                 </a>
-                <a href="#follow" class="btn btn-outline">
-                    <i class="fas fa-share-alt"></i> Follow Jeff
+                <a href="#latest" class="btn btn-outline">
+                    <i class="fas fa-play" aria-hidden="true"></i> Watch Latest Episode
                 </a>
             </div>
             <div class="hero-stats" id="heroStats">
@@ -2462,6 +2602,22 @@
             </div>
         </div>
     </div>
+
+    <section class="hero-wire" aria-labelledby="heroWireHeading">
+        <!-- h2, not h3: a distinct region, not a subsection of anything. Worded
+             differently from the "Scam Alerts" h2 further down so the two are
+             told apart in a heading list. -->
+        <div class="hero-wire-head">
+            <h2 class="hero-wire-label" id="heroWireHeading">Latest Government Alerts</h2>
+            <a class="hero-wire-all" href="#alerts">See all scam alerts</a>
+        </div>
+        <!-- role="list" is required: list-style:none strips list semantics in WebKit -->
+            <ul class="hero-wire-list" role="list" id="heroWireList">
+            <li class="hero-wire-item is-skeleton" aria-hidden="true"><span class="hw-badge"></span><span class="hw-title"></span></li>
+            <li class="hero-wire-item is-skeleton" aria-hidden="true"><span class="hw-badge"></span><span class="hw-title"></span></li>
+        </ul>
+    </section>
+
     <div class="hero-bar"></div>
 </section>
 
@@ -3436,6 +3592,19 @@ function initCountUp() {
     function runCountUp() {
         if (started) return;
         started = true;
+
+        // The stats sit above the fold now, so this fires on load rather than on
+        // scroll. Every other animation in this file guards on reduced motion; this
+        // was the one that did not. dataset.counted must still be set, or the
+        // five-minute live-stat refresh stops updating.
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            stats.forEach(function (el) {
+                el.textContent = (el.dataset.count || '') + (el.dataset.suffix || '');
+                el.dataset.counted = 'true';
+            });
+            return;
+        }
+
         var duration = 1200;
         var start = performance.now();
 
@@ -3720,6 +3889,69 @@ onReady(function () {
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
         });
     }
+
+    // ── Hero alert wire ──────────────────────────────────────────────────────
+    // No live region, deliberately. 4.1.3 covers status messages — the result of
+    // a user action, a waiting state, progress, an error. This is content that
+    // arrives late because of a fetch nobody asked for, so the criterion is not
+    // engaged. Announcing it would also read the same headlines twice, since the
+    // #alerts section below renders the same feed. The hero already swaps its
+    // eyebrow, tagline and stats silently a second after load; this matches.
+    (function heroWire() {
+        var list = document.getElementById('heroWireList');
+        if (!list) return;
+
+        function fallback(msg) {
+            // The reserved box keeps its height. Collapsing it here would be a
+            // second layout shift on top of the one this is built to avoid.
+            list.innerHTML = '<li class="hero-wire-item"><span class="hw-title" style="-webkit-line-clamp:3">' +
+                esc(msg) + '</span></li>';
+        }
+
+        fetch('/api/scams')
+            .then(function (r) {
+                // fetch only rejects on network failure; a 500 resolves and would
+                // otherwise render as "no alerts", telling the visitor the feed is
+                // quiet when it is actually broken.
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function (data) {
+                var alerts = (data && data.alerts) || [];
+                if (!alerts.length) return fallback('No new government alerts right now.');
+
+                list.innerHTML = alerts.slice(0, 2).map(function (a) {
+                    var d = new Date(a.published);
+                    var stamp = isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    // Built from LOCAL parts, not toISOString(). A UTC slice makes the
+                    // machine-readable date disagree with the visible one for anything
+                    // published in the early hours UTC.
+                    var iso = isNaN(d) ? '' : d.getFullYear() + '-' +
+                        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(d.getDate()).padStart(2, '0');
+                    // esc() handles the HTML context but not the scheme, and this URL
+                    // comes from an upstream feed. Anything not http(s) falls back to
+                    // the in-page alerts section.
+                    var href = /^https?:\/\//i.test(a.url || '') ? a.url : '#alerts';
+                    return '<li class="hero-wire-item">' +
+                        '<span class="hw-badge">' + esc(a.agency || 'ALERT') + '</span>' +
+                        '<a class="hw-title" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">' +
+                            esc(a.title) +
+                            // Visible icon for sighted users, hidden from AT; the
+                            // warning itself is real text inside the link, so the
+                            // accessible name still starts with the headline and
+                            // matches what is on screen.
+                            '<span class="hw-ext" aria-hidden="true">\u2197</span>' +
+                            '<span class="sr-only"> (opens in a new tab)</span>' +
+                        '</a>' +
+                        '<span class="hw-meta">' + esc(a.agencyLabel || a.agency || '') +
+                            (stamp ? ' \u00b7 <time datetime="' + esc(iso) + '">' + esc(stamp) + '</time>' : '') +
+                        '</span>' +
+                    '</li>';
+                }).join('');
+            })
+            .catch(function () { fallback('Alerts are unavailable right now. See all scam alerts below.'); });
+    })();
 
     fetch('/api/content')
         .then(function (r) { return r.json(); })
