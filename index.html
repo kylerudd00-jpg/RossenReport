@@ -3497,7 +3497,12 @@
 
     fetch('/api/youtube')
         .then(function (r) { return r.json(); })
-        .then(function (data) { if (data.videos && data.videos.length) renderVideos(data.videos); else row.innerHTML = ''; })
+        .then(function (data) {
+            // Only the hero slot uses this. The archive strip keeps its own
+            // per-video thumbnails, so a pinned poster cannot leak onto them.
+            window._featuredPoster = data.featuredPoster || '';
+            if (data.videos && data.videos.length) renderVideos(data.videos); else row.innerHTML = '';
+        })
         .catch(function () { row.innerHTML = ''; });
 
     function setMainVideo(videoId, title, isInit) {
@@ -3511,7 +3516,10 @@
         // step-down is not straight to something worse than what we had.
         thumbImg.onerror = function () {
             var src = this.src;
-            if (src.indexOf('maxresdefault') !== -1) {
+            if (src.indexOf('img.youtube.com') === -1) {
+                // A custom poster that 404s or is blocked: fall back to YouTube.
+                this.src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+            } else if (src.indexOf('maxresdefault') !== -1) {
                 this.src = 'https://img.youtube.com/vi/' + videoId + '/sddefault.jpg';
             } else if (src.indexOf('sddefault') !== -1) {
                 this.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
@@ -3520,7 +3528,14 @@
                 this.onerror = null;
             }
         };
-        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+        // A poster set in the control board wins: it is the only way past
+        // YouTube's 1280x720 ceiling, which is 1.82x upscaled at the size this is
+        // drawn on a 2x display. If it fails to load, onerror walks down the
+        // YouTube chain exactly as before, so a broken URL degrades rather than
+        // leaving an empty frame.
+        var poster = window._featuredPoster;
+        thumbImg.src = (isInit && poster) ? poster
+            : 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
         document.getElementById('thumbTitle').textContent = title;
         document.getElementById('videoTitle').textContent = title;
         if (!isInit) {

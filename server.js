@@ -56,7 +56,11 @@ const DEFAULT_CONTENT = {
 
     // 'auto' tracks the newest upload on the channel. 'manual' pins a specific
     // video, for when the newest upload isn't the one to lead with.
-    featuredVideo: { mode: 'auto', videoId: '' },
+    // posterUrl overrides the YouTube thumbnail for the hero image only. YouTube
+    // caps maxresdefault at 1280x720, which is 1.82x upscaled at the size this is
+    // drawn on a 2x display — there is no higher thumbnail to ask for, so the only
+    // way to a sharp hero is to supply the image.
+    featuredVideo: { mode: 'auto', videoId: '', posterUrl: '' },
 
     socialLinks: {
         featured: {
@@ -238,7 +242,18 @@ app.get('/api/youtube', wrap(async (req, res) => {
         }
     } catch (_) { /* pinning is a nicety; never break the feed over it */ }
 
-    res.json({ videos });
+    // Sent alongside rather than baked into the video object: it belongs to the
+    // hero slot, not to the video, and the archive strip must keep using its own
+    // per-video thumbnails.
+    let featuredPoster = '';
+    try {
+        const { featuredVideo } = await getContent();
+        const u = featuredVideo && featuredVideo.posterUrl;
+        // http(s) only. This string lands in an img src on the public page.
+        if (u && /^https?:\/\//i.test(u)) featuredPoster = u;
+    } catch (_) { /* falls back to the YouTube thumbnail */ }
+
+    res.json({ videos, featuredPoster });
 }));
 
 // ── API: Live channel stats ──

@@ -335,6 +335,17 @@
             <p class="field-help" id="videoIdHelp">Paste the whole link if it's easier; the ID is pulled out of it. Required when "a specific video" is selected.</p>
             <p class="field-error" id="videoIdError"></p>
           </div>
+          <div class="field-row">
+            <label for="videoPosterInput">Custom hero image (optional)</label>
+            <input type="url" id="videoPosterInput" placeholder="https://…/episode-still.jpg" aria-describedby="videoPosterHelp">
+            <p class="field-help" id="videoPosterHelp">
+              YouTube only publishes thumbnails up to 1280&nbsp;&times;&nbsp;720, which the homepage
+              has to stretch on a high-resolution screen. Paste a link to your own
+              still at 2400&nbsp;px wide or more for a sharp hero image. Leave this
+              empty to keep using the YouTube thumbnail.
+            </p>
+            <p class="field-error" id="videoPosterError"></p>
+          </div>
           <div class="action-row">
             <button class="btn-primary" id="saveVideoBtn" type="button">Save Featured Episode</button>
             <span class="save-status" id="videoSaveStatus" role="status"></span>
@@ -646,7 +657,9 @@ function renderVideo() {
   document.getElementById(fv.mode === 'manual' ? 'videoModeManual' : 'videoModeAuto').checked = true;
   document.getElementById('videoIdInput').value = fv.videoId || '';
   document.getElementById('videoIdInput').setAttribute('aria-required', fv.mode === 'manual' ? 'true' : 'false');
+  document.getElementById('videoPosterInput').value = fv.posterUrl || '';
   setVideoError('');   // don't let a stale error survive a reload
+  setPosterError('');
 }
 
 // Deliberately not a live region. Writing to one and calling focus() in the same
@@ -665,6 +678,21 @@ function setVideoError(msg) {
   }
 }
 
+// Same reasoning as setVideoError: tied to the input via aria-describedby rather
+// than announced, so the focus move carries the message.
+function setPosterError(msg) {
+  var input = document.getElementById('videoPosterInput');
+  document.getElementById('videoPosterError').textContent = msg;
+  if (msg) {
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', 'videoPosterError videoPosterHelp');
+  } else {
+    input.removeAttribute('aria-invalid');
+    input.setAttribute('aria-describedby', 'videoPosterHelp');
+  }
+}
+
+document.getElementById('videoPosterInput').addEventListener('input', function () { setPosterError(''); });
 document.getElementById('videoIdInput').addEventListener('input', function () { setVideoError(''); });
 document.querySelectorAll('input[name="videoMode"]').forEach(function (radio) {
   radio.addEventListener('change', function () {
@@ -688,9 +716,21 @@ document.getElementById('saveVideoBtn').addEventListener('click', function () {
     input.focus();
     return;
   }
+  var posterInput = document.getElementById('videoPosterInput');
+  var poster = posterInput.value.trim();
+  // http(s) only — this string ends up in an img src on the public homepage.
+  if (poster && !/^https?:\/\//i.test(poster)) {
+    status.className = 'save-status';
+    status.textContent = '';
+    setPosterError('Enter a full web address starting with https://, or leave it empty.');
+    posterInput.focus();
+    return;
+  }
   setVideoError('');
+  setPosterError('');
   input.value = id;
-  saveContent({ featuredVideo: { mode: mode, videoId: id } }, this, status,
+  posterInput.value = poster;
+  saveContent({ featuredVideo: { mode: mode, videoId: id, posterUrl: poster } }, this, status,
     mode === 'manual' ? 'Saved — that video now leads the page.' : 'Saved — showing the newest upload.');
 });
 
