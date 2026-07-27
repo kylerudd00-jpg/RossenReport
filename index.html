@@ -1915,17 +1915,67 @@
         }
 
         /* ─────────────── FADE-UP SCROLL ANIMATION ─────────────── */
-        .fade-up {
+        /* .fade-up carries NO visual state. The hidden state lives on .fade-armed,
+           which only JS adds — in the same synchronous loop that registers the
+           element with the observer.
+
+           This inverts the old arrangement, where the element started at
+           opacity:0 in CSS and depended on JS to reveal it. That put ten blocks
+           — including the email signup and the contact form, the two conversion
+           paths — one thrown exception away from being permanently invisible.
+           And the likeliest failure was not a user disabling JS: the reveal IIFE
+           shares one script element with the video code above it, so anything
+           that threw earlier took the whole page below the hero with it.
+
+           Now the element is only ever hidden by the same code that arms it. If
+           that code never runs, or throws first, the content was simply never
+           hidden. There is no window in which something is hidden but unobserved. */
+        .fade-armed {
             opacity: 0;
             transform: translateY(26px);
             transition: opacity 0.65s ease, transform 0.65s ease;
         }
 
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        .fade-armed.visible { opacity: 1; transform: translateY(0); }
 
-        .fade-up.delay-1 { transition-delay: 0.1s; }
-        .fade-up.delay-2 { transition-delay: 0.2s; }
-        .fade-up.delay-3 { transition-delay: 0.3s; }
+        .fade-armed.delay-1 { transition-delay: 0.1s; }
+        .fade-armed.delay-2 { transition-delay: 0.2s; }
+        .fade-armed.delay-3 { transition-delay: 0.3s; }
+
+        /* A focus ring rendered at opacity:0 is not a visible focus indicator.
+           Tabbing into a block that has not revealed yet is reachable in the real
+           window between a smooth-scroll jump and the observer firing. Snapping
+           to visible on focus-within closes it. 2.4.7. */
+        .fade-armed:focus-within { opacity: 1; transform: none; transition: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            /* Forces the visible values rather than only disabling the transition:
+               `transition: none` alone still leaves the element relying on JS to
+               reveal it, for exactly the users least forgiving of a blank page.
+               The shorthand is deliberate — it resets transition-delay too, where
+               the longhand would leave the stagger time-sequenced at zero
+               duration, which still reads as animation across several items.
+               This block must stay after the rules above; @media adds no
+               specificity, so it wins on source order alone. */
+            .fade-armed,
+            .fade-armed.visible,
+            .fade-armed.delay-1,
+            .fade-armed.delay-2,
+            .fade-armed.delay-3 { opacity: 1; transform: none; transition: none; }
+
+            /* Found while in here: two infinite animations that the file's seven
+               other reduced-motion guards had missed. .alerts-pulse got one; its
+               siblings on the older `pulse` keyframe did not. */
+            .hero-eyebrow::before,
+            .live-badge::before { animation: none; }
+            .arc-skel-thumb,
+            .arc-skel-line { animation: none; }
+            /* Missed on the first sweep. .hero-card-inner floats above the fold on
+               every load, and .new-ep-badge::before is the third consumer of the
+               same `pulse` keyframe the two rules above already guard. */
+            .hero-card-inner,
+            .new-ep-badge::before { animation: none; }
+        }
 
         /* ─────────────── MOBILE BOTTOM NAV ─────────────── */
         .bottom-nav {
@@ -2660,7 +2710,7 @@
             </div>
         </div>
 
-        <div class="video-wrap fade-up" id="videoWrap">
+        <div class="video-wrap" id="videoWrap">
             <div class="new-ep-badge" id="newEpBadge">New Episode</div>
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
                 <img id="thumbImg" src="https://img.youtube.com/vi/pVH0evvebRw/hqdefault.jpg" alt="Rossen Reports — Latest Episode">
@@ -2670,16 +2720,23 @@
             </div>
             <iframe id="latestVideo" allowfullscreen allow="autoplay; encrypted-media"></iframe>
         </div>
-        <div class="episode-row fade-up delay-1" id="episodeRow"></div>
+        <div class="episode-row" id="episodeRow"></div>
     </div>
 </section>
 
 <!-- ── SCAM ALERTS (live, federal sources only) ── -->
 <section class="section scam-alerts" id="alerts" tabindex="-1" aria-labelledby="alertsHeading">
     <div class="container">
-        <span class="eyebrow">Straight From the Watchdogs</span>
-        <h2 class="section-title" id="alertsHeading">Scam Alerts</h2>
-        <p class="alerts-intro">
+        <!-- The beat for this section sits on the furniture, not on the list.
+             The list is async, re-rendered on every filter click, and refreshed on
+             a timer — so anything observed per-item would be armed by CSS and
+             never registered, leaving items permanently invisible. These three
+             elements exist at parse time and never re-render. It is also the
+             section people arrive at deliberately from the hero CTA and the nav,
+             and delaying the content someone just asked for is the wrong trade. -->
+        <span class="eyebrow fade-up">Straight From the Watchdogs</span>
+        <h2 class="section-title fade-up" id="alertsHeading">Scam Alerts</h2>
+        <p class="alerts-intro fade-up">
             The newest consumer warnings, pulled automatically from the federal and state
             agencies that investigate this stuff for a living. Every alert below links straight
             to the government source — no middleman, nothing embellished.
@@ -2707,7 +2764,7 @@
         <span class="eyebrow">Updated Weekly</span>
         <h2 class="section-title">Deals of the Week</h2>
         <p class="deals-intro">Jeff's team-vetted picks — products and savings worth your attention right now.</p>
-        <div class="deals-grid fade-up" id="dealsGrid">
+        <div class="deals-grid" id="dealsGrid">
             <p class="deals-loading">Loading this week's picks…</p>
         </div>
         <div class="deals-footer">
@@ -2754,7 +2811,7 @@
 <!-- ── EMAIL SIGNUP ── -->
 <section class="section email-signup" id="subscribe" tabindex="-1">
     <div class="container">
-        <div class="email-inner fade-up">
+        <div class="email-inner">
             <div>
                 <div class="email-eyebrow"><i class="fas fa-envelope"></i> Free Newsletter</div>
                 <h2 class="email-title">Get Jeff's Best Deals<br><span>In Your Inbox</span></h2>
@@ -2857,7 +2914,7 @@
     <div class="container">
         <span class="eyebrow">Jeff's Picks</span>
         <h2 class="section-title">Shop &amp; Save</h2>
-        <div class="shop-grid fade-up">
+        <div class="shop-grid">
 
             <a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer" class="shop-card">
                 <span class="shop-platform">Amazon</span>
@@ -2930,7 +2987,7 @@
     <div class="container">
         <span class="eyebrow">Get In Touch</span>
         <h2 class="section-title">Work With Jeff</h2>
-        <div class="contact-grid fade-up">
+        <div class="contact-grid">
 
             <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer" class="contact-card">
                 <span class="contact-file-num" aria-hidden="true">01</span>
@@ -2958,7 +3015,7 @@
 
         </div>
 
-        <div class="contact-form-wrap fade-up">
+        <div class="contact-form-wrap">
             <div class="contact-form-title">Advertise With Rossen Reports</div>
             <p class="contact-form-sub">Brands and agencies — send the details of your inquiry directly and the team will follow up.</p>
             <form id="advertiserForm">
@@ -3088,15 +3145,43 @@
         return n === 1 ? '1 current scam alert' : n + ' current scam alerts';
     }
 
+    // Same guard, same reason as render() below: this paragraph carries the FTC
+    // reporting link, and rewriting it on a no-change refresh drops focus to
+    // <body> for anyone sitting on it.
+    var footSig = null;
+
     function renderFoot(data) {
         var srcs = (data.sources || []).filter(function (s, i, arr) { return arr.indexOf(s) === i; });
+        var sig = srcs.join('|');
+        if (sig === footSig) return;
+        footSig = sig;
+
         foot.innerHTML = 'Sources: ' + esc(srcs.join(' · ')) +
             '. Updated automatically every 30 minutes. Think you\'ve spotted a scam? ' +
             '<a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer">' +
             'Report it to the FTC<span class="sr-only"> (opens in a new tab)</span></a>.';
     }
 
+    // Same signature guard buildFilters already uses. Without it the 15-minute
+    // refresh rebuilt the whole list even when the feed had not changed — which
+    // silently drops focus if a keyboard user is sitting on an alert link, and
+    // reflashes the list under someone who is mid-sentence. The feed is quiet for
+    // hours at a time, so the overwhelming majority of those rebuilds were pure
+    // loss. 2.4.3.
+    //
+    // Deliberately keyed to feed IDENTITY, not to rendered output: the relative
+    // date ("Today", "2 days ago") can therefore go stale on a tab left open
+    // across a day boundary. Accepted knowingly — unlike buildFilters, render()
+    // has no focus capture/restore, so a finer signature would reopen the
+    // focus-loss window this guard exists to close, and the <time datetime>
+    // attribute carries the absolute date for assistive tech regardless.
+    var renderSig = null;
+
     function render(alerts) {
+        var sig = alerts.map(function (a) { return a.url + '|' + a.published; }).join('~');
+        if (sig === renderSig) return;
+        renderSig = sig;
+
         list.innerHTML = alerts.map(function (a) {
             var url = safeUrl(a.url);
             // Fall back to a non-empty name: an anchor labelled only
@@ -3374,13 +3459,27 @@
 
 // ── SCROLL FADE-UP ANIMATIONS ──
 (function () {
+    // Feature-detect BEFORE arming anything. Constructing the observer after
+    // hiding elements would throw on a browser without it and leave the page
+    // blank below the fold.
+    if (!('IntersectionObserver' in window)) return;
+
     var els = document.querySelectorAll('.fade-up');
+    if (!els.length) return;
+
+    // rootMargin rather than a ratio threshold. A ratio caps at
+    // viewportHeight/elementHeight for anything taller than the screen, so a very
+    // tall block can never reach it; a viewport-relative margin removes that
+    // class of bug entirely and gives a better trigger point besides.
     var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
             if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
         });
-    }, { threshold: 0.08 });
-    els.forEach(function (el) { obs.observe(el); });
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+
+    // Arm and observe in the same pass — this pairing is the whole safety
+    // property. Nothing is ever hidden without also being registered.
+    els.forEach(function (el) { el.classList.add('fade-armed'); obs.observe(el); });
 })();
 
 // ── NAV ACTIVE STATE + STICKY DESKTOP HEADER ──
