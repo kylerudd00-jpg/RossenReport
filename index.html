@@ -2796,7 +2796,7 @@
         <div class="video-wrap" id="videoWrap">
             <div class="new-ep-badge" id="newEpBadge">New Episode</div>
             <div class="video-thumb" id="videoThumb" onclick="playVideo()">
-                <img id="thumbImg" src="https://img.youtube.com/vi/pVH0evvebRw/hqdefault.jpg" alt="Rossen Reports — Latest Episode">
+                <img id="thumbImg" src="https://img.youtube.com/vi/pVH0evvebRw/maxresdefault.jpg" alt="Rossen Reports — Latest Episode">
                 <div class="thumb-overlay"></div>
                 <div class="play-btn"><i class="fab fa-youtube"></i></div>
                 <div class="thumb-title" id="thumbTitle">Latest Episode</div>
@@ -3487,7 +3487,7 @@
             card.className = 'archive-card' + (i === 0 ? ' active' : '');
             card.id = 'arc-' + vid.id;
             card.innerHTML =
-                '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid.id + '/mqdefault.jpg" alt="" loading="lazy"></div>' +
+                '<div class="arc-thumb"><img src="https://img.youtube.com/vi/' + vid.id + '/hqdefault.jpg" alt="" loading="lazy"></div>' +
                 '<div class="arc-title">' + vid.title + '</div>' +
                 (dateStr ? '<div class="arc-date">' + dateStr + '</div>' : '');
             card.addEventListener('click', function () { loadArchiveVideo(vid.id, vid.title); });
@@ -3503,13 +3503,24 @@
     function setMainVideo(videoId, title, isInit) {
         window._latestVideoId = videoId;
         var thumbImg = document.getElementById('thumbImg');
+        // maxres (1280x720) first, stepping down only when YouTube has not
+        // generated it — it 404s rather than falling back on its own. hqdefault is
+        // 480x360 and was being painted across ~1230px, so the source was under
+        // half the width it was drawn at before any retina scaling, which is
+        // exactly what the blur was. sd (640x480) sits between the two so the
+        // step-down is not straight to something worse than what we had.
         thumbImg.onerror = function () {
-            if (this.src.indexOf('hqdefault') !== -1) {
+            var src = this.src;
+            if (src.indexOf('maxresdefault') !== -1) {
+                this.src = 'https://img.youtube.com/vi/' + videoId + '/sddefault.jpg';
+            } else if (src.indexOf('sddefault') !== -1) {
+                this.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+            } else if (src.indexOf('hqdefault') !== -1) {
                 this.src = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
                 this.onerror = null;
             }
         };
-        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+        thumbImg.src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
         document.getElementById('thumbTitle').textContent = title;
         document.getElementById('videoTitle').textContent = title;
         if (!isInit) {
