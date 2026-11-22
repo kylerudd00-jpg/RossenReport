@@ -626,12 +626,20 @@
             flex-wrap: wrap;
         }
 
+        /* Thin rules between stats so the row reads as one block of figures. */
+        .hero-stats > * + * {
+            padding-left: 2.25rem;
+            border-left: 1px solid rgba(255,255,255,0.12);
+        }
+
         .stat-num {
             font-family: 'Big Shoulders Display', sans-serif;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 2.6rem;
+            line-height: 1;
             color: var(--yellow);
             display: block;
+            font-variant-numeric: tabular-nums;
         }
 
         .stat-lbl {
@@ -640,7 +648,7 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             display: block;
-            margin-top: 0.2rem;
+            margin-top: 0.45rem;
         }
 
         /* hero photo card */
@@ -1859,7 +1867,8 @@
                 margin-top: 1.75rem;
                 padding-top: 1.5rem;
             }
-            .hero-stats .stat-num { font-size: 1.5rem; }
+            .hero-stats > * + * { padding-left: 0; border-left: 0; }
+            .hero-stats .stat-num { font-size: 1.75rem; }
             .hero-stats .stat-lbl { font-size: 0.62rem; letter-spacing: 0.08em; }
 
             /* .section padding is fluid now — the clamp() above already covers
@@ -2713,11 +2722,11 @@
                     <span class="stat-lbl">Followers</span>
                 </div>
                 <div>
-                    <span class="stat-num" data-count="40" data-suffix="K+">40K+</span>
-                    <span class="stat-lbl">Subscribers</span>
+                    <span class="stat-num" data-count="773" data-suffix="K">773K</span>
+                    <span class="stat-lbl">YouTube Subscribers</span>
                 </div>
                 <div>
-                    <span class="stat-num" data-count="15" data-suffix="+">15+</span>
+                    <span class="stat-num" data-count="25" data-suffix="+">25+</span>
                     <span class="stat-lbl">Years on Air</span>
                 </div>
             </div>

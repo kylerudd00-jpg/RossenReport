@@ -23,8 +23,8 @@ const DEFAULT_CONTENT = {
             // source:'youtube' makes this one read the real subscriber count at
             // runtime. The typed-in value is only what shows if the API is
             // unreachable. It said 40K; the channel is well past half a million.
-            { value: '594', suffix: 'K', label: 'YouTube Subscribers', source: 'youtube' },
-            { value: '15', suffix: '+', label: 'Years on Air' },
+            { value: '773', suffix: 'K', label: 'YouTube Subscribers', source: 'youtube' },
+            { value: '25', suffix: '+', label: 'Years on Air' },
         ],
     },
     about: {
