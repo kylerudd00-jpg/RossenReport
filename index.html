@@ -87,7 +87,7 @@ if (window.matchMedia && matchMedia('(prefers-reduced-motion: no-preference)').m
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { scroll-behavior: smooth; scroll-padding-top: 76px; scroll-padding-bottom: 84px; }
+html { scroll-behavior: smooth; scroll-padding-top: 90px; scroll-padding-bottom: 84px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body { margin: 0; background-color: var(--newsprint); background-image: var(--tex-paper); color: var(--press); font-family: var(--f-body); font-size: 18px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; }
@@ -124,8 +124,9 @@ main:focus, section:focus, ol:focus { outline: none; }
 
 /* ── MASTHEAD ── */
 .mast { position: sticky; top: 0; z-index: 50; background-color: var(--newsprint); background-image: var(--tex-paper); border-bottom: 3px double var(--press); }
-.mast .wrap { display: flex; align-items: center; gap: 28px; min-height: 64px; }
-.mast-logo img { display: block; height: 40px; width: auto; }
+.mast .wrap { display: flex; align-items: center; gap: 28px; min-height: 76px; }
+/* rossenlogo-trim.png is the logo without the square file's empty margins */
+.mast-logo img { display: block; height: 52px; width: auto; }
 .mast nav { margin-left: auto; display: flex; gap: 24px; }
 .mast nav a { font-family: var(--f-label); font-weight: 700; font-size: 15px; text-decoration: none; padding: 6px 0; border-bottom: 3px solid transparent; }
 .mast nav a:hover { border-bottom-color: var(--rule); }
@@ -248,7 +249,7 @@ main:focus, section:focus, ol:focus { outline: none; }
 .closer .btn:hover { background: #fff; }
 .closer .signup-done { color: var(--yellow); }
 .foot { margin-top: 64px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.25); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-family: var(--f-label); font-size: 14px; color: rgba(255,255,255,.8); }
-.foot img { height: 34px; width: auto; display: block; }
+.foot img { height: 42px; width: auto; display: block; }
 .foot nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 .foot a { color: #fff; text-decoration: none; padding: 4px 0; display: inline-block; }
 .foot a:hover { text-decoration: underline; }
@@ -375,6 +376,8 @@ main:focus, section:focus, ol:focus { outline: none; }
     .tape { font-size: 13px; padding: 22px 16px 30px; }
     .tape dt { white-space: normal; }
     .mast .btn { padding: 10px 12px; font-size: 13px; }
+    .mast .wrap { min-height: 64px; }
+    .mast-logo img { height: 42px; }
     .foot small { margin-left: 0; }
     .nl-card { padding: 40px 20px 24px; }
     .nl-title { font-size: 46px; }
@@ -387,7 +390,7 @@ main:focus, section:focus, ol:focus { outline: none; }
 
 <header class="mast" id="siteHeader">
     <div class="wrap">
-        <a class="mast-logo" href="#main"><img src="rossenlogo.png" alt="Rossen Reports — back to top" width="80" height="40"></a>
+        <a class="mast-logo" href="#main"><img src="rossenlogo-trim.png" alt="Rossen Reports — back to top" width="87" height="52"></a>
         <nav aria-label="Primary">
             <a href="#deals" data-section="deals">Deals</a>
             <a href="#latest" data-section="latest">Watch</a>
@@ -588,7 +591,7 @@ main:focus, section:focus, ol:focus { outline: none; }
             </div>
         </div>
         <div class="foot">
-            <img src="rossenlogo.png" alt="Rossen Reports" width="68" height="34">
+            <img src="rossenlogo-trim.png" alt="Rossen Reports" width="70" height="42">
             <nav aria-label="Footer">
                 <a href="#deals">Deals</a>
                 <a href="#latest">Watch</a>
