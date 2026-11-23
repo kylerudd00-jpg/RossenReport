@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 const DEFAULT_CONTENT = {
     hero: {
         eyebrow: 'Award-Winning Consumer Journalist',
-        taglineLine1: 'Saving you money, exposing scams, and revealing the best deals.',
+        taglineLine1: 'Saving you money, finding the best deals, and helping you shop smarter.',
         taglineLine2: 'Your trusted guide to living smarter.',
         stats: [
             { value: '2.4', suffix: 'M+', label: 'Followers' },
@@ -52,7 +52,7 @@ const DEFAULT_CONTENT = {
     // `order` instead would leave keyboard and screen-reader users navigating a
     // different sequence from the one everyone else sees.
     // 'home' is deliberately absent: the hero is always first.
-    sectionOrder: ['latest', 'alerts', 'deals', 'wins', 'subscribe', 'follow', 'shop', 'about', 'contact'],
+    sectionOrder: ['latest', 'deals', 'shop', 'alerts', 'wins', 'subscribe', 'follow', 'about', 'contact'],
 
     // 'auto' tracks the newest upload on the channel. 'manual' pins a specific
     // video, for when the newest upload isn't the one to lead with.
