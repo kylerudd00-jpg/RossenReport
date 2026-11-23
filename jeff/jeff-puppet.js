@@ -185,56 +185,212 @@
   var resizers = [];
   var rT; window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { resizers.forEach(function (f) { f(); }); }, 120); });
 
-  // ================= 1. ZIP LINE across the rule under the hero =================
+  // ================= 1. ZIP LINE across the rule under the hero (and he can be grabbed) =================
+  // Owner, Nov 23: visitors can grab Jeff off the line mid-ride and toss him around the whole screen,
+  // ragdoll style, with no damage. When he comes to rest he stands up, dusts himself off and hops back
+  // on the trolley, and the ride carries on. Only Jeff himself catches the pointer.
   function gagZip() {
     var host = document.querySelector('.circular'); if (!host || !MOTION) return;
     var ABOVE = 40, BELOW = 170;
     var st = new Stage(host, function (h) { return { left: 0, top: -ABOVE, width: h.clientWidth, height: ABOVE + BELOW }; }, 'jeff-zip');
-    var sk = new Sticker(430), done = false;
+    var sk = new Sticker(430), skToss = new Sticker(430), done = false;
     resizers.push(function () { st.resize(); if (done) st.clear(); });
     whenVisible(host, '0px 0px -10% 0px', function () {
       var wait = Math.max(0, 1400 - performance.now());   // let the hero's own entrance finish first
       setTimeout(function () { load().then(run); }, wait + 350);
     });
+
     function run() {
-      // Round trip (owner, Nov 23): left to right, a short turnaround just past the right edge, then back
-      // right to left. Near-constant speed so he is only off screen for moments: ~0.3 s entering, ~1 s at
-      // the turnaround, ~0.3 s leaving.
       var s = st.w < 600 ? .25 : .34, W = st.w, strap = 70 * s;
-      var LEG = W < 600 ? 3.6 : 4.8, TURN = .45, M = W < 600 ? 95 : 130;   // seconds per leg, pause, off-screen margin
-      var X0 = -M, X1 = W + M, phi = 0, dphi = 0, xPrev = null, vPrev = 0;
-      var armR = -2.5;   // free hand up and out to the side, gripping the bar
-      function along(u) { return .88 * u + .12 * easeInOut(u); }   // mostly linear, softened at the ends
-      play(function (t, dt) {
-        var x, dir;
-        if (t < LEG) { x = X0 + (X1 - X0) * along(t / LEG); dir = 1; }
-        else if (t < LEG + TURN) { x = X1; dir = -1; }
-        else { x = X1 - (X1 - X0) * along(Math.min(1, (t - LEG - TURN) / LEG)); dir = -1; }
-        var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
-        var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
-        // the body swings on the strap like a pendulum: it lags as he speeds up or turns
-        var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
-        var cable = st.rectOf(host).y + 1.5;
-        st.clear(); var c = st.ctx;
-        var hand = [x - Math.sin(phi) * strap, cable + 6 + Math.cos(phi) * strap];
-        // speed lines trail behind him, whichever way he is going
-        var sp = Math.abs(v);
-        c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
-        [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
-        c.restore();
-        // strap from the trolley down to his fist
-        c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(hand[0], hand[1]); c.stroke();
-        var kick = Math.sin(t * 9);
-        sk.draw(c, { s: s, at: hand, anchor: handAt(armR), rot: dir * -.32 + phi, flip: dir < 0, pose: { armR: armR, armL: 1.55 + .28 * Math.sin(t * 10), legL: .45 + .3 * kick, legR: .25 - .3 * kick, head: -.06 + .05 * Math.sin(t * 5) } });
-        // the T-bar in his fist
-        var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(hand[0] - bd[0] * 9, hand[1] - bd[1] * 9); c.lineTo(hand[0] + bd[0] * 9, hand[1] + bd[1] * 9); c.stroke();
-        // the trolley riding on top of the rule: bracket, wheel, spinning yellow spokes
+      // the ride: left to right, a short turnaround past the right edge, then back right to left
+      var LEG = W < 600 ? 3.6 : 4.8, TURN = .45, M = W < 600 ? 95 : 130, END = 2 * LEG + TURN;
+      var X0 = -M, X1 = W + M, armR = -2.5, CORE = [357, 250];
+      var rideT = 0, phi = 0, dphi = 0, xPrev = null, vPrev = 0, last = null;
+      function along(u) { return .88 * u + .12 * easeInOut(u); }
+      function rideX(t) {
+        if (t < LEG) return [X0 + (X1 - X0) * along(t / LEG), 1];
+        if (t < LEG + TURN) return [X1, -1];
+        return [X1 - (X1 - X0) * along(Math.min(1, (t - LEG - TURN) / LEG)), -1];
+      }
+
+      // The toss layer lives on <html>, outside the site's desktop CSS zoom, so pointer coordinates and
+      // canvas pixels are the same units. It never takes the pointer; the small grab handle does.
+      var ov = document.createElement('canvas'); ov.className = 'jeff-toss'; ov.setAttribute('aria-hidden', 'true');
+      var grab = document.createElement('div'); grab.className = 'jeff-grab'; grab.setAttribute('aria-hidden', 'true');
+      document.documentElement.appendChild(ov); document.documentElement.appendChild(grab);
+      var oc = ov.getContext('2d'), VW = 0, VH = 0;
+      function sizeOv() { VW = window.innerWidth; VH = window.innerHeight; ov.width = Math.round(VW * DPR); ov.height = Math.round(VH * DPR); }
+      sizeOv(); window.addEventListener('resize', sizeOv);
+      function view(P) { var r = st.cv.getBoundingClientRect(), k = st.w ? r.width / st.w : 1; return [r.left + P[0] * k, r.top + P[1] * k, k]; }
+      function floorY() { var nav = document.querySelector('.bottom-nav'); var h = nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect().height : 0; return VH - h; }
+
+      // ---- the body when off the line, in viewport px ----
+      var state = 'ride', B = { x: 0, y: 0, vx: 0, vy: 0, a: 0, va: 0 }, sv = s, flipToss = false;
+      var REST = { head: 0, armL: .1, armR: -.1, legL: 0, legR: 0 }, L = {};
+      Object.keys(REST).forEach(function (k) { L[k] = { a: REST[k], v: 0 }; });
+      var GAIN = { head: -.6, armL: 1.6, armR: 1.4, legL: .9, legR: .8 };
+      var target = null, samples = [], phaseT = 0, restT = 0, a0 = 0, y0 = 0, hopFrom = null, onFloor = false;
+      var pvx = 0, pvy = 0;
+
+      function rideOpts(x, dir, ph, t) {
+        var cable = st.rectOf(host).y + 1.5, hand = [x - Math.sin(ph) * strap, cable + 6 + Math.cos(ph) * strap], kick = Math.sin(t * 9);
+        return { cable: cable, hand: hand, o: { s: s, at: hand, anchor: handAt(armR), rot: dir * -.32 + ph, flip: dir < 0,
+          pose: { armR: armR, armL: 1.55 + .28 * Math.sin(t * 10), legL: .45 + .3 * kick, legR: .25 - .3 * kick, head: -.06 + .05 * Math.sin(t * 5) } } };
+      }
+      function trolley(c, x, cable, dir, v, hand) {
+        if (hand) {   // speed lines trail behind him, then the strap down to his fist
+          var sp = Math.abs(v);
+          c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
+          [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
+          c.restore();
+          c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(hand[0], hand[1]); c.stroke();
+        } else {      // empty strap, swinging a little
+          c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(x + Math.sin(performance.now() / 300) * 4, cable + 4 + strap * .6); c.stroke();
+        }
         c.lineWidth = 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x, cable + 5); c.stroke();
         c.fillStyle = INK; c.beginPath(); c.arc(x, cable - 6, 7, 0, TAU); c.fill();
         c.strokeStyle = YEL; c.lineWidth = 1.6; var spin = x / 7;
         for (var i = 0; i < 3; i++) { var a = spin + i * TAU / 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x + Math.cos(a) * 5, cable - 6 + Math.sin(a) * 5); c.stroke(); }
-        if (t >= 2 * LEG + TURN) { st.clear(); done = true; return false; }
+      }
+      function placeGrab(cx, cy, k) {   // the hit area: roughly his torso and head
+        var w = 240 * s * k, h = 380 * s * k;   // a bit larger than his body: easy to catch, still small
+        grab.style.width = w + 'px'; grab.style.height = h + 'px';
+        grab.style.left = (cx - w / 2) + 'px'; grab.style.top = (cy - h * .6) + 'px';
+      }
+
+      // ---- pointer: grab, drag, throw ----
+      function startGrab(e) {
+        if (state === 'hop' || done) return;
+        e.preventDefault();
+        try { grab.setPointerCapture(e.pointerId); } catch (_) {}
+        if (state === 'ride' && last) {
+          var c = view(toStage(last.o, CORE)); sv = s * c[2];
+          B.x = c[0]; B.y = c[1]; B.a = last.o.rot; B.va = 0; B.vx = last.v * c[2]; B.vy = 0; flipToss = last.o.flip;
+          Object.keys(REST).forEach(function (k) { L[k].a = last.o.pose[k] || REST[k]; L[k].v = 0; });
+        }
+        target = [B.x, B.y]; grab._off = [e.clientX - B.x, e.clientY - B.y];
+        samples = [[e.clientX, e.clientY, performance.now()]];
+        state = 'held'; onFloor = false; grab.classList.add('is-held');
+      }
+      grab.addEventListener('pointerdown', startGrab);
+      grab.addEventListener('pointermove', function (e) {
+        if (state !== 'held') return;
+        target = [e.clientX - grab._off[0], e.clientY - grab._off[1]];
+        samples.push([e.clientX, e.clientY, performance.now()]); if (samples.length > 8) samples.shift();
       });
+      function release() {
+        if (state !== 'held') return;
+        grab.classList.remove('is-held');
+        var now = performance.now(), a = samples[0], b = samples[samples.length - 1];
+        for (var i = samples.length - 1; i >= 0; i--) { if (now - samples[i][2] <= 110) a = samples[i]; }
+        var dt = Math.max(16, b[2] - a[2]) / 1000;
+        B.vx = clamp((b[0] - a[0]) / dt, -2800, 2800); B.vy = clamp((b[1] - a[1]) / dt, -2800, 2800);
+        if (now - b[2] > 120) { B.vx *= .2; B.vy *= .2; }   // held still before letting go: just drop him
+        B.va += B.vx * .004;
+        state = 'fly'; restT = 0;
+      }
+      grab.addEventListener('pointerup', release);
+      grab.addEventListener('pointercancel', release);
+      grab.addEventListener('lostpointercapture', release);
+
+      // ---- limbs flop on their joints: springs toward rest, driven by how the body accelerates ----
+      function limbs(dt, ax, ay, hang) {
+        var ca = Math.cos(B.a), sa = Math.sin(B.a), lx = ax * ca + ay * sa;
+        Object.keys(L).forEach(function (k) {
+          var l = L[k], acc = -55 * (l.a - REST[k]) - 6.5 * l.v + GAIN[k] * lx * .0016 * (flipToss ? -1 : 1) - B.va * .9;
+          if (hang && k !== 'head') acc += -26 * Math.sin(B.a + l.a);   // dangling limbs hang toward the ground
+          l.v += acc * dt; l.a = clamp(l.a + l.v * dt, -2.6, 2.6);
+        });
+      }
+      function drawToss() {
+        oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, ov.width, ov.height);
+        if (state === 'ride') return;
+        oc.setTransform(DPR, 0, 0, DPR, 0, 0);
+        skToss.draw(oc, { s: sv, at: [B.x, B.y], anchor: CORE, rot: B.a, flip: flipToss,
+          pose: { head: L.head.a, armL: L.armL.a, armR: L.armR.a, legL: L.legL.a, legR: L.legR.a } });
+      }
+      function normAngle(a) { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; }
+
+      var tPrev = null;
+      function frame(now) {
+        if (done) return;
+        var dt = tPrev === null ? 0 : Math.min(.05, (now - tPrev) / 1000); tPrev = now;
+        var R = 150 * sv, F = floorY();
+        st.clear(); var c = st.ctx;
+
+        if (state === 'ride') {
+          rideT += dt;
+          var rx = rideX(rideT), x = rx[0], dir = rx[1];
+          var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
+          var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
+          var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
+          var R0 = rideOpts(x, dir, phi, rideT);
+          trolley(c, x, R0.cable, dir, v, R0.hand);
+          sk.draw(c, R0.o);
+          var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(R0.hand[0] - bd[0] * 9, R0.hand[1] - bd[1] * 9); c.lineTo(R0.hand[0] + bd[0] * 9, R0.hand[1] + bd[1] * 9); c.stroke();
+          last = { o: R0.o, x: x, dir: dir, v: v };
+          var core = view(toStage(R0.o, CORE)); placeGrab(core[0], core[1], core[2]);
+          grab.style.display = '';
+          if (rideT >= END) { finish(); return; }
+        } else {
+          // the empty trolley waits on the line where he left it
+          var cable = st.rectOf(host).y + 1.5; trolley(c, last.x, cable, last.dir, 0, null);
+          var ox = B.x, oy = B.y;
+          if (state === 'held') {
+            // he follows the pointer with a little lag and swings from where he is held
+            var k = 1 - Math.pow(.0005, dt);
+            B.x += (target[0] - B.x) * k; B.y += (target[1] - B.y) * k;
+            var hvx = dt ? (B.x - ox) / dt : 0;
+            B.va += ((clamp(-hvx * .0009, -1, 1) - normAngle(B.a)) * 55 - B.va * 7) * dt; B.a += B.va * dt;
+          } else if (state === 'fly') {
+            B.vy += 2600 * dt; B.vx *= (1 - .12 * dt);
+            B.x += B.vx * dt; B.y += B.vy * dt; B.a += B.va * dt; B.va *= (1 - .35 * dt);
+            if (B.x < R) { B.x = R; B.vx = Math.abs(B.vx) * .6; B.va += B.vy * .0025; }
+            if (B.x > VW - R) { B.x = VW - R; B.vx = -Math.abs(B.vx) * .6; B.va -= B.vy * .0025; }
+            if (B.y < R) { B.y = R; B.vy = Math.abs(B.vy) * .5; }
+            var floor = F - R * 1.15;   // lying down, his whole body stays above the bottom edge
+            if (B.y > floor) {
+              B.y = floor;
+              if (B.vy > 140) { B.vy = -B.vy * .42; B.vx *= .78; B.va = B.va * .55 + B.vx * .003; }
+              else { B.vy = 0; onFloor = true; }
+            }
+            if (onFloor) { B.vx *= (1 - 3.2 * dt); B.va = B.va * (1 - 4 * dt) + (B.vx / Math.max(R, 1)) * .4 * dt * 10; B.y = floor; }
+            restT = (onFloor && Math.abs(B.vx) < 30 && Math.abs(B.va) < .5) ? restT + dt : 0;
+            if (restT > .45) { state = 'stand'; phaseT = 0; a0 = normAngle(B.a); y0 = B.y; }
+          } else if (state === 'stand') {
+            // up on his feet with a little overshoot, then a quick dust-off
+            phaseT += dt;
+            var u = easeOutBack(seg(phaseT, 0, .55)), standY = F - (376 - CORE[1]) * sv - 2;
+            B.a = lerp(a0, 0, u); B.y = lerp(y0, standY, seg(phaseT, 0, .55));
+            if (phaseT > .55) { L.armR.v += Math.sin(phaseT * 28) * 40 * dt; L.armL.v -= Math.sin(phaseT * 28) * 30 * dt; }
+            if (phaseT > 1.15) { state = 'hop'; phaseT = 0; hopFrom = [B.x, B.y, B.a]; grab.style.display = 'none'; }
+          } else if (state === 'hop') {
+            // a springy hop back up to the strap, wherever the line now is on screen
+            phaseT += dt;
+            var T = .75, uu = seg(phaseT, 0, T), e2 = easeInOut(uu);
+            var ph0 = rideOpts(last.x, last.dir, 0, rideT), to = view(toStage(ph0.o, CORE));
+            var dist = Math.hypot(to[0] - hopFrom[0], to[1] - hopFrom[1]);
+            B.x = lerp(hopFrom[0], to[0], e2); B.y = lerp(hopFrom[1], to[1], e2) - Math.sin(Math.PI * uu) * Math.max(110, dist * .35);
+            B.a = lerp(hopFrom[2], ph0.o.rot, e2); sv = lerp(sv, s * to[2], uu);
+            if (uu >= 1) { state = 'ride'; phi = 0; dphi = 0; xPrev = null; vPrev = 0; }
+          }
+          if (state !== 'ride') {
+            var ax = dt ? ((B.x - ox) / dt - pvx) / dt : 0, ay = dt ? ((B.y - oy) / dt - pvy) / dt : 0;
+            pvx = dt ? (B.x - ox) / dt : 0; pvy = dt ? (B.y - oy) / dt : 0;
+            limbs(dt, clamp(ax, -9000, 9000), clamp(ay, -9000, 9000), state === 'held' || (state === 'fly' && onFloor));
+            if (state !== 'hop') placeGrab(B.x, B.y, sv / s);
+          }
+        }
+        drawToss();
+        requestAnimationFrame(frame);
+      }
+      function finish() {
+        done = true; st.clear(); oc.clearRect(0, 0, ov.width, ov.height);
+        window.removeEventListener('resize', sizeOv);
+        if (grab.parentNode) grab.parentNode.removeChild(grab);
+        if (ov.parentNode) ov.parentNode.removeChild(ov);
+      }
+      requestAnimationFrame(frame);
     }
   }
 

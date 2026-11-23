@@ -13,4 +13,10 @@
 .jeff-thumb { position: relative; display: inline-block; width: 2.6em; height: 2.6em; margin-left: .25em; vertical-align: -.9em; }
 .jeff-thumb .jeff-stage { z-index: 1; -webkit-mask-image: linear-gradient(#000 72%, transparent 98%); mask-image: linear-gradient(#000 72%, transparent 98%); }
 
-@media print { .jeff-stage, .jeff-cut { display: none !important; } .closer.jeff-cut-on { padding-top: clamp(56px, 7vw, 96px); } }
+/* tossing Jeff: a full-screen layer that never takes the pointer, and a small handle on Jeff that does */
+.jeff-toss { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 80; pointer-events: none; }
+.jeff-grab { position: fixed; z-index: 81; pointer-events: auto; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; border-radius: 40%; }
+.jeff-grab.is-held { cursor: grabbing; }
+
+@media print { .jeff-toss, .jeff-grab { display: none !important; }
+ .jeff-stage, .jeff-cut { display: none !important; } .closer.jeff-cut-on { padding-top: clamp(56px, 7vw, 96px); } }
