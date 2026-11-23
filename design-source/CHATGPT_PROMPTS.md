@@ -39,3 +39,19 @@ There are no logos, brand names or text in any prompt. Generated lettering comes
 ---
 
 **When they come back,** I'll check each one: no stray lettering, no extra objects, and the ink matches. Then I'll trace them into crisp single-colour SVGs and place them above each line in the week strip.
+
+---
+
+## Results (Nov 23, 2026)
+
+Received five images. All passed the check: no lettering, no invented objects, and the ink matches.
+
+| Original (`design-source/art-2026-11/`) | On the site (`art/`) | Where |
+|---|---|---|
+| `0-grocery-bag.webp`, an extra one made beyond these prompts | `grocery-bag-360/720.webp` | Beside "This week's circular" |
+| `1-envelope.webp` | `envelope-120/240.webp` | Week strip: the deals email |
+| `2-tv.webp` | `tv-120/240.webp` | Week strip: Wednesday |
+| `3-tv-friday.webp` | `tv-friday-120/240.webp` | Week strip: Friday |
+| `4-magnifier.webp` | `magnifier-120/240.webp` | Week strip: scam alerts |
+
+**Processing:** `design-source/knockout.py` removes only the yellow ground connected to the edges, so yellow inside the drawings (the TV bodies) stays. It then trims each image and exports WebP at 1x and 2x.

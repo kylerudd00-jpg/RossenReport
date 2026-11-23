@@ -104,7 +104,7 @@ main:focus, section:focus, ol:focus { outline: none; }
 
 .head-xl { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; line-height: .9; color: var(--navy); }
 .section { padding: clamp(48px, 7vw, 96px) 0; }
-.section > .wrap > h2.head-xl { font-size: clamp(44px, 6vw, 80px); margin-bottom: clamp(24px, 3vw, 40px); }
+.section > .wrap > h2.head-xl, .circ-layout h2.head-xl { font-size: clamp(44px, 6vw, 80px); margin-bottom: clamp(24px, 3vw, 40px); }
 .mark { background: linear-gradient(transparent 12%, var(--yellow) 12%, var(--yellow) 92%, transparent 92%); padding: 0 .08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .go { font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; display: inline-block; padding: 6px 0; border-bottom: 3px solid currentColor; }
 .go:hover { color: var(--navy); border-bottom-width: 5px; }
@@ -154,13 +154,17 @@ main:focus, section:focus, ol:focus { outline: none; }
 .circ-list .arrow { font-family: var(--f-head); font-weight: 900; font-size: 32px; color: var(--navy); }
 /* the lead pick: biggest type on the page after the hero, with the sale tag */
 .circ-list li:first-child a { padding: 30px 0 34px; }
-.circ-list li:first-child h3 { font-size: clamp(40px, 5.4vw, 76px); line-height: .95; }
+.circ-list li:first-child h3 { font-size: clamp(36px, 4.2vw, 60px); line-height: .98; }
 .burst { display: inline-block; margin-bottom: 14px; font-family: var(--f-head); font-weight: 900; font-size: 24px; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 4px 12px 2px; transform: rotate(-3deg); }
 .shops { margin-top: 32px; font-family: var(--f-label); font-size: 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
 .shops > span { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; color: var(--press-2); }
 .shops ul { display: flex; flex-wrap: wrap; gap: 6px 22px; }
 .shops a { font-weight: 700; text-underline-offset: 4px; display: inline-block; padding: 4px 0; }
 .shops a:hover { color: var(--navy); text-decoration-thickness: 3px; }
+
+/* the circular's art: engraved groceries, printed straight onto the page */
+.circ-layout { display: grid; grid-template-columns: 1fr 340px; gap: clamp(24px, 4vw, 56px); align-items: start; }
+.circ-art { display: block; width: 100%; height: auto; margin-top: -12px; position: sticky; top: 96px; }
 
 /* ── MID-PAGE SIGNUP: full-bleed yellow ── */
 .band { background: var(--yellow); }
@@ -284,6 +288,7 @@ main:focus, section:focus, ol:focus { outline: none; }
    up front is what makes a free signup feel safe. */
 .week { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 28px; margin-top: 8px; border-top: 2px solid var(--press); }
 .week li { padding-top: 14px; }
+.week-art { display: block; height: 84px; width: auto; margin-bottom: 10px; }
 .week-when { display: block; font-family: var(--f-mono); font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; }
 .week-what { display: block; font-family: var(--f-head); font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: uppercase; color: var(--navy); margin-top: 4px; }
 .week-today { color: var(--navy); } /* real text, not ::after, so it is read and copied; 9:1 on yellow */
@@ -341,6 +346,8 @@ main:focus, section:focus, ol:focus { outline: none; }
     .hero .wrap { grid-template-columns: 1fr; }
     .anchor { max-width: 440px; }
     .circ-list a { grid-template-columns: 1fr auto; gap: 6px 16px; }
+    .circ-layout { grid-template-columns: 1fr; }
+    .circ-art { order: -1; width: 240px; margin: 0 0 8px; }
     .circ-date { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
@@ -406,6 +413,8 @@ main:focus, section:focus, ol:focus { outline: none; }
 <!-- ── THIS WEEK'S CIRCULAR ── -->
 <section class="section circular" id="deals" tabindex="-1" aria-labelledby="dealsTitle">
     <div class="wrap">
+        <div class="circ-layout">
+        <div>
         <h2 class="head-xl" id="dealsTitle">This week's circular</h2>
         <ol class="circ-list" id="circTags">
             <li><a href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
@@ -430,6 +439,9 @@ main:focus, section:focus, ol:focus { outline: none; }
                 <li><a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer">DealSeek<span class="sr-only"> (opens in a new tab)</span></a></li>
             </ul>
         </div>
+        </div>
+        <img class="circ-art" src="art/grocery-bag-360.webp" srcset="art/grocery-bag-360.webp 360w, art/grocery-bag-720.webp 720w" sizes="(min-width: 861px) 340px, 240px" width="360" height="364" alt="" loading="lazy" decoding="async">
+        </div>
     </div>
 </section>
 
@@ -447,10 +459,10 @@ main:focus, section:focus, ol:focus { outline: none; }
             <p class="signup-done" id="bandDone" tabindex="-1" hidden>You're in. Check your inbox!</p>
         </div>
         <ul class="week" id="week" aria-label="What you get each week">
-            <li><span class="week-when">Every week</span><span class="week-what">The deals email</span></li>
-            <li data-day="3"><span class="week-when">Wednesday</span><span class="week-what">New episode</span></li>
-            <li data-day="5"><span class="week-when">Friday</span><span class="week-what">New episode</span></li>
-            <li><span class="week-when">Every day</span><span class="week-what">Scam alerts, updated</span></li>
+            <li><img class="week-art" src="art/envelope-120.webp" srcset="art/envelope-120.webp 1x, art/envelope-240.webp 2x" width="120" height="129" alt="" loading="lazy" decoding="async"><span class="week-when">Every week</span><span class="week-what">The deals email</span></li>
+            <li data-day="3"><img class="week-art" src="art/tv-120.webp" srcset="art/tv-120.webp 1x, art/tv-240.webp 2x" width="120" height="145" alt="" loading="lazy" decoding="async"><span class="week-when">Wednesday</span><span class="week-what">New episode</span></li>
+            <li data-day="5"><img class="week-art" src="art/tv-friday-120.webp" srcset="art/tv-friday-120.webp 1x, art/tv-friday-240.webp 2x" width="120" height="83" alt="" loading="lazy" decoding="async"><span class="week-when">Friday</span><span class="week-what">New episode</span></li>
+            <li><img class="week-art" src="art/magnifier-120.webp" srcset="art/magnifier-120.webp 1x, art/magnifier-240.webp 2x" width="120" height="135" alt="" loading="lazy" decoding="async"><span class="week-when">Every day</span><span class="week-what">Scam alerts, updated</span></li>
         </ul>
     </div>
 </section>
