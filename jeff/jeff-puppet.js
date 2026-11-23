@@ -163,6 +163,10 @@
     this.w = r.width; this.h = r.height;
   };
   Stage.prototype.clear = function () { var c = this.ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, this.cv.width, this.cv.height); c.setTransform(DPR, 0, 0, DPR, 0, 0); };
+  Stage.prototype.toView = function (P) {   // a stage point in viewport px, plus the rendered/layout scale
+    var r = this.cv.getBoundingClientRect(), k = this.w ? r.width / this.w : 1;
+    return [r.left + P[0] * k, r.top + P[1] * k, k];
+  };
   Stage.prototype.rectOf = function (el) {   // an element's box in stage coordinates
     var a = el.getBoundingClientRect(), b = this.cv.getBoundingClientRect();
     // rossenreports.com renders desktop at CSS zoom .9: client rects come back in zoomed px while the
@@ -183,6 +187,159 @@
     io.observe(el);
   }
   var resizers = [];
+
+  // ================= TOSSING: every Jeff can be grabbed and thrown (owner, Nov 23) =================
+  // Ragdoll-style play, no damage: grab him, he dangles and swings; let go and he flies with the throw,
+  // spins, bounces off the window edges and lands on the bottom edge. Once still he stands up, dusts off
+  // and hops back home, and his gag carries on. One Jeff in the air at a time.
+  //
+  // A gag registers with cfg = { home(), away(isAway) }:
+  //   home()  -> { x, y, s, a, flip, pose, vx } where he lives now, in viewport px (x,y = his core point,
+  //              s = px per rig unit), or null when he shouldn't be grabbable
+  //   away()  -> the gag redraws itself without Jeff (true) or with him back (false)
+  // The flying layer and the grab handles live on <html>, outside the site's desktop CSS zoom, so
+  // pointer and canvas share units. Handles sit under the sticky signup bar and phone menu, and hide
+  // under the masthead, so they never block site controls.
+  var Toss = (function () {
+    var CORE = [357, 250], ov = null, oc, VW = 0, VH = 0, sk = new Sticker(430), items = [];
+    var REST = { head: 0, armL: .1, armR: -.1, legL: 0, legR: 0 }, GAIN = { head: -.6, armL: 1.6, armR: 1.4, legL: .9, legR: .8 };
+    var L = {}; Object.keys(REST).forEach(function (k) { L[k] = { a: REST[k], v: 0 }; });
+    var B = { x: 0, y: 0, vx: 0, vy: 0, a: 0, va: 0 }, sv = .3, flip = false, cur = null, state = 'idle';
+    var target = null, samples = [], phaseT = 0, restT = 0, a0 = 0, y0 = 0, hopFrom = null, onFloor = false, pvx = 0, pvy = 0;
+    var running = false, tPrev = null;
+
+    function setup() {
+      if (ov) return;
+      ov = document.createElement('canvas'); ov.className = 'jeff-toss'; ov.setAttribute('aria-hidden', 'true');
+      document.documentElement.appendChild(ov); oc = ov.getContext('2d'); size();
+      window.addEventListener('resize', function () { size(); reposition(); });
+      window.addEventListener('scroll', reposition, { passive: true });
+    }
+    function size() { VW = window.innerWidth; VH = window.innerHeight; ov.width = Math.round(VW * DPR); ov.height = Math.round(VH * DPR); }
+    function floorY() { var nav = document.querySelector('.bottom-nav'); var h = nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect().height : 0; return VH - h; }
+    function mastBottom() { var m = document.querySelector('.mast'); return m ? m.getBoundingClientRect().bottom : 0; }
+    function placeAt(el, cx, cy, scale) {
+      var w = 240 * scale, h = 380 * scale, top = cy - h * .6;
+      el.style.width = w + 'px'; el.style.height = h + 'px'; el.style.left = (cx - w / 2) + 'px'; el.style.top = top + 'px';
+      return top;
+    }
+    function placeItem(it) {
+      if (it === cur && state !== 'idle') { if (state !== 'hop') placeAt(it.el, B.x, B.y, sv); return; }
+      var h = it.cfg.home();
+      if (!h) { it.el.style.display = 'none'; return; }
+      var top = placeAt(it.el, h.x, h.y, h.s);
+      it.el.style.display = (top + 380 * h.s * .3 < mastBottom()) ? 'none' : '';   // tucked under the masthead
+    }
+    function reposition() { items.forEach(placeItem); }
+    function wake() { if (!running) { running = true; tPrev = null; requestAnimationFrame(frame); } }
+
+    function grab(it, e) {
+      if (state === 'hop' || (cur && cur !== it && state !== 'idle')) return;
+      e.preventDefault();
+      try { it.el.setPointerCapture(e.pointerId); } catch (_) {}
+      if (state === 'idle') {
+        var h = it.cfg.home(); if (!h) return;
+        cur = it; B.x = h.x; B.y = h.y; B.a = h.a || 0; B.va = 0; B.vx = h.vx || 0; B.vy = 0; sv = h.s; flip = !!h.flip;
+        Object.keys(REST).forEach(function (k) { L[k].a = (h.pose && h.pose[k] != null) ? h.pose[k] : REST[k]; L[k].v = 0; });
+        it.cfg.away(true);
+      }
+      target = [B.x, B.y]; it.off = [e.clientX - B.x, e.clientY - B.y];
+      samples = [[e.clientX, e.clientY, performance.now()]];
+      state = 'held'; onFloor = false; it.el.classList.add('is-held'); wake();
+    }
+    function move(it, e) {
+      if (it !== cur || state !== 'held') return;
+      target = [e.clientX - it.off[0], e.clientY - it.off[1]];
+      samples.push([e.clientX, e.clientY, performance.now()]); if (samples.length > 8) samples.shift();
+    }
+    function release(it) {
+      if (it !== cur || state !== 'held') return;
+      it.el.classList.remove('is-held');
+      var now = performance.now(), a = samples[0], b = samples[samples.length - 1];
+      for (var i = samples.length - 1; i >= 0; i--) { if (now - samples[i][2] <= 110) a = samples[i]; }
+      var dt = Math.max(16, b[2] - a[2]) / 1000;
+      B.vx = clamp((b[0] - a[0]) / dt, -2800, 2800); B.vy = clamp((b[1] - a[1]) / dt, -2800, 2800);
+      if (now - b[2] > 120) { B.vx *= .2; B.vy *= .2; }   // held still before letting go: just drop him
+      B.va += B.vx * .004; state = 'fly'; restT = 0;
+    }
+    function limbs(dt, ax, ay, hang) {   // springs toward rest, driven by how the body accelerates
+      var lx = ax * Math.cos(B.a) + ay * Math.sin(B.a);
+      Object.keys(L).forEach(function (k) {
+        var l = L[k], acc = -55 * (l.a - REST[k]) - 6.5 * l.v + GAIN[k] * lx * .0016 * (flip ? -1 : 1) - B.va * .9;
+        if (hang && k !== 'head') acc += -26 * Math.sin(B.a + l.a);   // dangling limbs hang toward the ground
+        l.v += acc * dt; l.a = clamp(l.a + l.v * dt, -2.6, 2.6);
+      });
+    }
+    function norm(a) { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; }
+
+    function frame(now) {
+      var dt = tPrev === null ? 0 : Math.min(.05, (now - tPrev) / 1000); tPrev = now;
+      oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, ov.width, ov.height);
+      if (!cur || state === 'idle') { running = false; return; }
+      var R = 150 * sv, F = floorY(), ox = B.x, oy = B.y;
+      if (state === 'held') {
+        var k = 1 - Math.pow(.0005, dt);   // follows the pointer with a little lag, swinging from the grip
+        B.x += (target[0] - B.x) * k; B.y += (target[1] - B.y) * k;
+        var hvx = dt ? (B.x - ox) / dt : 0;
+        B.va += ((clamp(-hvx * .0009, -1, 1) - norm(B.a)) * 55 - B.va * 7) * dt; B.a += B.va * dt;
+      } else if (state === 'fly') {
+        B.vy += 2600 * dt; B.vx *= (1 - .12 * dt);
+        B.x += B.vx * dt; B.y += B.vy * dt; B.a += B.va * dt; B.va *= (1 - .35 * dt);
+        if (B.x < R) { B.x = R; B.vx = Math.abs(B.vx) * .6; B.va += B.vy * .0025; }
+        if (B.x > VW - R) { B.x = VW - R; B.vx = -Math.abs(B.vx) * .6; B.va -= B.vy * .0025; }
+        if (B.y < R) { B.y = R; B.vy = Math.abs(B.vy) * .5; }
+        var floor = F - R * 1.15;   // lying down, his whole body stays above the bottom edge
+        if (B.y > floor) {
+          B.y = floor;
+          if (B.vy > 140) { B.vy = -B.vy * .42; B.vx *= .78; B.va = B.va * .55 + B.vx * .003; }
+          else { B.vy = 0; onFloor = true; }
+        }
+        if (onFloor) { B.vx *= (1 - 3.2 * dt); B.va = B.va * (1 - 4 * dt) + (B.vx / Math.max(R, 1)) * 4 * dt; B.y = floor; }
+        restT = (onFloor && Math.abs(B.vx) < 30 && Math.abs(B.va) < .5) ? restT + dt : 0;
+        if (restT > .45) { state = 'stand'; phaseT = 0; a0 = norm(B.a); y0 = B.y; }
+      } else if (state === 'stand') {   // up on his feet with a little overshoot, then a quick dust-off
+        phaseT += dt;
+        var u = easeOutBack(seg(phaseT, 0, .55)), standY = F - (376 - CORE[1]) * sv - 2;
+        B.a = lerp(a0, 0, u); B.y = lerp(y0, standY, seg(phaseT, 0, .55));
+        if (phaseT > .55) { L.armR.v += Math.sin(phaseT * 28) * 40 * dt; L.armL.v -= Math.sin(phaseT * 28) * 30 * dt; }
+        if (phaseT > 1.15) { state = 'hop'; phaseT = 0; hopFrom = [B.x, B.y, B.a, sv]; cur.el.style.display = 'none'; }
+      } else if (state === 'hop') {     // a springy hop home, wherever home now is on screen
+        phaseT += dt;
+        var h = cur.cfg.home() || { x: hopFrom[0], y: hopFrom[1], a: 0, s: hopFrom[3] };
+        var uu = seg(phaseT, 0, .75), e2 = easeInOut(uu), dist = Math.hypot(h.x - hopFrom[0], h.y - hopFrom[1]);
+        B.x = lerp(hopFrom[0], h.x, e2); B.y = lerp(hopFrom[1], h.y, e2) - Math.sin(Math.PI * uu) * Math.max(110, dist * .35);
+        B.a = lerp(hopFrom[2], h.a || 0, e2); sv = lerp(hopFrom[3], h.s, e2);
+        if (uu >= 1) {
+          var it = cur; state = 'idle'; cur = null;
+          it.cfg.away(false); placeItem(it);
+          oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, ov.width, ov.height);
+          running = false; return;
+        }
+      }
+      var ax = dt ? ((B.x - ox) / dt - pvx) / dt : 0, ay = dt ? ((B.y - oy) / dt - pvy) / dt : 0;
+      pvx = dt ? (B.x - ox) / dt : 0; pvy = dt ? (B.y - oy) / dt : 0;
+      limbs(dt, clamp(ax, -9000, 9000), clamp(ay, -9000, 9000), state === 'held' || (state === 'fly' && onFloor));
+      placeItem(cur);
+      oc.setTransform(DPR, 0, 0, DPR, 0, 0);
+      sk.draw(oc, { s: sv, at: [B.x, B.y], anchor: CORE, rot: B.a, flip: flip,
+        pose: { head: L.head.a, armL: L.armL.a, armR: L.armR.a, legL: L.legL.a, legR: L.legR.a } });
+      requestAnimationFrame(frame);
+    }
+
+    function register(cfg) {
+      setup();
+      var el = document.createElement('div'); el.className = 'jeff-grab'; el.setAttribute('aria-hidden', 'true');
+      document.documentElement.appendChild(el);
+      var it = { cfg: cfg, el: el, off: [0, 0] };
+      items.push(it);
+      el.addEventListener('pointerdown', function (e) { grab(it, e); });
+      el.addEventListener('pointermove', function (e) { move(it, e); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (n) { el.addEventListener(n, function () { release(it); }); });
+      placeItem(it);
+      return { place: function () { placeItem(it); }, away: function () { return it === cur && state !== 'idle'; } };
+    }
+    return { register: register, CORE: CORE };
+  })();
   var rT; window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { resizers.forEach(function (f) { f(); }); }, 120); });
 
   // ================= 1. ZIP LINE across the rule under the hero (and he can be grabbed) =================
@@ -193,7 +350,7 @@
     var host = document.querySelector('.circular'); if (!host || !MOTION) return;
     var ABOVE = 40, BELOW = 170;
     var st = new Stage(host, function (h) { return { left: 0, top: -ABOVE, width: h.clientWidth, height: ABOVE + BELOW }; }, 'jeff-zip');
-    var sk = new Sticker(430), skToss = new Sticker(430), done = false;
+    var sk = new Sticker(430), done = false;
     resizers.push(function () { st.resize(); if (done) st.clear(); });
     whenVisible(host, '0px 0px -10% 0px', function () {
       var wait = Math.max(0, 1400 - performance.now());   // let the hero's own entrance finish first
@@ -206,8 +363,8 @@
       // to a stop near the left edge, where he stays parked (and grabbable) for the rest of the visit.
       // Parked, he goes still and nothing runs in the background until someone grabs him.
       var LEG = W < 600 ? 3.6 : 4.8, TURN = .45, M = W < 600 ? 95 : 130, END = 2 * LEG + TURN;
-      var X0 = -M, X1 = W + M, PARK = W < 600 ? 52 : 90, armR = -2.5, CORE = [357, 250];
-      var rideT = 0, phi = 0, dphi = 0, xPrev = null, vPrev = 0, last = null, running = true;
+      var X0 = -M, X1 = W + M, PARK = W < 600 ? 52 : 90, armR = -2.5, CORE = Toss.CORE;
+      var rideT = 0, phi = 0, dphi = 0, xPrev = null, vPrev = 0, last = null, running = true, away = false;
       function along(u) { return .88 * u + .12 * easeInOut(u); }
       function coast(u) { return 1 - Math.pow(1 - u, 2.2); }   // decelerates into the parking spot
       function rideX(t) {
@@ -215,26 +372,6 @@
         if (t < LEG + TURN) return [X1, -1];
         return [X1 - (X1 - PARK) * coast(Math.min(1, (t - LEG - TURN) / LEG)), -1];
       }
-
-      // The toss layer lives on <html>, outside the site's desktop CSS zoom, so pointer coordinates and
-      // canvas pixels are the same units. It never takes the pointer; the small grab handle does.
-      var ov = document.createElement('canvas'); ov.className = 'jeff-toss'; ov.setAttribute('aria-hidden', 'true');
-      var grab = document.createElement('div'); grab.className = 'jeff-grab'; grab.setAttribute('aria-hidden', 'true');
-      document.documentElement.appendChild(ov); document.documentElement.appendChild(grab);
-      var oc = ov.getContext('2d'), VW = 0, VH = 0;
-      function sizeOv() { VW = window.innerWidth; VH = window.innerHeight; ov.width = Math.round(VW * DPR); ov.height = Math.round(VH * DPR); }
-      sizeOv(); window.addEventListener('resize', sizeOv);
-      function view(P) { var r = st.cv.getBoundingClientRect(), k = st.w ? r.width / st.w : 1; return [r.left + P[0] * k, r.top + P[1] * k, k]; }
-      function floorY() { var nav = document.querySelector('.bottom-nav'); var h = nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect().height : 0; return VH - h; }
-
-      // ---- the body when off the line, in viewport px ----
-      var state = 'ride', B = { x: 0, y: 0, vx: 0, vy: 0, a: 0, va: 0 }, sv = s, flipToss = false;
-      var REST = { head: 0, armL: .1, armR: -.1, legL: 0, legR: 0 }, L = {};
-      Object.keys(REST).forEach(function (k) { L[k] = { a: REST[k], v: 0 }; });
-      var GAIN = { head: -.6, armL: 1.6, armR: 1.4, legL: .9, legR: .8 };
-      var target = null, samples = [], phaseT = 0, restT = 0, a0 = 0, y0 = 0, hopFrom = null, onFloor = false;
-      var pvx = 0, pvy = 0;
-
       function rideOpts(x, dir, ph, t) {
         var cable = st.rectOf(host).y + 1.5, hand = [x - Math.sin(ph) * strap, cable + 6 + Math.cos(ph) * strap], kick = Math.sin(t * 9);
         return { cable: cable, hand: hand, o: { s: s, at: hand, anchor: handAt(armR), rot: dir * -.32 + ph, flip: dir < 0,
@@ -244,8 +381,8 @@
         if (hand) {   // speed lines trail behind him (only while moving), then the strap down to his fist
           var sp = Math.abs(v);
           if (sp > 20) { c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
-          [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
-          c.restore(); }
+            [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
+            c.restore(); }
           c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(hand[0], hand[1]); c.stroke();
         } else {      // empty strap, swinging a little
           c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(x + Math.sin(performance.now() / 300) * 4, cable + 4 + strap * .6); c.stroke();
@@ -255,148 +392,43 @@
         c.strokeStyle = YEL; c.lineWidth = 1.6; var spin = x / 7;
         for (var i = 0; i < 3; i++) { var a = spin + i * TAU / 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x + Math.cos(a) * 5, cable - 6 + Math.sin(a) * 5); c.stroke(); }
       }
-      function placeGrab(cx, cy, k) {   // the hit area: roughly his torso and head
-        var w = 240 * s * k, h = 380 * s * k;   // a bit larger than his body: easy to catch, still small
-        grab.style.width = w + 'px'; grab.style.height = h + 'px';
-        grab.style.left = (cx - w / 2) + 'px'; grab.style.top = (cy - h * .6) + 'px';
-      }
-
-      // ---- pointer: grab, drag, throw ----
       function wake() { if (!running) { running = true; tPrev = null; requestAnimationFrame(frame); } }
-      function startGrab(e) {
-        if (state === 'hop' || done) return;
-        wake();
-        e.preventDefault();
-        try { grab.setPointerCapture(e.pointerId); } catch (_) {}
-        if (state === 'ride' && last) {
-          var c = view(toStage(last.o, CORE)); sv = s * c[2];
-          B.x = c[0]; B.y = c[1]; B.a = last.o.rot; B.va = 0; B.vx = last.v * c[2]; B.vy = 0; flipToss = last.o.flip;
-          Object.keys(REST).forEach(function (k) { L[k].a = last.o.pose[k] || REST[k]; L[k].v = 0; });
-        }
-        target = [B.x, B.y]; grab._off = [e.clientX - B.x, e.clientY - B.y];
-        samples = [[e.clientX, e.clientY, performance.now()]];
-        state = 'held'; onFloor = false; grab.classList.add('is-held');
-      }
-      grab.addEventListener('pointerdown', startGrab);
-      grab.addEventListener('pointermove', function (e) {
-        if (state !== 'held') return;
-        target = [e.clientX - grab._off[0], e.clientY - grab._off[1]];
-        samples.push([e.clientX, e.clientY, performance.now()]); if (samples.length > 8) samples.shift();
-      });
-      function release() {
-        if (state !== 'held') return;
-        grab.classList.remove('is-held');
-        var now = performance.now(), a = samples[0], b = samples[samples.length - 1];
-        for (var i = samples.length - 1; i >= 0; i--) { if (now - samples[i][2] <= 110) a = samples[i]; }
-        var dt = Math.max(16, b[2] - a[2]) / 1000;
-        B.vx = clamp((b[0] - a[0]) / dt, -2800, 2800); B.vy = clamp((b[1] - a[1]) / dt, -2800, 2800);
-        if (now - b[2] > 120) { B.vx *= .2; B.vy *= .2; }   // held still before letting go: just drop him
-        B.va += B.vx * .004;
-        state = 'fly'; restT = 0;
-      }
-      grab.addEventListener('pointerup', release);
-      grab.addEventListener('pointercancel', release);
-      grab.addEventListener('lostpointercapture', release);
 
-      // ---- limbs flop on their joints: springs toward rest, driven by how the body accelerates ----
-      function limbs(dt, ax, ay, hang) {
-        var ca = Math.cos(B.a), sa = Math.sin(B.a), lx = ax * ca + ay * sa;
-        Object.keys(L).forEach(function (k) {
-          var l = L[k], acc = -55 * (l.a - REST[k]) - 6.5 * l.v + GAIN[k] * lx * .0016 * (flipToss ? -1 : 1) - B.va * .9;
-          if (hang && k !== 'head') acc += -26 * Math.sin(B.a + l.a);   // dangling limbs hang toward the ground
-          l.v += acc * dt; l.a = clamp(l.a + l.v * dt, -2.6, 2.6);
-        });
-      }
-      function drawToss() {
-        oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, ov.width, ov.height);
-        if (state === 'ride') return;
-        oc.setTransform(DPR, 0, 0, DPR, 0, 0);
-        skToss.draw(oc, { s: sv, at: [B.x, B.y], anchor: CORE, rot: B.a, flip: flipToss,
-          pose: { head: L.head.a, armL: L.armL.a, armR: L.armR.a, legL: L.legL.a, legR: L.legR.a } });
-      }
-      function normAngle(a) { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; }
+      var handle = Toss.register({
+        home: function () {
+          if (!last) return null;
+          // while he's away, home is the strap at rest; while riding, wherever he is right now
+          var o = away ? rideOpts(last.x, last.dir, 0, rideT >= END ? END : rideT).o : last.o, c = st.toView(toStage(o, CORE));
+          return { x: c[0], y: c[1], s: s * c[2], a: o.rot, flip: o.flip, pose: o.pose, vx: away ? 0 : last.v * c[2] };
+        },
+        away: function (isAway) { away = isAway; if (!isAway) { phi = 0; dphi = 0; xPrev = null; vPrev = 0; } wake(); }
+      });
+      resizers.push(wake);
 
       var tPrev = null;
       function frame(now) {
-        if (done) return;
         var dt = tPrev === null ? 0 : Math.min(.05, (now - tPrev) / 1000); tPrev = now;
-        var R = 150 * sv, F = floorY();
         st.clear(); var c = st.ctx;
-
-        if (state === 'ride') {
-          var parked = rideT >= END;
-          if (!parked) rideT = Math.min(END, rideT + dt);
-          var rx = rideX(rideT), x = rx[0], dir = rx[1];
-          var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
-          var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
-          var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
-          var R0 = rideOpts(x, dir, phi, parked ? END : rideT);   // parked: legs and mic stop wiggling
-          trolley(c, x, R0.cable, dir, v, R0.hand);
-          sk.draw(c, R0.o);
-          var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(R0.hand[0] - bd[0] * 9, R0.hand[1] - bd[1] * 9); c.lineTo(R0.hand[0] + bd[0] * 9, R0.hand[1] + bd[1] * 9); c.stroke();
-          last = { o: R0.o, x: x, dir: dir, v: v };
-          var core = view(toStage(R0.o, CORE)); placeGrab(core[0], core[1], core[2]);
-          grab.style.display = '';
-          // parked and the swing has died away: draw nothing more until he is grabbed
-          if (parked && Math.abs(phi) < .003 && Math.abs(dphi) < .003) { drawToss(); running = false; return; }
-        } else {
-          // the empty trolley waits on the line where he left it
-          var cable = st.rectOf(host).y + 1.5; trolley(c, last.x, cable, last.dir, 0, null);
-          var ox = B.x, oy = B.y;
-          if (state === 'held') {
-            // he follows the pointer with a little lag and swings from where he is held
-            var k = 1 - Math.pow(.0005, dt);
-            B.x += (target[0] - B.x) * k; B.y += (target[1] - B.y) * k;
-            var hvx = dt ? (B.x - ox) / dt : 0;
-            B.va += ((clamp(-hvx * .0009, -1, 1) - normAngle(B.a)) * 55 - B.va * 7) * dt; B.a += B.va * dt;
-          } else if (state === 'fly') {
-            B.vy += 2600 * dt; B.vx *= (1 - .12 * dt);
-            B.x += B.vx * dt; B.y += B.vy * dt; B.a += B.va * dt; B.va *= (1 - .35 * dt);
-            if (B.x < R) { B.x = R; B.vx = Math.abs(B.vx) * .6; B.va += B.vy * .0025; }
-            if (B.x > VW - R) { B.x = VW - R; B.vx = -Math.abs(B.vx) * .6; B.va -= B.vy * .0025; }
-            if (B.y < R) { B.y = R; B.vy = Math.abs(B.vy) * .5; }
-            var floor = F - R * 1.15;   // lying down, his whole body stays above the bottom edge
-            if (B.y > floor) {
-              B.y = floor;
-              if (B.vy > 140) { B.vy = -B.vy * .42; B.vx *= .78; B.va = B.va * .55 + B.vx * .003; }
-              else { B.vy = 0; onFloor = true; }
-            }
-            if (onFloor) { B.vx *= (1 - 3.2 * dt); B.va = B.va * (1 - 4 * dt) + (B.vx / Math.max(R, 1)) * .4 * dt * 10; B.y = floor; }
-            restT = (onFloor && Math.abs(B.vx) < 30 && Math.abs(B.va) < .5) ? restT + dt : 0;
-            if (restT > .45) { state = 'stand'; phaseT = 0; a0 = normAngle(B.a); y0 = B.y; }
-          } else if (state === 'stand') {
-            // up on his feet with a little overshoot, then a quick dust-off
-            phaseT += dt;
-            var u = easeOutBack(seg(phaseT, 0, .55)), standY = F - (376 - CORE[1]) * sv - 2;
-            B.a = lerp(a0, 0, u); B.y = lerp(y0, standY, seg(phaseT, 0, .55));
-            if (phaseT > .55) { L.armR.v += Math.sin(phaseT * 28) * 40 * dt; L.armL.v -= Math.sin(phaseT * 28) * 30 * dt; }
-            if (phaseT > 1.15) { state = 'hop'; phaseT = 0; hopFrom = [B.x, B.y, B.a]; grab.style.display = 'none'; }
-          } else if (state === 'hop') {
-            // a springy hop back up to the strap, wherever the line now is on screen
-            phaseT += dt;
-            var T = .75, uu = seg(phaseT, 0, T), e2 = easeInOut(uu);
-            var ph0 = rideOpts(last.x, last.dir, 0, rideT), to = view(toStage(ph0.o, CORE));
-            var dist = Math.hypot(to[0] - hopFrom[0], to[1] - hopFrom[1]);
-            B.x = lerp(hopFrom[0], to[0], e2); B.y = lerp(hopFrom[1], to[1], e2) - Math.sin(Math.PI * uu) * Math.max(110, dist * .35);
-            B.a = lerp(hopFrom[2], ph0.o.rot, e2); sv = lerp(sv, s * to[2], uu);
-            if (uu >= 1) { state = 'ride'; phi = 0; dphi = 0; xPrev = null; vPrev = 0; }
-          }
-          if (state !== 'ride') {
-            var ax = dt ? ((B.x - ox) / dt - pvx) / dt : 0, ay = dt ? ((B.y - oy) / dt - pvy) / dt : 0;
-            pvx = dt ? (B.x - ox) / dt : 0; pvy = dt ? (B.y - oy) / dt : 0;
-            limbs(dt, clamp(ax, -9000, 9000), clamp(ay, -9000, 9000), state === 'held' || (state === 'fly' && onFloor));
-            if (state !== 'hop') placeGrab(B.x, B.y, sv / s);
-          }
+        if (away) {   // the empty trolley waits on the line where he left it
+          trolley(c, last.x, st.rectOf(host).y + 1.5, last.dir, 0, null);
+          requestAnimationFrame(frame); return;
         }
-        drawToss();
+        var parked = rideT >= END;
+        if (!parked) rideT = Math.min(END, rideT + dt);
+        var rx = rideX(rideT), x = rx[0], dir = rx[1];
+        var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
+        var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
+        var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
+        var R0 = rideOpts(x, dir, phi, parked ? END : rideT);   // parked: legs and mic stop wiggling
+        trolley(c, x, R0.cable, dir, v, R0.hand);
+        sk.draw(c, R0.o);
+        var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(R0.hand[0] - bd[0] * 9, R0.hand[1] - bd[1] * 9); c.lineTo(R0.hand[0] + bd[0] * 9, R0.hand[1] + bd[1] * 9); c.stroke();
+        last = { o: R0.o, x: x, dir: dir, v: v };
+        handle.place();
+        // parked and the swing has died away: draw nothing more until he is grabbed
+        if (parked && Math.abs(phi) < .003 && Math.abs(dphi) < .003) { running = false; return; }
         requestAnimationFrame(frame);
       }
-      // while idle the page still scrolls and resizes: keep the grab handle on him, and redraw after a resize
-      window.addEventListener('scroll', function () {
-        if (running || !last) return;
-        var core = view(toStage(last.o, CORE)); placeGrab(core[0], core[1], core[2]);
-      }, { passive: true });
-      resizers.push(wake);
       requestAnimationFrame(frame);
     }
   }
@@ -448,8 +480,15 @@
       o.pose.armR = a; o.prop = function (c) { pencil(c, h, u, 170, 92); };
       return o;
     }
-    function still() { var G = geom(); render(G, finalPose(G), null, 1); }
+    var Gd = null, gone = false;   // gone: he's been grabbed and is off being tossed
+    function still() { var G = geom(); Gd = G; render(G, gone ? null : finalPose(G), null, 1); }
     resizers.push(function () { if (state === 'done') still(); else st.resize(); });
+    function tossable() {
+      Toss.register({
+        home: function () { if (!Gd) return null; var o = finalPose(Gd), c = st.toView(toStage(o, Toss.CORE)); return { x: c[0], y: c[1], s: o.s * c[2], a: 0, flip: o.flip, pose: o.pose }; },
+        away: function (a) { gone = a; still(); }   // the pencil circle stays on the receipt while he's away
+      });
+    }
     if (!MOTION) { load().then(still); return; }
     // start when the receipt has printed (the site arms .tape and adds .in; its print takes ~1.65 s)
     function armed() { return !tape.classList.contains('armed') || tape.classList.contains('in'); }
@@ -480,7 +519,7 @@
         }
         o.pose.sy = breathe;
         render(G, o, null, prog);
-        if (t > 3.05) { state = 'done'; still(); return false; }
+        if (t > 3.05) { state = 'done'; still(); tossable(); return false; }
       });
     }
     function add(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
@@ -490,6 +529,9 @@
   // ================= 3. CLIP THIS: Jeff cuts the coupon line =================
   function gagCut() {
     var host = document.querySelector('.closer'); if (!host) return;
+    // room under the cut line for his legs: holding the scissors level raises his hand to shoulder height,
+    // so his feet hang ~58px (desktop) below the line. 36px clipped them at the canvas edge.
+    var CUT_BELOW = 76;
     var strip = document.createElement('div'); strip.className = 'jeff-cut'; strip.setAttribute('aria-hidden', 'true');
     host.insertBefore(strip, host.firstChild); host.classList.add('jeff-cut-on');
     var st = new Stage(strip, function (h) { return { left: 0, top: 0, width: h.clientWidth, height: h.clientHeight }; }, 'jeff-cutline');
@@ -498,7 +540,7 @@
       st.resize();
       var wrap = host.querySelector('.wrap'), pad = wrap ? parseFloat(getComputedStyle(wrap).paddingLeft) + Math.max(0, (st.w - wrap.clientWidth) / 2) : 24;
       // edge to edge (owner, Nov 23): the cut runs the full width of the screen; Jeff finishes at the right edge
-      return { s: st.w < 600 ? .26 : .36, x0: 0, x1: st.w - Math.min(24, pad), y: st.h - 36 };
+      return { s: st.w < 600 ? .26 : .36, x0: 0, x1: st.w - Math.min(24, pad), y: st.h - CUT_BELOW };
     }
     function line(c, G, cutTo) {
       c.save(); c.lineWidth = 2;
@@ -516,12 +558,19 @@
       return o;   // anchored at the blade tips, which ride the line
     }
     // With the page's cut-off flap (data-flap on .closer), the flap's edge is the cut, so don't draw the line.
-    function still() { var G = geom(); st.clear(); if (!host.hasAttribute('data-flap')) line(st.ctx, G, G.x1); sk.draw(st.ctx, pose(G, G.x1, 0, false, .15)); }
+    var Gd = null, gone = false;
+    function still() { var G = geom(); Gd = G; st.clear(); if (!host.hasAttribute('data-flap')) line(st.ctx, G, G.x1); if (!gone) sk.draw(st.ctx, pose(G, G.x1, 0, false, .15)); }
+    function tossable() {
+      Toss.register({
+        home: function () { if (!Gd) return null; var o = pose(Gd, Gd.x1, 0, false, .15), c = st.toView(toStage(o, Toss.CORE)); return { x: c[0], y: c[1], s: o.s * c[2], a: o.rot || 0, flip: o.flip, pose: o.pose }; },
+        away: function (a) { gone = a; still(); }   // the cut stays cut while he's away
+      });
+    }
     resizers.push(function () { if (state === 'done') still(); else if (state === null) { var G = geom(); st.clear(); line(st.ctx, G, G.x0); } });
     // hook for the 'cut-off flap' upgrade (README): fires once the coupon line is fully cut
     // lineY is read from the current stage size, not geom(): geom() resizes the canvas, which wiped the
     // finished cut and Jeff the moment this fired.
-    function cutDone(isStill) { host.classList.add('jeff-cut-done'); host.dispatchEvent(new CustomEvent('jeff:cut', { bubbles: true, detail: { still: isStill, lineY: st.h - 36, strip: strip } })); }
+    function cutDone(isStill) { host.classList.add('jeff-cut-done'); host.dispatchEvent(new CustomEvent('jeff:cut', { bubbles: true, detail: { still: isStill, lineY: st.h - CUT_BELOW, strip: strip } })); }
     if (!MOTION) { load().then(function () { still(); cutDone(true); }); return; }
     var G0 = geom(); st.clear(); line(st.ctx, G0, G0.x0);
     whenVisible(strip, '0px 0px -18% 0px', function () { load().then(run); });
@@ -534,7 +583,7 @@
         if (!walking) snip = 1 - seg(t, T, T + .25) * .85;
         st.clear(); line(st.ctx, G, X);
         sk.draw(st.ctx, pose(G, X, t, walking, walking ? snip : snip));
-        if (t > T + .3) { state = 'done'; still(); cutDone(false); return false; }
+        if (t > T + .3) { state = 'done'; still(); cutDone(false); tossable(); return false; }
       });
     }
   }
@@ -547,15 +596,23 @@
       var box = document.createElement('span'); box.className = 'jeff-thumb'; box.setAttribute('aria-hidden', 'true'); el.appendChild(box);
       load().then(function () {
         var st = new Stage(box, function (h) { return { left: 0, top: 0, width: h.clientWidth, height: h.clientHeight }; }, '');
-        var sk = new Sticker(300), s = st.h / 300;
+        var sk = new Sticker(300), s = st.h / 300, gone = false;
+        function homeOpts() { return { s: s, at: [st.w * .5, st.h + 4], anchor: [357, 275], pose: { armR: -2.3, armL: .05, head: 0 } }; }
         function frame(t) {
           var u = MOTION ? easeOutBack(seg(t, 0, .5)) : 1, pump = MOTION ? Math.sin(seg(t, .5, 1.4) * TAU * 2) * (1 - seg(t, .5, 1.4)) : 0;
           var a = -2.3 + .22 * pump, h = handAt(a);
-          st.clear();
+          st.clear(); if (gone) return;
           sk.draw(st.ctx, { s: s, at: [st.w * .5, st.h + 4 + (1 - u) * st.h], anchor: [357, 275], pose: { armR: a, armL: .05, head: -.05 * pump }, prop: function (c) { thumb(c, h, norm([.25, -1])); } });
         }
         if (!MOTION) { frame(9); return; }
-        play(function (t) { frame(t); return t < 1.5; });
+        play(function (t) {
+          frame(t); if (t < 1.5) return true;
+          Toss.register({
+            home: function () { if (!box.isConnected || el.hidden) return null; var o = homeOpts(), c = st.toView(toStage(o, Toss.CORE)); return { x: c[0], y: c[1], s: o.s * c[2], a: 0, pose: o.pose }; },
+            away: function (a) { gone = a; frame(9); }   // "You're in" stays put while he's away
+          });
+          return false;
+        });
       });
     }
     Array.prototype.forEach.call(dones, function (el) {

@@ -56,6 +56,9 @@
 // Elements are hidden for an entrance only after the script below has armed
 // them, so a failed script never leaves anything invisible.
 if (window.matchMedia && matchMedia('(prefers-reduced-motion: no-preference)').matches) document.documentElement.classList.add('motion');
+// A refresh opens at the top (owner, Nov 23), unless the address points at a section (#deals etc.).
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if (!location.hash) window.addEventListener('load', function () { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); });
 </script>
 <style>
 /* Direction: a Sunday-paper deals circular crossed with a TV news lower third.

@@ -7,7 +7,7 @@
 
 /* "Clip this": the coupon line Jeff cuts sits in the closer's top padding */
 .closer.jeff-cut-on { padding-top: 0; }
-.jeff-cut { position: relative; height: clamp(100px, 10vw, 136px); margin-bottom: clamp(8px, 2vw, 24px); }
+.jeff-cut { position: relative; height: clamp(136px, 13vw, 176px); margin-bottom: clamp(0px, 1vw, 12px); }   /* line sits 76px above the bottom: room for his feet */
 
 /* the thumbs up beside "You're in" */
 .jeff-thumb { position: relative; display: inline-block; width: 2.6em; height: 2.6em; margin-left: .25em; vertical-align: -.9em; }
@@ -15,8 +15,8 @@
 
 /* tossing Jeff: a full-screen layer that never takes the pointer, and a small handle on Jeff that does */
 .jeff-toss { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 80; pointer-events: none; }
-.jeff-grab { position: fixed; z-index: 81; pointer-events: auto; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; border-radius: 40%; }
-.jeff-grab.is-held { cursor: grabbing; }
+.jeff-grab { position: fixed; z-index: 54; pointer-events: auto; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; border-radius: 40%; }
+.jeff-grab.is-held { cursor: grabbing; z-index: 82; }
 
 @media print { .jeff-toss, .jeff-grab { display: none !important; }
  .jeff-stage, .jeff-cut { display: none !important; } .closer.jeff-cut-on { padding-top: clamp(56px, 7vw, 96px); } }
