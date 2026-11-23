@@ -281,7 +281,6 @@
 
         <div class="panel">
           <h3>Hero</h3>
-          <div class="field-row"><label for="heroEyebrowInput">Red Label Above the Headline</label><input type="text" id="heroEyebrowInput"></div>
           <div class="field-row"><label for="heroLine1Input">Intro Paragraph</label><input type="text" id="heroLine1Input"></div>
           <div class="field-row"><label for="heroLine2Input">Intro Paragraph, Bold Ending (optional)</label><input type="text" id="heroLine2Input"></div>
         </div>
@@ -967,7 +966,6 @@ function loadContent() {
 }
 
 function renderContent() {
-  document.getElementById('heroEyebrowInput').value = currentContent.hero.eyebrow || '';
   document.getElementById('heroLine1Input').value = currentContent.hero.taglineLine1 || '';
   document.getElementById('heroLine2Input').value = currentContent.hero.taglineLine2 || '';
 
@@ -989,7 +987,6 @@ function renderContent() {
 }
 
 function syncContentFromForm() {
-  currentContent.hero.eyebrow = document.getElementById('heroEyebrowInput').value;
   currentContent.hero.taglineLine1 = document.getElementById('heroLine1Input').value;
   currentContent.hero.taglineLine2 = document.getElementById('heroLine2Input').value;
   currentContent.about.quote = document.getElementById('aboutQuoteInput').value;

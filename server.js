@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 const DEFAULT_CONTENT = {
     hero: {
         eyebrow: 'This week',
-        taglineLine1: "Jeff Rossen spent 16 years investigating for NBC and Hearst. Now he hunts down the deals worth your money, and skips the ones that aren't.",
+        taglineLine1: 'Jeff Rossen tracks down the deals worth your money. Every week, free.',
         taglineLine2: '',
         // The stat band was cut in the Nov 2026 redesign. Kept as an empty list
         // because the control board's save endpoint still sends the field.
@@ -82,18 +82,13 @@ const DEFAULT_CONTENT = {
 // ships hardcoded so a fresh clone (db/ is gitignored) still renders the site
 // correctly before anyone has used the admin editor to change anything.
 const DEFAULT_DEALS = [
-    { icon: 'fa-shield-alt',   category: 'Home Security',   name: 'Best Security Cameras This Week',
-      desc: "Jeff tested dozens — these are the cameras that actually protect your home without breaking the bank.",
-      href: 'https://www.amazon.com/shop/jeffrossen', cta: 'Shop Now' },
-    { icon: 'fa-shopping-cart', category: 'Grocery Savings', name: 'Stop Overpaying at the Store',
-      desc: "Walmart deals most shoppers walk right past — Jeff's picks for maximum savings on everyday essentials.",
-      href: 'https://www.walmart.com/creator/storefront?creator=rossenreports', cta: 'See Deals' },
-    { icon: 'fa-plane',        category: 'Travel Steals',    name: "Hidden Travel Deals Airlines Won't Tell You",
-      desc: "The prices airlines and hotels don't advertise — exposed by Jeff's consumer investigations team.",
-      href: 'https://dealseek.com/collections/rossen_reports', cta: 'See Deals' },
-    { icon: 'fa-microchip',    category: 'Top Tech',         name: 'Best Tech Under $50',
-      desc: "Consumer gadgets that actually deliver on their promises — vetted and recommended by Jeff's team.",
-      href: 'https://www.amazon.com/shop/jeffrossen', cta: 'Explore' },
+    // Shown as the "Shop with Jeff" line under the circular: short store names.
+    { icon: 'fa-amazon', category: 'Storefront', name: 'Amazon', desc: "Jeff's Amazon picks",
+      href: 'https://www.amazon.com/shop/jeffrossen', cta: 'Shop' },
+    { icon: 'fa-store', category: 'Storefront', name: 'Walmart', desc: "Everyday essentials",
+      href: 'https://www.walmart.com/creator/storefront?creator=rossenreports', cta: 'Shop' },
+    { icon: 'fa-tag', category: 'Storefront', name: 'DealSeek', desc: "Deal collection",
+      href: 'https://dealseek.com/collections/rossen_reports', cta: 'Shop' },
 ];
 
 // Named documents, not file paths — lib/storage picks disk or Blob per environment.

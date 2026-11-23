@@ -46,214 +46,161 @@
       "worksFor": { "@type": "Organization", "name": "Rossen Reports", "url": "https://rossen-report.vercel.app" }
     }
     </script>
+
 <style>
 /* Direction: a Sunday-paper deals circular crossed with a TV news lower third.
-   Every colour is named after the real object it comes from, with its job and
-   contrast written beside it. design-source/REFERENCES.md has the reasoning. */
+   Round 2 (Nov 23): no boxes. Structure comes from type, rules and colour
+   bands, the way a printed page does it. Only three objects keep a shape:
+   the lower third, the sale tag and the receipt. */
 :root {
     --navy:      #0B2C6B; /* Rossen Reports logo navy. White on it: 13.4:1 */
     --navy-deep: #071B45; /* the TV studio band. White on it: 16.6:1 */
     --yellow:    #FFD100; /* logo yellow / lower-third bar. Navy on it: 10.6:1. Never small text on paper */
     --newsprint: #F4EFE3; /* Sunday circular stock: the page */
-    --newsprint-2:#ECE5D3;/* the inside pages, one step down */
     --press:     #16181D; /* press-black ink. On newsprint: 16:1 */
-    --press-2:   #4A4D55; /* second ink for small text. On newsprint 7.6:1, on --newsprint-2 6.9:1 */
+    --press-2:   #4A4D55; /* second ink for small text. On newsprint 7.6:1 */
     --tag-red:   #C3102D; /* sale-tag red. White on it 6.2:1; as small text on newsprint 5.4:1 */
-    --thermal:   #FBFAF6; /* receipt paper: inputs, the receipt */
-    --rule:      rgba(22,24,29,.22);
+    --thermal:   #FBFAF6; /* receipt paper */
+    --rule:      rgba(22,24,29,.2);
 
-    --f-head:  'Big Shoulders Display', 'Arial Narrow', sans-serif; /* lower thirds, price cards */
-    --f-label: 'Archivo', system-ui, sans-serif;                    /* circular section labels */
-    --f-body:  'Newsreader', Georgia, serif;                        /* the newspaper column */
-    --f-mono:  'Courier Prime', 'Courier New', monospace;           /* register tape, date stamps */
+    --f-head:  'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --f-label: 'Archivo', system-ui, sans-serif;
+    --f-body:  'Newsreader', Georgia, serif;
+    --f-mono:  'Courier Prime', 'Courier New', monospace;
 
     --gutter: clamp(16px, 4vw, 32px);
-    --wrap: 1240px;
 
-    /* newsprint grain: noise stretched into fibres, warm, low alpha */
     --tex-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .04' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .25 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
-    /* halftone dots, like a cheap colour circular, for navy bands */
     --tex-halftone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3Ccircle cx='6' cy='6' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E");
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-/* Components below set display; the hidden attribute must still win. */
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; scroll-padding-top: 76px; scroll-padding-bottom: 84px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body {
-    margin: 0;
-    background-color: var(--newsprint);
-    background-image: var(--tex-paper);
-    color: var(--press);
-    font-family: var(--f-body);
-    font-size: 18px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-}
+body { margin: 0; background-color: var(--newsprint); background-image: var(--tex-paper); color: var(--press); font-family: var(--f-body); font-size: 18px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; }
 a { color: inherit; }
-h1, h2, h3, p { margin: 0; }
-.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 :focus-visible { outline: 3px solid var(--tag-red); outline-offset: 3px; }
-.on-dark :focus-visible, .on-dark:focus-visible { outline-color: var(--yellow); }
-main:focus, section:focus { outline: none; }
-
+.on-dark :focus-visible { outline-color: var(--yellow); }
+main:focus, section:focus, ol:focus { outline: none; }
 .skip { position: absolute; left: 12px; top: -60px; z-index: 200; background: var(--navy); color: #fff; padding: 10px 16px; font-family: var(--f-label); font-weight: 800; text-decoration: none; }
 .skip:focus { top: 12px; }
 
-/* shared pieces */
-.label { font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
-.kicker { display: inline-block; font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 6px 10px; }
-.head-xl { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; line-height: .9; letter-spacing: -.005em; color: var(--navy); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; padding: 14px 22px; border: 2px solid var(--navy); text-decoration: none; cursor: pointer; line-height: 1.1; }
-.btn-main { background: var(--navy); color: #fff; }
-.btn-main:hover { background: var(--press); border-color: var(--press); }
-.btn-quiet { background: transparent; color: var(--navy); }
-.btn-quiet:hover { background: var(--navy); color: #fff; }
-.rule-double { border: 0; border-top: 3px double var(--press); margin: 0; }
-.ext { font-size: .8em; }
+.head-xl { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; line-height: .9; color: var(--navy); }
+.section { padding: clamp(48px, 7vw, 96px) 0; }
+.section > .wrap > h2.head-xl { font-size: clamp(44px, 6vw, 80px); margin-bottom: clamp(24px, 3vw, 40px); }
+.mark { background: linear-gradient(transparent 12%, var(--yellow) 12%, var(--yellow) 92%, transparent 92%); padding: 0 .08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.go { font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; display: inline-block; padding: 6px 0; border-bottom: 3px solid currentColor; }
+.go:hover { color: var(--tag-red); }
 
-/* ── MASTHEAD (sticky) ── */
+/* the one solid button style on the page */
+.btn { display: inline-flex; align-items: center; justify-content: center; font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; padding: 15px 24px; border: 0; background: var(--navy); color: #fff; text-decoration: none; cursor: pointer; line-height: 1.1; }
+.btn:hover { background: var(--press); }
+
+/* signup: an underline field and a button, no frame */
+.signup { display: flex; align-items: end; gap: 12px; max-width: 560px; }
+.signup input { flex: 1; min-width: 0; font: inherit; font-size: 20px; padding: 12px 2px; border: 0; border-bottom: 3px solid var(--press); background: transparent; color: inherit; border-radius: 0; }
+.signup input::placeholder { color: var(--press-2); }
+.signup input[aria-invalid="true"] { border-bottom-color: var(--tag-red); }
+.signup-status { font-family: var(--f-label); font-weight: 700; font-size: 15px; margin-top: 10px; }
+.signup-status:empty { margin: 0; }
+.signup-done { font-family: var(--f-head); font-weight: 800; font-size: 30px; text-transform: uppercase; }
+
+/* ── MASTHEAD ── */
 .mast { position: sticky; top: 0; z-index: 50; background-color: var(--newsprint); background-image: var(--tex-paper); border-bottom: 3px double var(--press); }
-.mast .wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
+.mast .wrap { display: flex; align-items: center; gap: 28px; min-height: 64px; }
 .mast-logo img { display: block; height: 40px; width: auto; }
-.mast-issue { font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--press-2); }
-.mast nav { margin-left: auto; display: flex; gap: 22px; }
+.mast nav { margin-left: auto; display: flex; gap: 24px; }
 .mast nav a { font-family: var(--f-label); font-weight: 700; font-size: 15px; text-decoration: none; padding: 6px 0; border-bottom: 3px solid transparent; }
 .mast nav a:hover { border-bottom-color: var(--rule); }
 .mast nav a[aria-current] { border-bottom-color: var(--tag-red); }
-.mast .btn { padding: 10px 16px; font-size: 14px; }
+.mast .btn { padding: 11px 16px; font-size: 14px; }
 
 /* ── HERO ── */
-.hero .wrap { display: grid; grid-template-columns: 1.25fr .75fr; gap: clamp(28px, 5vw, 56px); padding-top: clamp(28px, 4vw, 48px); padding-bottom: clamp(40px, 5vw, 64px); align-items: start; }
-.hero h1 { font-size: clamp(50px, 8.4vw, 116px); line-height: .98; margin: 18px 0 20px; }
-.hero h1 em { font-style: normal; background: linear-gradient(transparent 10%, var(--yellow) 10%, var(--yellow) 94%, transparent 94%); padding: 0 .08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.hero-lede { font-size: clamp(19px, 1.6vw, 22px); max-width: 36ch; margin-bottom: 30px; }
-.hero-lede strong { font-weight: 600; }
-
-/* the coupon: dashed cut line and scissors, with the signup inside it */
-.coupon { position: relative; border: 2px dashed var(--navy); background: #fff; padding: 22px 24px 18px; max-width: 580px; }
-.coupon::before { content: "\2702"; position: absolute; top: -14px; left: 22px; background: var(--newsprint); padding: 0 6px; font-size: 20px; color: var(--navy); line-height: 1; }
-.coupon-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-.coupon-head h2 { font-family: var(--f-head); font-weight: 800; text-transform: uppercase; font-size: 30px; line-height: 1; color: var(--navy); }
-.coupon-head span { color: var(--tag-red); white-space: nowrap; font-size: 12px; }
-.signup { display: flex; gap: 8px; }
-.signup input { flex: 1; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border: 2px solid var(--press); background: var(--thermal); color: var(--press); border-radius: 0; }
-.signup input[aria-invalid="true"] { border-color: var(--tag-red); }
-.signup-note { margin-top: 10px; font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
-.signup-status { font-family: var(--f-label); font-weight: 700; font-size: 14px; margin-top: 8px; }
-.signup-status:empty { margin: 0; }
-.signup-done { font-family: var(--f-head); font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--navy); }
-
+.hero .wrap { display: grid; grid-template-columns: 1.3fr .7fr; gap: clamp(32px, 6vw, 80px); padding-top: clamp(36px, 5vw, 72px); padding-bottom: clamp(48px, 7vw, 96px); align-items: center; }
+.hero h1 { font-size: clamp(56px, 9vw, 128px); line-height: .96; }
+.hero-lede { font-size: clamp(20px, 1.8vw, 24px); margin: 24px 0 32px; max-width: 30ch; }
 .anchor { position: relative; margin: 0; }
 .anchor img { display: block; width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: center 22%; background: #000; }
 .lower-third { position: absolute; left: -16px; right: 16px; bottom: 24px; }
 .lower-third b { display: block; background: var(--yellow); color: var(--navy); font-family: var(--f-head); font-weight: 800; font-size: 30px; text-transform: uppercase; padding: 6px 16px; line-height: 1.05; }
 .lower-third span { display: block; background: var(--navy); color: #fff; font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 6px 16px; }
-.seen { margin-top: 16px; font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
-.seen b { color: var(--press); font-weight: 700; }
+.seen { margin-top: 14px; font-family: var(--f-label); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--press-2); }
 
 /* ── THIS WEEK'S CIRCULAR ── */
-.circular { padding: clamp(40px, 5vw, 64px) 0; border-top: 3px double var(--press); }
-.sec-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
-.sec-head h2 { font-size: clamp(40px, 5vw, 64px); }
-.sec-head p { max-width: 38ch; color: var(--press-2); font-size: 17px; }
-.tags { display: grid; grid-template-columns: 2fr 1fr 1fr; border: 2px solid var(--press); background: #fff; list-style: none; margin: 0; padding: 0; }
-.tags > li { display: flex; border-left: 2px solid var(--press); }
-.tags > li:first-child { border-left: 0; background: var(--yellow); }
-.tag { flex: 1; padding: 22px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; }
-.tag-date { font-family: var(--f-mono); font-size: 14px; color: var(--press-2); }
-.tags > li:first-child .tag-date { color: var(--press); }
-.tag h3 { font-family: var(--f-head); font-weight: 800; text-transform: uppercase; font-size: 28px; line-height: 1; color: var(--navy); }
-.tags > li:first-child h3 { font-size: clamp(34px, 3.6vw, 46px); }
-.tag p { font-size: 16px; }
-.burst { align-self: flex-start; font-family: var(--f-head); font-weight: 900; font-size: 22px; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 4px 10px 2px; transform: rotate(-3deg); }
-.tag-go { margin-top: auto; font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
-.tag:hover h3 { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 5px; }
-.circ-more { margin-top: 14px; font-family: var(--f-label); font-size: 14px; }
-.circ-more a { font-weight: 700; }
+.circular { border-top: 3px double var(--press); }
+.circ-list li { border-top: 1px solid var(--rule); }
+.circ-list li:last-child { border-bottom: 1px solid var(--rule); }
+.circ-list a { display: grid; grid-template-columns: 110px 1fr auto; gap: 24px; align-items: baseline; padding: 22px 0; text-decoration: none; }
+.circ-date { font-family: var(--f-mono); font-size: 15px; color: var(--press-2); }
+.circ-list h3 { font-family: var(--f-head); font-weight: 800; text-transform: uppercase; font-size: clamp(26px, 2.6vw, 36px); line-height: 1; color: var(--navy); }
+.circ-list a:hover h3 { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+.circ-list .arrow { font-family: var(--f-head); font-weight: 900; font-size: 32px; color: var(--navy); }
+/* the lead pick: biggest type on the page after the hero, with the sale tag */
+.circ-list li:first-child a { padding: 30px 0 34px; }
+.circ-list li:first-child h3 { font-size: clamp(40px, 5.4vw, 76px); line-height: .95; }
+.burst { display: inline-block; margin-bottom: 14px; font-family: var(--f-head); font-weight: 900; font-size: 24px; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 4px 12px 2px; transform: rotate(-3deg); }
+.shops { margin-top: 32px; font-family: var(--f-label); font-size: 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+.shops > span { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; color: var(--press-2); }
+.shops ul { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.shops a { font-weight: 700; text-underline-offset: 4px; display: inline-block; padding: 4px 0; }
+.shops a:hover { color: var(--tag-red); }
 
-/* where Jeff shops: shelf-edge price strips */
-.shops { margin-top: 44px; }
-.shops h3 { margin-bottom: 12px; }
-.shop-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.shop-list a { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; padding: 14px 16px; background: var(--thermal); border: 2px solid var(--press); border-left: 10px solid var(--navy); text-decoration: none; height: 100%; }
-.shop-list i { grid-row: span 2; font-size: 22px; color: var(--navy); width: 26px; text-align: center; }
-.shop-list b { font-family: var(--f-head); font-weight: 800; font-size: 22px; text-transform: uppercase; line-height: 1; color: var(--navy); }
-.shop-list span { font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
-.shop-list a:hover b { text-decoration: underline; text-underline-offset: 3px; }
-
-/* ── MID-PAGE SIGNUP BAND ── */
-.band { background: var(--yellow); border-top: 3px solid var(--press); border-bottom: 3px solid var(--press); }
-.band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; padding-top: 36px; padding-bottom: 36px; }
-.band h2 { font-size: clamp(36px, 4.4vw, 58px); }
-.band p { margin-top: 8px; font-size: 18px; max-width: 40ch; }
-.band .signup input { background: #fff; }
-.band .signup-note { color: var(--press); font-size: 13px; margin-top: 10px; }
-.band .signup-status { margin-top: 8px; }
+/* ── MID-PAGE SIGNUP: full-bleed yellow ── */
+.band { background: var(--yellow); }
+.band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; padding-top: clamp(40px, 5vw, 64px); padding-bottom: clamp(40px, 5vw, 64px); }
+.band h2 { font-size: clamp(42px, 5.4vw, 72px); }
 
 /* ── WATCH: the TV studio band ── */
-.watch { background-color: var(--navy-deep); background-image: var(--tex-halftone); color: #fff; padding: clamp(44px, 5vw, 72px) 0; }
-.watch .sec-head h2 { color: #fff; }
-.watch .sec-head p { color: rgba(255,255,255,.82); }
-.onair { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-label); font-weight: 800; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; background: var(--tag-red); color: #fff; padding: 5px 10px; margin-bottom: 12px; }
-.onair::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-.watch-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px; align-items: start; }
-.player { position: relative; aspect-ratio: 16/9; background: #000; border: 2px solid rgba(255,255,255,.25); }
+.watch { background-color: var(--navy-deep); background-image: var(--tex-halftone); color: #fff; }
+.watch .head-xl { color: #fff; }
+.watch-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+.player { position: relative; aspect-ratio: 16/9; background: #000; }
 .player-thumb { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: #000; cursor: pointer; display: block; }
 .player-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .player-thumb .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 84px; height: 60px; background: var(--tag-red); display: grid; place-items: center; font-size: 26px; color: #fff; }
-.player-thumb:hover .play { background: #e01f3d; }
 .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.player-title { margin-top: 12px; font-family: var(--f-head); font-weight: 800; font-size: 26px; text-transform: uppercase; line-height: 1.05; }
-.guide h3 { color: var(--yellow); margin-bottom: 10px; }
-.guide ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(255,255,255,.25); }
-.guide li { border-bottom: 1px solid rgba(255,255,255,.25); }
-.guide button { width: 100%; display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; padding: 10px 0; background: none; border: 0; color: #fff; text-align: left; cursor: pointer; font: inherit; }
-.guide button img { width: 96px; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
-.guide button span { font-size: 15px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.guide button small { display: block; font-family: var(--f-mono); font-size: 12px; color: rgba(255,255,255,.75); margin-top: 2px; }
-.guide button[aria-current="true"] span { color: var(--yellow); font-weight: 600; }
+.player-title { margin-top: 14px; font-family: var(--f-head); font-weight: 800; font-size: 28px; text-transform: uppercase; line-height: 1.05; }
+.guide li + li { border-top: 1px solid rgba(255,255,255,.2); }
+.guide button { width: 100%; display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: center; padding: 12px 0; background: none; border: 0; color: #fff; text-align: left; cursor: pointer; font: inherit; }
+.guide button img { width: 112px; aspect-ratio: 16/9; object-fit: cover; display: block; background: #222; }
+.guide button span { font-size: 16px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.guide button small { display: block; margin-top: 3px; font-family: var(--f-mono); font-size: 13px; color: rgba(255,255,255,.75); }
+.guide button[aria-current="true"] span { color: var(--yellow); }
 .guide button:hover span { text-decoration: underline; }
-.watch .btn-quiet { color: #fff; border-color: #fff; margin-top: 18px; }
-.watch .btn-quiet:hover { background: #fff; color: var(--navy-deep); }
+.watch .go { margin-top: 20px; color: var(--yellow); }
+.watch .go:hover { color: #fff; }
 
-/* ── SCAM ALERTS: a newspaper column ── */
-.alerts { background-color: var(--newsprint-2); background-image: var(--tex-paper); padding: clamp(44px, 5vw, 72px) 0; }
-.alerts .wrap { display: grid; grid-template-columns: 300px 1fr; gap: clamp(28px, 4vw, 56px); }
-.alerts-intro h2 { font-size: clamp(36px, 4vw, 52px); margin: 10px 0 12px; }
-.alerts-intro p { color: var(--press-2); font-size: 17px; }
-.alerts-status { margin-top: 14px; font-family: var(--f-label); font-size: 14px; font-weight: 700; color: var(--press-2); }
-.alert-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.alert-filter { font-family: var(--f-label); font-weight: 700; font-size: 13px; padding: 7px 12px; border: 2px solid var(--press); background: transparent; color: var(--press); cursor: pointer; }
-.alert-filter[aria-pressed="true"] { background: var(--press); color: #fff; }
-.alert-list { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--press); }
-.alert-item { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
-.alert-meta { display: flex; flex-direction: column; gap: 4px; font-family: var(--f-mono); font-size: 13px; color: var(--press-2); }
-.alert-cat { align-self: flex-start; font-family: var(--f-label); font-weight: 800; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--tag-red); }
-.alert-title { font-family: var(--f-body); font-weight: 600; font-size: 20px; line-height: 1.25; }
+/* ── SCAM ALERTS ── */
+.alerts-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 32px; margin-bottom: 18px; }
+.alerts-top h2 { font-size: clamp(44px, 6vw, 80px); }
+.alert-filters { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.alert-filter { font-family: var(--f-label); font-weight: 700; font-size: 15px; padding: 6px 0; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--press-2); cursor: pointer; }
+.alert-filter:hover { color: var(--press); }
+.alert-filter[aria-pressed="true"] { color: var(--press); border-bottom-color: var(--tag-red); }
+.alert-list li { display: grid; grid-template-columns: 140px 1fr; gap: 24px; padding: 20px 0; border-top: 1px solid var(--rule); }
+.alert-meta { font-family: var(--f-mono); font-size: 14px; color: var(--press-2); display: flex; flex-direction: column; gap: 2px; }
+.alert-cat { font-family: var(--f-label); font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--tag-red); }
+.alert-title { font-weight: 600; font-size: 22px; line-height: 1.25; }
 .alert-title a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.alert-sum { margin-top: 4px; font-size: 16px; color: var(--press-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.alerts-more { margin-top: 18px; }
+.alerts-more { margin-top: 18px; border: 0; background: none; cursor: pointer; color: var(--navy); }
 .alerts-foot { margin-top: 18px; font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
 
-/* ── JEFF'S RECEIPTS ── */
-.receipts { background-color: var(--navy); background-image: var(--tex-halftone); color: #fff; padding: clamp(48px, 6vw, 80px) 0; }
-.receipts .wrap { display: grid; grid-template-columns: 1fr 390px; gap: clamp(32px, 5vw, 64px); align-items: center; }
-.receipts h2 { color: #fff; font-size: clamp(46px, 6vw, 84px); margin-bottom: 18px; }
-.receipts h2 span { color: var(--yellow); }
-.receipts-copy p { font-size: 20px; max-width: 40ch; color: rgba(255,255,255,.9); }
-.receipts blockquote { margin: 26px 0 0; padding-left: 18px; border-left: 4px solid var(--yellow); font-style: italic; font-size: 20px; max-width: 44ch; }
-.receipts blockquote footer { margin-top: 6px; font-style: normal; font-family: var(--f-label); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.8); }
-.receipts .btn-quiet { margin-top: 26px; color: #fff; border-color: #fff; }
-.receipts .btn-quiet:hover { background: #fff; color: var(--navy); }
+/* ── THE RECEIPTS ── */
+.receipts { background-color: var(--navy); background-image: var(--tex-halftone); color: #fff; }
+.receipts .wrap { display: grid; grid-template-columns: 1fr 390px; gap: clamp(32px, 6vw, 80px); align-items: center; }
+.receipts .head-xl { color: #fff; font-size: clamp(50px, 6.6vw, 92px); }
+.receipts .head-xl span { color: var(--yellow); }
+.receipts blockquote { margin: 28px 0 0; font-style: italic; font-size: clamp(20px, 1.8vw, 24px); max-width: 34ch; color: rgba(255,255,255,.92); }
 .tape { background: var(--thermal); color: var(--press); font-family: var(--f-mono); font-size: 15px; padding: 26px 24px 34px; transform: rotate(1.5deg); box-shadow: 0 14px 30px rgba(0,0,0,.35);
     -webkit-mask: radial-gradient(circle 7px at 50% 100%, transparent 6.5px, #000 7px) 0 100%/16px 14px repeat-x, linear-gradient(#000,#000) 0 0/100% calc(100% - 13px) no-repeat;
             mask: radial-gradient(circle 7px at 50% 100%, transparent 6.5px, #000 7px) 0 100%/16px 14px repeat-x, linear-gradient(#000,#000) 0 0/100% calc(100% - 13px) no-repeat; }
-.tape-title { font-family: var(--f-mono); font-weight: 700; font-size: 16px; text-align: center; letter-spacing: .08em; }
-.tape-sub { text-align: center; color: var(--press-2); margin: 2px 0 14px; font-size: 13px; }
+.tape-title { font-weight: 700; font-size: 16px; text-align: center; letter-spacing: .08em; margin-bottom: 14px; }
 .tape dl { margin: 0; }
 .tape dl div, .tape .tot { display: flex; gap: 6px; align-items: baseline; padding: 3px 0; }
 .tape dt { white-space: nowrap; }
@@ -262,41 +209,32 @@ main:focus, section:focus { outline: none; }
 .tape hr { border: 0; border-top: 2px dashed rgba(22,24,29,.4); margin: 12px 0; }
 .tape .tot { font-weight: 700; font-size: 17px; }
 
-/* ── FOLLOW: a single line, like a paper's "find us" box ── */
-.follow { padding: 36px 0; border-bottom: 3px double var(--press); }
-.follow .wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 14px 28px; }
-.follow h2 { font-family: var(--f-head); font-weight: 900; font-size: 34px; text-transform: uppercase; color: var(--navy); line-height: 1; }
-.follow ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.follow a { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-label); font-weight: 700; font-size: 14px; text-decoration: none; padding: 8px 12px; border: 2px solid var(--press); background: var(--thermal); }
-.follow a:hover { background: var(--press); color: #fff; }
-
-/* ── WORK WITH JEFF: classified ads ── */
-.classifieds { padding: clamp(44px, 5vw, 64px) 0; }
-.classifieds h2 { font-size: clamp(36px, 4vw, 52px); margin-bottom: 20px; }
-.ads { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 2px solid var(--press); }
-.ads li { padding: 20px; border-left: 1px solid var(--press); background: var(--thermal); }
-.ads li:first-child { border-left: 0; }
-.ads h3 { font-family: var(--f-head); font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--navy); line-height: 1; margin-bottom: 8px; }
-.ads p { font-size: 16px; margin-bottom: 12px; }
-.ads a { font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); }
+/* ── FOLLOW + WORK WITH JEFF: plain text, two short rows ── */
+.compact { padding: clamp(36px, 5vw, 56px) 0; border-top: 3px double var(--press); }
+.compact + .compact { border-top: 1px solid var(--rule); }
+.compact .wrap { display: grid; grid-template-columns: 300px 1fr; gap: 16px clamp(24px, 4vw, 56px); align-items: baseline; }
+.compact h2 { font-family: var(--f-head); font-weight: 900; font-size: clamp(34px, 3.6vw, 48px); text-transform: uppercase; color: var(--navy); line-height: .95; }
+.link-list, .work { display: flex; flex-wrap: wrap; gap: 4px 28px; font-family: var(--f-label); font-weight: 700; font-size: 17px; }
+.link-list a { display: inline-flex; align-items: center; gap: 8px; padding: 6px 0; text-decoration: none; }
+.link-list a:hover, .work a:hover { color: var(--tag-red); }
+.work li { display: flex; align-items: baseline; gap: 10px; padding: 4px 0; }
+.work b { font-family: var(--f-head); font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--navy); line-height: 1; }
+.work a { font-size: 15px; text-underline-offset: 4px; padding: 4px 0; }
 
 /* ── CLOSER + FOOTER ── */
-.closer { background-color: var(--navy-deep); background-image: var(--tex-halftone); color: #fff; padding: clamp(48px, 6vw, 72px) 0 40px; }
-.closer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
-.closer h2 { color: #fff; font-size: clamp(42px, 5vw, 68px); }
-.closer h2 span { color: var(--yellow); }
-.closer .coupon { border-color: var(--yellow); background: var(--navy); }
-.closer .coupon::before { background: var(--navy-deep); color: var(--yellow); }
-.closer .coupon-head h2 { color: #fff; font-size: 26px; }
-.closer .coupon-head span { color: var(--yellow); }
-.closer .signup-note { color: rgba(255,255,255,.82); }
+.closer { background-color: var(--navy-deep); background-image: var(--tex-halftone); color: #fff; padding: clamp(56px, 7vw, 96px) 0 40px; }
+.closer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.closer .head-xl { color: #fff; font-size: clamp(46px, 6vw, 84px); }
+.closer .head-xl span { color: var(--yellow); }
+.closer .signup input { border-bottom-color: #fff; }
+.closer .signup input::placeholder { color: rgba(255,255,255,.75); }
+.closer .btn { background: var(--yellow); color: var(--navy); }
+.closer .btn:hover { background: #fff; }
 .closer .signup-done { color: var(--yellow); }
-.closer .btn-main { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
-.closer .btn-main:hover { background: #fff; border-color: #fff; }
-.foot { margin-top: 48px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.25); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-family: var(--f-label); font-size: 14px; color: rgba(255,255,255,.82); }
+.foot { margin-top: 64px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.25); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-family: var(--f-label); font-size: 14px; color: rgba(255,255,255,.8); }
 .foot img { height: 34px; width: auto; display: block; }
 .foot nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
-.foot a { color: #fff; text-decoration: none; }
+.foot a { color: #fff; text-decoration: none; padding: 4px 0; display: inline-block; }
 .foot a:hover { text-decoration: underline; }
 .foot small { margin-left: auto; font-size: 13px; }
 
@@ -313,24 +251,18 @@ main:focus, section:focus { outline: none; }
 
 /* ── NEWSLETTER POPUP ── */
 .nl-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; }
-.nl-modal[hidden] { display: none; }
-.nl-backdrop { position: absolute; inset: 0; background: rgba(7,27,69,.7); }
-.nl-card { position: relative; width: 100%; max-width: 480px; background: var(--thermal); border: 2px dashed var(--navy); outline: 10px solid var(--thermal); padding: 30px 28px 24px; }
-.nl-card:focus { outline: 10px solid var(--thermal); }
+.nl-backdrop { position: absolute; inset: 0; background: rgba(7,27,69,.72); }
+.nl-card { position: relative; width: 100%; max-width: 500px; background-color: var(--newsprint); background-image: var(--tex-paper); padding: 40px 32px 32px; }
+.nl-card:focus { outline: none; }
 .nl-close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border: 0; background: none; font-size: 22px; color: var(--press); cursor: pointer; }
-.nl-title { font-family: var(--f-head); font-weight: 900; font-size: 48px; line-height: .92; text-transform: uppercase; color: var(--navy); margin: 10px 0 10px; }
-.nl-title span { background: var(--yellow); padding: 0 .08em; }
-.nl-sub { font-size: 17px; margin-bottom: 16px; }
-.nl-note { font-family: var(--f-label); font-size: 13px; color: var(--press-2); margin-top: 10px; }
+.nl-title { font-family: var(--f-head); font-weight: 900; font-size: 56px; line-height: .92; text-transform: uppercase; color: var(--navy); margin-bottom: 24px; }
 
 /* ── STICKY SIGNUP BAR ── */
 .nl-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; background: var(--navy); color: #fff; border-top: 3px solid var(--yellow); padding: 10px var(--gutter); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.nl-sticky[hidden] { display: none; }
 .nl-sticky p { font-family: var(--f-label); font-weight: 700; font-size: 15px; }
-.nl-sticky b { color: var(--yellow); }
 .nl-sticky form { display: flex; gap: 8px; flex: 1; max-width: 460px; }
-.nl-sticky input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border: 2px solid #fff; background: var(--thermal); border-radius: 0; }
-.nl-sticky button[type="submit"] { font-family: var(--f-label); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; padding: 9px 14px; border: 2px solid var(--yellow); background: var(--yellow); color: var(--navy); cursor: pointer; }
+.nl-sticky input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border: 0; background: var(--thermal); border-radius: 0; }
+.nl-sticky button[type="submit"] { font-family: var(--f-label); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; padding: 9px 14px; border: 0; background: var(--yellow); color: var(--navy); cursor: pointer; }
 .nl-sticky-status:empty { display: none; }
 .nl-sticky-status { flex-basis: 100%; color: var(--yellow); }
 .nl-sticky-close { margin-left: auto; width: 44px; height: 44px; border: 0; background: none; color: #fff; font-size: 20px; cursor: pointer; }
@@ -338,9 +270,7 @@ main:focus, section:focus { outline: none; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 980px) {
-    .mast-issue { display: none; }
-    .watch-grid, .receipts .wrap, .closer-grid, .band .wrap { grid-template-columns: 1fr; }
-    .alerts .wrap { grid-template-columns: 1fr; }
+    .watch-grid, .receipts .wrap, .closer-grid, .band .wrap, .compact .wrap { grid-template-columns: 1fr; }
     .tape { max-width: 420px; }
 }
 @media (max-width: 860px) {
@@ -348,31 +278,26 @@ main:focus, section:focus { outline: none; }
     .mast .btn { margin-left: auto; }
     .hero .wrap { grid-template-columns: 1fr; }
     .anchor { max-width: 440px; }
-    .tags { grid-template-columns: 1fr; }
-    .tags > li { border-left: 0; border-top: 2px solid var(--press); }
-    .tags > li:first-child { border-top: 0; }
-    .sec-head { flex-direction: column; align-items: start; gap: 10px; }
-    .ads { grid-template-columns: 1fr; }
-    .ads li { border-left: 0; border-top: 1px solid var(--press); }
-    .ads li:first-child { border-top: 0; }
+    .circ-list a { grid-template-columns: 1fr auto; gap: 6px 16px; }
+    .circ-date { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
     body { font-size: 17px; }
-    .signup { flex-direction: column; }
-    .coupon { padding: 20px 16px 16px; }
-    .coupon-head { flex-direction: column; gap: 4px; }
+    .signup { flex-direction: column; align-items: stretch; }
     .lower-third { left: -8px; right: 8px; }
     .lower-third b { font-size: 26px; }
-    .alert-item { grid-template-columns: 1fr; gap: 6px; }
-    .alert-meta { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; }
+    .alert-list li { grid-template-columns: 1fr; gap: 6px; }
+    .alert-meta { flex-direction: row; flex-wrap: wrap; gap: 4px 12px; }
     .tape { font-size: 13px; padding: 22px 16px 30px; }
     .tape dt { white-space: normal; }
-    .mast .btn { padding: 9px 12px; font-size: 13px; }
+    .mast .btn { padding: 10px 12px; font-size: 13px; }
     .foot small { margin-left: 0; }
+    .nl-card { padding: 40px 20px 24px; }
+    .nl-title { font-size: 46px; }
 }
 @media (prefers-reduced-motion: no-preference) {
     .burst { transition: transform .2s ease; }
-    .tag:hover .burst { transform: rotate(-6deg) scale(1.05); }
+    .circ-list li:first-child a:hover .burst { transform: rotate(-6deg) scale(1.05); }
 }
 </style>
 </head>
@@ -382,7 +307,6 @@ main:focus, section:focus { outline: none; }
 <header class="mast" id="siteHeader">
     <div class="wrap">
         <a class="mast-logo" href="#main"><img src="rossenlogo.png" alt="Rossen Reports — back to top" width="80" height="40"></a>
-        <span class="mast-issue" id="mastIssue">This week's deals · Free every week</span>
         <nav aria-label="Primary">
             <a href="#deals" data-section="deals">Deals</a>
             <a href="#latest" data-section="latest">Watch</a>
@@ -390,7 +314,7 @@ main:focus, section:focus { outline: none; }
             <a href="#about" data-section="about">About</a>
             <a href="#contact" data-section="contact">Work With Jeff</a>
         </nav>
-        <a class="btn btn-main" href="#subscribe">Get the Deals</a>
+        <a class="btn" href="#subscribe">Get the Deals</a>
     </div>
 </header>
 
@@ -399,70 +323,52 @@ main:focus, section:focus { outline: none; }
 <section class="hero" id="home" aria-labelledby="heroTitle">
     <div class="wrap">
         <div>
-            <span class="kicker" id="heroEyebrow">This week</span>
-            <h1 class="head-xl" id="heroTitle">Never pay <em>full price</em> again.</h1>
-            <p class="hero-lede" id="heroTagline">Jeff Rossen spent 16 years investigating for NBC and Hearst. Now he hunts down the deals worth your money, and skips the ones that aren't.</p>
-
-            <div class="coupon">
-                <div class="coupon-head"><h2 id="heroFormTitle">Jeff's deals, every week</h2><span class="label">Free · no spam</span></div>
-                <form class="signup" id="heroForm" novalidate aria-labelledby="heroFormTitle">
-                    <label class="sr-only" for="heroEmail">Email address</label>
-                    <input type="email" id="heroEmail" name="email" placeholder="Your email address" autocomplete="email" required aria-describedby="heroStatus">
-                    <button class="btn btn-main" type="submit">Get the Deals</button>
-                </form>
-                <p class="signup-status" id="heroStatus" role="status"></p>
-                <p class="signup-done" id="heroDone" tabindex="-1" hidden>You're in. Check your inbox!</p>
-                <p class="signup-note">Joins Jeff's free Substack newsletter. Unsubscribe any time.</p>
-            </div>
+            <h1 class="head-xl" id="heroTitle">Never pay <span class="mark">full price</span> again.</h1>
+            <p class="hero-lede" id="heroTagline">Jeff Rossen tracks down the deals worth your money. Every week, free.</p>
+            <form class="signup" id="heroForm" novalidate aria-label="Get Jeff's deals by email">
+                <label class="sr-only" for="heroEmail">Email address</label>
+                <input type="email" id="heroEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="heroStatus">
+                <button class="btn" type="submit">Get the Deals</button>
+            </form>
+            <p class="signup-status" id="heroStatus" role="status"></p>
+            <p class="signup-done" id="heroDone" tabindex="-1" hidden>You're in. Check your inbox!</p>
         </div>
-
         <div>
             <figure class="anchor">
                 <img src="jeff-rossen-headshot.jpg" alt="Jeff Rossen" width="614" height="529">
-                <figcaption class="lower-third"><b>Jeff Rossen</b><span>Rossen Reports · Consumer journalist</span></figcaption>
+                <figcaption class="lower-third"><b>Jeff Rossen</b><span>Consumer journalist</span></figcaption>
             </figure>
-            <p class="seen">As seen on <b>NBC Nightly News · TODAY · Dateline · Hearst TV</b></p>
+            <p class="seen">NBC · TODAY · Dateline · Hearst</p>
         </div>
     </div>
 </section>
 
 <!-- ── SECTIONS START ── -->
 <!-- ── THIS WEEK'S CIRCULAR ── -->
-<section class="circular" id="deals" tabindex="-1" aria-labelledby="dealsTitle">
+<section class="section circular" id="deals" tabindex="-1" aria-labelledby="dealsTitle">
     <div class="wrap">
-        <div class="sec-head">
-            <h2 class="head-xl" id="dealsTitle">This week's<br>circular</h2>
-            <p>Straight from Jeff's newsletter: new picks every week, with the promo codes his team dug up.</p>
-        </div>
-        <ol class="tags" id="circTags">
-            <li><a class="tag" href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
-                <span class="tag-date">THIS WEEK</span>
-                <span class="burst">New picks</span>
-                <h3>Jeff's latest deals and promo codes</h3>
-                <p>Price drops on electronics, kitchen and household goods.</p>
-                <span class="tag-go">Read the picks <span aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span></span>
+        <h2 class="head-xl" id="dealsTitle">This week's circular</h2>
+        <ol class="circ-list" id="circTags">
+            <li><a href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
+                <span class="circ-date">THIS WEEK</span>
+                <span><span class="burst">New picks</span><h3>Jeff's latest deals and promo codes</h3></span>
+                <span class="arrow" aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span>
             </a></li>
-            <li><a class="tag" href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
-                <span class="tag-date">EVERY WEEK</span>
-                <h3>New Amazon promo codes</h3>
-                <p>Extra savings at checkout that most shoppers never see.</p>
-                <span class="tag-go">See them <span aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span></span>
+            <li><a href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
+                <span class="circ-date">EVERY WEEK</span><h3>New Amazon promo codes</h3>
+                <span class="arrow" aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span>
             </a></li>
-            <li><a class="tag" href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
-                <span class="tag-date">SHOP SMART</span>
-                <h3>Never pay full price for these</h3>
-                <p>Shopping tricks that save you money, even after checkout.</p>
-                <span class="tag-go">Learn the tricks <span aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span></span>
+            <li><a href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">
+                <span class="circ-date">SHOP SMART</span><h3>Never pay full price for these</h3>
+                <span class="arrow" aria-hidden="true">→</span><span class="sr-only">(opens in a new tab)</span>
             </a></li>
         </ol>
-        <p class="circ-more">Every past issue: <a href="https://rossenreports.substack.com/archive" target="_blank" rel="noopener noreferrer">the newsletter archive<span class="sr-only"> (opens in a new tab)</span></a></p>
-
         <div class="shops" id="shop" tabindex="-1">
-            <h3 class="label">Where Jeff shops</h3>
-            <ul class="shop-list" id="shopList">
-                <li><a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer"><i class="fab fa-amazon" aria-hidden="true"></i><b>Amazon shop</b><span>Jeff's picks on Amazon<span class="sr-only"> (opens in a new tab)</span></span></a></li>
-                <li><a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer"><i class="fas fa-store" aria-hidden="true"></i><b>Walmart storefront</b><span>Everyday essentials<span class="sr-only"> (opens in a new tab)</span></span></a></li>
-                <li><a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer"><i class="fas fa-tag" aria-hidden="true"></i><b>DealSeek collection</b><span>Updated regularly<span class="sr-only"> (opens in a new tab)</span></span></a></li>
+            <span>Shop with Jeff</span>
+            <ul id="shopList">
+                <li><a href="https://www.amazon.com/shop/jeffrossen" target="_blank" rel="noopener noreferrer">Amazon<span class="sr-only"> (opens in a new tab)</span></a></li>
+                <li><a href="https://www.walmart.com/creator/storefront?creator=rossenreports" target="_blank" rel="noopener noreferrer">Walmart<span class="sr-only"> (opens in a new tab)</span></a></li>
+                <li><a href="https://dealseek.com/collections/rossen_reports" target="_blank" rel="noopener noreferrer">DealSeek<span class="sr-only"> (opens in a new tab)</span></a></li>
             </ul>
         </div>
     </div>
@@ -471,33 +377,23 @@ main:focus, section:focus { outline: none; }
 <!-- ── MID-PAGE SIGNUP ── -->
 <section class="band" id="subscribe" tabindex="-1" aria-labelledby="bandTitle">
     <div class="wrap">
-        <div>
-            <h2 class="head-xl" id="bandTitle">Get this in your inbox</h2>
-            <p>One email a week with the deals, codes and price drops worth your money. Free.</p>
-        </div>
+        <h2 class="head-xl" id="bandTitle">Get it every week</h2>
         <div>
             <form class="signup" id="bandForm" novalidate aria-labelledby="bandTitle">
                 <label class="sr-only" for="bandEmail">Email address</label>
-                <input type="email" id="bandEmail" name="email" placeholder="Your email address" autocomplete="email" required aria-describedby="bandStatus">
-                <button class="btn btn-main" type="submit">Get the Deals</button>
+                <input type="email" id="bandEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="bandStatus">
+                <button class="btn" type="submit">Get the Deals</button>
             </form>
             <p class="signup-status" id="bandStatus" role="status"></p>
             <p class="signup-done" id="bandDone" tabindex="-1" hidden>You're in. Check your inbox!</p>
-            <p class="signup-note">Joins Jeff's free Substack newsletter. Unsubscribe any time.</p>
         </div>
     </div>
 </section>
 
 <!-- ── WATCH ── -->
-<section class="watch on-dark" id="latest" tabindex="-1" aria-labelledby="watchTitle">
+<section class="section watch on-dark" id="latest" tabindex="-1" aria-labelledby="watchTitle">
     <div class="wrap">
-        <div class="sec-head">
-            <div>
-                <span class="onair" id="newEpBadge">New episodes Wed &amp; Fri</span>
-                <h2 class="head-xl" id="watchTitle">Watch Jeff</h2>
-            </div>
-            <p>The deals and the warnings, on camera. New episodes every Wednesday and Friday on YouTube.</p>
-        </div>
+        <h2 class="head-xl" id="watchTitle">Watch Jeff</h2>
         <div class="watch-grid">
             <div>
                 <div class="player" id="videoWrap">
@@ -511,47 +407,37 @@ main:focus, section:focus { outline: none; }
                 <p class="player-title" id="thumbTitle">Latest episode</p>
             </div>
             <div class="guide">
-                <h3 class="label">Recent episodes</h3>
+                <h3 class="sr-only">Recent episodes</h3>
                 <ol id="episodeRow"></ol>
-                <a class="btn btn-quiet" href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i> Subscribe on YouTube<span class="sr-only"> (opens in a new tab)</span></a>
+                <a class="go" href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer">All episodes on YouTube<span class="sr-only"> (opens in a new tab)</span></a>
             </div>
         </div>
     </div>
 </section>
 
 <!-- ── SCAM ALERTS ── -->
-<section class="alerts" id="alerts" tabindex="-1" aria-labelledby="alertsHeading">
+<section class="section alerts" id="alerts" tabindex="-1" aria-labelledby="alertsHeading">
     <div class="wrap">
-        <div class="alerts-intro">
-            <span class="kicker">From the watchdogs</span>
+        <div class="alerts-top">
             <h2 class="head-xl" id="alertsHeading">Scam alerts</h2>
-            <p>The newest consumer warnings, pulled automatically from federal and state agencies. No rumours, no reposts.</p>
-            <p class="alerts-status" id="alertsStatus" role="status">Loading the latest alerts…</p>
-        </div>
-        <div>
             <div class="alert-filters" id="alertsFilters"></div>
-            <ul class="alert-list" id="alertsList"></ul>
-            <button type="button" class="btn btn-quiet alerts-more" id="alertsMore" hidden aria-controls="alertsList"></button>
-            <p class="alerts-foot" id="alertsFoot"></p>
         </div>
+        <p class="sr-only" id="alertsStatus" role="status">Loading the latest alerts…</p>
+        <ul class="alert-list" id="alertsList"></ul>
+        <button type="button" class="go alerts-more" id="alertsMore" hidden aria-controls="alertsList"></button>
+        <p class="alerts-foot" id="alertsFoot"></p>
     </div>
 </section>
 
 <!-- ── ABOUT: THE RECEIPTS ── -->
-<section class="receipts on-dark" id="about" tabindex="-1" aria-labelledby="aboutTitle">
+<section class="section receipts on-dark" id="about" tabindex="-1" aria-labelledby="aboutTitle">
     <div class="wrap">
-        <div class="receipts-copy">
+        <div>
             <h2 class="head-xl" id="aboutTitle">He's got <span>the receipts.</span></h2>
-            <p>Before deals, Jeff led the "Rossen Reports" investigative unit at NBC News. The same rules apply here: check it, test it, then tell you straight.</p>
-            <blockquote>
-                <p id="aboutQuoteText">"I'll save you money by revealing the best deals, and exposing the worst scams — the stories that actually matter to your life."</p>
-                <footer>Jeff Rossen</footer>
-            </blockquote>
-            <a class="btn btn-quiet" href="https://www.amazon.com/Rossen-Rescue-Avoiding-Everyday-Catastrophes/dp/125011943X" target="_blank" rel="noopener noreferrer">Read his book, Rossen to the Rescue<span class="sr-only"> (opens in a new tab)</span></a>
+            <blockquote><p id="aboutQuoteText">"I'll save you money by revealing the best deals, and exposing the worst scams — the stories that actually matter to your life."</p></blockquote>
         </div>
         <div class="tape" role="group" aria-label="Jeff Rossen's career, printed as a receipt">
             <p class="tape-title">ROSSEN REPORTS</p>
-            <p class="tape-sub">CONSUMER JOURNALISM</p>
             <dl id="credsRow">
                 <div><dt>WABC-TV New York</dt><span class="dots" aria-hidden="true"></span><dd>2001</dd></div>
                 <div><dt>NBC News / TODAY</dt><span class="dots" aria-hidden="true"></span><dd>2008–19</dd></div>
@@ -566,41 +452,29 @@ main:focus, section:focus { outline: none; }
 </section>
 
 <!-- ── FOLLOW ── -->
-<section class="follow" id="follow" tabindex="-1" aria-labelledby="followTitle">
+<section class="compact" id="follow" tabindex="-1" aria-labelledby="followTitle">
     <div class="wrap">
         <h2 id="followTitle">Follow Jeff</h2>
-        <ul>
-            <li><a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>YouTube<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram" aria-hidden="true"></i>Instagram<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok" aria-hidden="true"></i>TikTok<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f" aria-hidden="true"></i>Facebook<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter" aria-hidden="true"></i>X<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://podcasts.apple.com/us/podcast/rossen-reports/id1861532501" target="_blank" rel="noopener noreferrer"><i class="fas fa-podcast" aria-hidden="true"></i>Podcast<span class="sr-only"> (opens in a new tab)</span></a></li>
-            <li><a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper" aria-hidden="true"></i>Substack<span class="sr-only"> (opens in a new tab)</span></a></li>
-        </ul>
+        <ul class="link-list">
+                    <li><a href="https://www.youtube.com/@RossenReports" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>YouTube<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://www.instagram.com/jeffrossen/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram" aria-hidden="true"></i>Instagram<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://www.tiktok.com/@rossen.reports" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok" aria-hidden="true"></i>TikTok<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://www.facebook.com/rossenreports" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f" aria-hidden="true"></i>Facebook<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://x.com/jeffrossen" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter" aria-hidden="true"></i>X<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://podcasts.apple.com/us/podcast/rossen-reports/id1861532501" target="_blank" rel="noopener noreferrer"><i class="fas fa-podcast" aria-hidden="true"></i>Podcast<span class="sr-only"> (opens in a new tab)</span></a></li>
+                    <li><a href="https://rossenreports.substack.com/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper" aria-hidden="true"></i>Substack<span class="sr-only"> (opens in a new tab)</span></a></li>
+                </ul>
     </div>
 </section>
 
 <!-- ── WORK WITH JEFF ── -->
-<section class="classifieds" id="contact" tabindex="-1" aria-labelledby="contactTitle">
+<section class="compact" id="contact" tabindex="-1" aria-labelledby="contactTitle">
     <div class="wrap">
-        <h2 class="head-xl" id="contactTitle">Work with Jeff</h2>
-        <ul class="ads">
-            <li>
-                <h3>Speaking</h3>
-                <p>Book Jeff for your next conference, corporate event or keynote.</p>
-                <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">Connect on LinkedIn<span class="sr-only"> (opens in a new tab)</span> <span aria-hidden="true">→</span></a>
-            </li>
-            <li>
-                <h3>Brand partnerships</h3>
-                <p>Reach an audience that actually acts on deals.</p>
-                <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">Connect on LinkedIn<span class="sr-only"> (opens in a new tab)</span> <span aria-hidden="true">→</span></a>
-            </li>
-            <li>
-                <h3>Media &amp; press</h3>
-                <p>Interviews, podcasts and press inquiries.</p>
-                <a href="https://rossenreports.substack.com/about" target="_blank" rel="noopener noreferrer">Reach the team on Substack<span class="sr-only"> (opens in a new tab)</span> <span aria-hidden="true">→</span></a>
-            </li>
+        <h2 id="contactTitle">Work with Jeff</h2>
+        <ul class="work">
+            <li><b>Speaking</b><a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><b>Brand partnerships</b><a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><b>Media &amp; press</b><a href="https://rossenreports.substack.com/about" target="_blank" rel="noopener noreferrer">Substack<span class="sr-only"> (opens in a new tab)</span></a></li>
         </ul>
     </div>
 </section>
@@ -610,17 +484,15 @@ main:focus, section:focus { outline: none; }
 <footer class="closer on-dark">
     <div class="wrap">
         <div class="closer-grid">
-            <h2 class="head-xl">Clip this.<br><span>Save all year.</span></h2>
-            <div class="coupon">
-                <div class="coupon-head"><h2 id="closeFormTitle">Jeff's deals, every week</h2><span class="label">Free · no spam</span></div>
+            <h2 class="head-xl" id="closeFormTitle">Clip this.<br><span>Save all year.</span></h2>
+            <div>
                 <form class="signup" id="closeForm" novalidate aria-labelledby="closeFormTitle">
                     <label class="sr-only" for="closeEmail">Email address</label>
-                    <input type="email" id="closeEmail" name="email" placeholder="Your email address" autocomplete="email" required aria-describedby="closeStatus">
-                    <button class="btn btn-main" type="submit">Get the Deals</button>
+                    <input type="email" id="closeEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="closeStatus">
+                    <button class="btn" type="submit">Get the Deals</button>
                 </form>
                 <p class="signup-status" id="closeStatus" role="status"></p>
                 <p class="signup-done" id="closeDone" tabindex="-1" hidden>You're in. Check your inbox!</p>
-                <p class="signup-note">Joins Jeff's free Substack newsletter. Unsubscribe any time.</p>
             </div>
         </div>
         <div class="foot">
@@ -632,7 +504,7 @@ main:focus, section:focus { outline: none; }
                 <a href="#about">About</a>
                 <a href="#contact">Work With Jeff</a>
             </nav>
-            <small>© <span id="year">2026</span> Rossen Reports</small>
+            <small>© <span id="year">2026</span> Rossen Reports · Newsletter on Substack</small>
         </div>
     </div>
 </footer>
@@ -644,30 +516,25 @@ main:focus, section:focus { outline: none; }
     <a href="#about" class="bnav-item" data-section="about"><i class="fas fa-receipt" aria-hidden="true"></i><span>About</span></a>
 </nav>
 
-<!-- hidden so its form controls stay out of the tab order until it opens -->
 <div class="nl-modal" id="nlModal" hidden>
     <div class="nl-backdrop" data-nl-dismiss></div>
-    <div class="nl-card" role="dialog" aria-modal="true" tabindex="-1" aria-label="Never Overpay Again" aria-describedby="nlSub">
+    <div class="nl-card" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="nlTitle">
         <button type="button" class="nl-close" id="nlClose" data-nl-dismiss aria-label="Close newsletter signup"><i class="fas fa-xmark" aria-hidden="true"></i></button>
-        <span class="kicker">Free newsletter</span>
-        <h2 class="nl-title" id="nlTitle">Never <span>overpay</span> again</h2>
-        <p class="nl-sub" id="nlSub">Jeff's best deals and money-saving tips, straight to your inbox each week. No spam, ever.</p>
-        <form class="signup" id="nlModalForm" novalidate>
+        <h2 class="nl-title" id="nlTitle">Never <span class="mark">overpay</span> again</h2>
+        <form class="signup" id="nlModalForm" novalidate aria-labelledby="nlTitle">
             <label class="sr-only" for="nlModalEmail">Email address</label>
-            <input type="email" id="nlModalEmail" name="email" placeholder="Your email address" autocomplete="email" required aria-describedby="nlModalStatus">
-            <button class="btn btn-main" type="submit">Get the Deals</button>
+            <input type="email" id="nlModalEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="nlModalStatus">
+            <button class="btn" type="submit">Get the Deals</button>
         </form>
         <p class="signup-status" id="nlModalStatus" role="status"></p>
-        <p class="nl-note">Joins Jeff's free Substack newsletter. Unsubscribe any time.</p>
     </div>
 </div>
 
-<!-- A region, not a dialog: it never takes focus and never blocks the page. -->
 <div class="nl-sticky on-dark" id="nlSticky" hidden role="region" aria-label="Newsletter signup">
-    <p id="nlStickyText">Get Jeff's <b>best deals</b> every week, free.</p>
+    <p id="nlStickyText">Jeff's deals, every week</p>
     <form id="nlStickyForm" novalidate>
         <label class="sr-only" for="nlStickyEmail">Email address</label>
-        <input type="email" id="nlStickyEmail" name="email" placeholder="Your email address" autocomplete="email" required aria-describedby="nlStickyStatus">
+        <input type="email" id="nlStickyEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="nlStickyStatus">
         <button type="submit">Get the Deals</button>
     </form>
     <p class="nl-sticky-status" id="nlStickyStatus" role="alert"></p>
@@ -692,13 +559,6 @@ function onReady(fn) {
     else fn();
 }
 document.getElementById('year').textContent = new Date().getFullYear();
-
-// The masthead issue line: "Week of Nov 22, 2026", from the visitor's clock.
-(function () {
-    var d = new Date();
-    document.getElementById('mastIssue').textContent = 'Week of ' +
-        d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' · Free every week';
-})();
 
 // ── EMAIL SIGNUP ──
 // One code path for every form on the page, including the Substack fallback.
@@ -788,14 +648,12 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             list.innerHTML = deals.map(function (p, i) {
                 var url = safeUrl(p.url);
                 if (!url) return '';
-                var b = burst(p.title);
-                return '<li><a class="tag" href="' + url + '" target="_blank" rel="noopener noreferrer">' +
-                    '<span class="tag-date"><time datetime="' + esc(p.published) + '">' + esc(stamp(p.published)) + '</time>' + (i === 0 ? ' · NEWSLETTER' : '') + '</span>' +
-                    (i === 0 && b ? '<span class="burst">' + esc(b) + '</span>' : '') +
-                    '<h3>' + esc(p.title) + '</h3>' +
-                    (p.subtitle ? '<p>' + esc(p.subtitle.length > 140 ? p.subtitle.slice(0, 137).replace(/\s+\S*$/, '') + '…' : p.subtitle) + '</p>' : '') +
-                    '<span class="tag-go">' + (i === 0 ? 'Read the picks' : 'See the deals') + ' <span aria-hidden="true">→</span>' + NEW_TAB + '</span>' +
-                    '</a></li>';
+                var b = i === 0 ? burst(p.title) : '';
+                var h = '<h3>' + esc(p.title) + '</h3>';
+                return '<li><a href="' + url + '" target="_blank" rel="noopener noreferrer">' +
+                    '<span class="circ-date"><time datetime="' + esc(p.published) + '">' + esc(stamp(p.published)) + '</time></span>' +
+                    (b ? '<span><span class="burst">' + esc(b) + '</span>' + h + '</span>' : h) +
+                    '<span class="arrow" aria-hidden="true">→</span>' + NEW_TAB + '</a></li>';
             }).join('');
         })
         .catch(function () { /* static picks stay */ });
@@ -812,11 +670,7 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             list.innerHTML = deals.map(function (d) {
                 var url = safeUrl(d.href);
                 if (!url) return '';
-                var icon = /^fa-[a-z0-9-]+$/.test(d.icon || '') ? d.icon : 'fa-tag';
-                return '<li><a href="' + url + '" target="_blank" rel="noopener noreferrer">' +
-                    '<i class="fas ' + icon + '" aria-hidden="true"></i>' +
-                    '<b>' + esc(d.name) + '</b>' +
-                    '<span>' + esc(d.category) + NEW_TAB + '</span></a></li>';
+                return '<li><a href="' + url + '" target="_blank" rel="noopener noreferrer">' + esc(d.name) + NEW_TAB + '</a></li>';
             }).join('');
         })
         .catch(function () { /* static storefronts stay */ });
@@ -831,10 +685,6 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     var iframe = document.getElementById('latestVideo');
     var title = document.getElementById('thumbTitle');
     var row = document.getElementById('episodeRow');
-
-    var dow = new Date().getDay();
-    if (dow !== 3 && dow !== 5) document.getElementById('newEpBadge').textContent = 'New episodes Wed & Fri';
-    else document.getElementById('newEpBadge').textContent = 'New episode today';
 
     // maxres first, stepping down only when YouTube never generated it: it 404s
     // rather than falling back on its own.
@@ -933,9 +783,8 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         var sig = srcs.join('|');
         if (sig === footSig) return;     // rewriting would drop focus on the FTC link
         footSig = sig;
-        foot.innerHTML = (srcs.length ? 'Sources: ' + esc(srcs.join(' · ')) + '. ' : '') +
-            'Updated automatically. Think you\'ve spotted a scam? ' +
-            '<a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer">Report it to the FTC' + NEW_TAB + '</a>.';
+        foot.innerHTML = (srcs.length ? 'From ' + esc(srcs.join(', ')) + '. ' : '') +
+            '<a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer">Report a scam to the FTC' + NEW_TAB + '</a>';
     }
 
     // Keyed to feed identity plus what is shown, so a quiet refresh never rebuilds
@@ -956,7 +805,7 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     '<time datetime="' + esc(a.published) + '">' + esc(relative(a.published) || shortDate(a.published)) + '</time>' +
                     '<span>' + esc(a.agency || '') + '</span></div>' +
                     '<div><h3 class="alert-title">' + head + '</h3>' +
-                    (a.summary ? '<p class="alert-sum">' + esc(a.summary) + '</p>' : '') + '</div></li>';
+                    '</div></li>';
             }).join('');
             if (hadFocus !== null) {
                 var back = null;
@@ -1100,8 +949,6 @@ setInterval(applyLiveStats, 5 * 60 * 1000);
         .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
         .then(function (content) {
             var hero = content.hero || {}, about = content.about || {};
-            var eyebrow = document.getElementById('heroEyebrow');
-            if (hero.eyebrow) eyebrow.textContent = hero.eyebrow;
             var tag = document.getElementById('heroTagline');
             if (hero.taglineLine1) {
                 tag.innerHTML = esc(hero.taglineLine1) + (hero.taglineLine2 ? ' <strong>' + esc(hero.taglineLine2) + '</strong>' : '');
