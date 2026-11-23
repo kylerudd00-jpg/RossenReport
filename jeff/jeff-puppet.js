@@ -197,7 +197,7 @@
       setTimeout(function () { load().then(run); }, wait + 350);
     });
     function run() {
-      var s = st.w < 600 ? .25 : .34, W = st.w, T = W < 600 ? 2.8 : 3.6, strap = 70 * s;
+      var s = st.w < 600 ? .25 : .34, W = st.w, T = W < 600 ? 4.5 : 5.8, strap = 70 * s;   // slowed from 2.8 / 3.6 s (owner, Nov 23)
       var X0 = -150, X1 = W + 150, phi = 0, dphi = 0, vPrev = 0;
       var armR = -2.5;   // free hand up and out to the side, gripping the bar
       play(function (t, dt) {
