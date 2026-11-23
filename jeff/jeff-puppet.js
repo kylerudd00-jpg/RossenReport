@@ -490,7 +490,8 @@
     function geom() {
       st.resize();
       var wrap = host.querySelector('.wrap'), pad = wrap ? parseFloat(getComputedStyle(wrap).paddingLeft) + Math.max(0, (st.w - wrap.clientWidth) / 2) : 24;
-      return { s: st.w < 600 ? .26 : .36, x0: pad, x1: st.w - pad, y: st.h - 36 };
+      // edge to edge (owner, Nov 23): the cut runs the full width of the screen; Jeff finishes at the right edge
+      return { s: st.w < 600 ? .26 : .36, x0: 0, x1: st.w - Math.min(24, pad), y: st.h - 36 };
     }
     function line(c, G, cutTo) {
       c.save(); c.lineWidth = 2;

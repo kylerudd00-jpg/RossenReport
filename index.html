@@ -350,20 +350,14 @@ main:focus, section:focus, ol:focus { outline: none; }
     body { zoom: .9; }
 }
 
-/* ── THE CUT-OFF FLAP (jeff:cut from jeff-puppet.js) ──
-   Jeff's scissors cut the page for real: the navy strip above the cut comes
-   loose, pinned at the right where he stands, and tips down at the left to
-   show bare paper behind it. Decoration only: aria-hidden, no pointer. */
-.jeff-cut.jeff-flap-cut { overflow: hidden; }
-.jeff-cut.jeff-flap-cut::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: 36px; z-index: 0;
-    background: var(--thermal); box-shadow: inset 0 6px 8px -6px rgba(0,0,0,.45); }
-.jeff-flap { position: absolute; left: 0; right: 0; top: 0; bottom: 36px; z-index: 1; pointer-events: none;
-    background-color: var(--navy-deep); background-image: var(--tex-halftone); background-position: 0 0; /* same origin as .closer, so the dots line up */
-    transform-origin: right bottom; transform: rotate(var(--flap-a, 0deg)) translateY(3px);
-    box-shadow: 0 1px 0 rgba(244,239,227,.5); filter: drop-shadow(0 3px 3px rgba(0,0,0,.35)); }
-.motion .jeff-flap { animation: flap-drop .45s cubic-bezier(.3,1.5,.5,1) both; }
-@keyframes flap-drop { from { transform: none; } to { transform: rotate(var(--flap-a, 0deg)) translateY(3px); } }
-@media print { .jeff-flap, .jeff-cut.jeff-flap-cut::before { display: none !important; } }
+/* ── THE CUT (jeff:cut from jeff-puppet.js) ──
+   Jeff's scissors slice the page edge to edge. Everything below the cut drops
+   a little, and bare white paper shows in the gap, with sloppy, cartoon-inked
+   ragged edges. Decoration only: aria-hidden, no pointer, no layout shift
+   (the drop is a transform). */
+.jeff-gap { position: absolute; left: 0; width: 100%; z-index: 2; pointer-events: none; }
+.closer.jeff-dropped > .wrap { will-change: transform; }
+@media print { .jeff-gap { display: none !important; } .closer > .wrap { transform: none !important; } }
 
 @media print { .armed { opacity: 1 !important; clip-path: none !important; transform: none !important; } }
 
@@ -1248,24 +1242,61 @@ onReady(function () {
         .observe(document.getElementById('circTags'), { childList: true });
 })();
 
-// ── THE CUT-OFF FLAP: when Jeff finishes cutting, the strip above the cut comes loose ──
+// ── THE CUT: the page splits along Jeff's line and the lower half drops ──
 document.querySelector('.closer').addEventListener('jeff:cut', function (e) {
-    var strip = e.detail && e.detail.strip;
-    if (!strip || strip.querySelector('.jeff-flap')) return;
-    // Tip it by an angle that opens a 12px wedge at the left on desktop, 8px on phones,
-    // whatever the screen width (3px of that comes from the drop).
-    function angle() {
-        var w = strip.clientWidth || 1, wedge = w < 600 ? 8 : 12;
-        return (-Math.atan((wedge - 3) / w) * 180 / Math.PI).toFixed(3) + 'deg';
+    var d = e.detail || {}, strip = d.strip, closer = e.currentTarget, lower = closer.querySelector(':scope > .wrap');
+    if (!strip || strip.querySelector('.jeff-gap')) return;
+    var cv = document.createElement('canvas');
+    cv.className = 'jeff-gap';
+    cv.setAttribute('aria-hidden', 'true');
+    strip.appendChild(cv);                       // z-index 2: under Jeff's canvas (3), so he stays on top
+    closer.classList.add('jeff-dropped');
+    var DPR = Math.min(2, window.devicePixelRatio || 1);
+
+    // One sloppy cut, shared by both edges so the halves look like they came apart:
+    // uneven zigzags (6-22px apart, +-3px), the lower edge a touch out of step.
+    function rnd(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+    function edge(w, amp, seed) {
+        var pts = [], x = 0, i = 0;
+        while (x < w + 22) { pts.push([x, (rnd(i + seed) - .5) * 2 * amp + (rnd(i * 3 + seed) > .86 ? amp * 1.2 : 0)]); x += 6 + rnd(i * 7 + seed) * 16; i++; }
+        return pts;
     }
-    var flap = document.createElement('div');
-    flap.className = 'jeff-flap';
-    flap.setAttribute('aria-hidden', 'true');
-    flap.style.setProperty('--flap-a', angle());
-    window.addEventListener('resize', function () { flap.style.setProperty('--flap-a', angle()); });
-    if (e.detail.still) flap.style.animation = 'none';     // reduced motion: the end state, no movement
-    strip.classList.add('jeff-flap-cut');
-    strip.insertBefore(flap, strip.firstChild);             // under Jeff's canvas, which stays put
+    var w = 0, top = [], bot = [], AMP = 3.2, GAP = 14;
+    function build() {
+        w = strip.clientWidth; var phone = w < 600;
+        AMP = phone ? 2.6 : 3.4; GAP = phone ? 10 : 14;
+        top = edge(w, AMP, 1); bot = top.map(function (p, i) { return [p[0] + (rnd(i + 9) - .5) * 3, p[1] + (rnd(i + 5) - .5) * AMP * .9]; });
+    }
+    function draw(g) {   // g: current gap in px
+        var pad = AMP * 2 + 4, h = Math.ceil(g + pad * 2);
+        cv.style.top = (d.lineY - pad) + 'px'; cv.style.height = h + 'px';
+        cv.width = Math.round(w * DPR); cv.height = Math.round(h * DPR);
+        var c = cv.getContext('2d'); c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, w, h);
+        if (g < .5) return;
+        function path(pts, dy) { pts.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1] + dy); else c.moveTo(p[0], p[1] + dy); }); }
+        // the white paper between the halves
+        c.beginPath(); path(top, pad); for (var i = bot.length - 1; i >= 0; i--) c.lineTo(bot[i][0], bot[i][1] + pad + g); c.closePath();
+        c.fillStyle = '#FBFAF6'; c.fill();
+        // the upper half's shadow falling on the paper
+        c.save(); c.clip(); c.strokeStyle = 'rgba(7,27,69,.28)'; c.lineWidth = 5; c.beginPath(); path(top, pad + 3); c.stroke(); c.restore();
+        // inked edges, the cartoon way: a heavy black keyline on each cut
+        c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = '#0a0f1a'; c.lineWidth = 2.6;
+        c.beginPath(); path(top, pad); c.stroke();
+        c.beginPath(); path(bot, pad + g); c.stroke();
+    }
+    function setDrop(g) { lower.style.transform = g ? 'translateY(' + g.toFixed(2) + 'px)' : ''; draw(g); }
+    build();
+    window.addEventListener('resize', function () { build(); setDrop(GAP); });
+    if (d.still) { setDrop(GAP); return; }       // reduced motion: the end state, no movement
+    // the drop: a quick fall with a little bounce, like every stop in the films
+    var t0 = null;
+    requestAnimationFrame(function step(now) {
+        if (t0 === null) t0 = now;
+        var u = Math.min(1, (now - t0) / 520), c1 = 1.9, c3 = c1 + 1;
+        var e = 1 + c3 * Math.pow(u - 1, 3) + c1 * Math.pow(u - 1, 2);   // ease-out-back
+        setDrop(GAP * e);
+        if (u < 1) requestAnimationFrame(step);
+    });
 });
 </script>
 <script defer src="jeff/jeff-puppet.js" data-art="jeff/"></script>
