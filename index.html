@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Desktop type (owner's pick, Nov 23): the vintage price-card slab. The
+         media query means phones never download these fonts. -->
+    <link rel="stylesheet" media="(min-width: 861px)" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Franklin:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="rossenlogo.png">
     <link rel="apple-touch-icon" href="rossenlogo.png">
@@ -309,6 +312,20 @@ main:focus, section:focus, ol:focus { outline: none; }
 /* a confirmation arrives rather than appears */
 .motion .signup-done:not([hidden]) { animation: done-in .45s cubic-bezier(.2,.8,.2,1); }
 @keyframes done-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── TYPE: broadcast on phones, price card on desktop (owner's choice) ── */
+@media (min-width: 861px) {
+    :root {
+        --f-head:  'Alfa Slab One', Rockwell, serif;
+        --f-body:  'Libre Franklin', system-ui, sans-serif;
+        --f-label: 'Libre Franklin', system-ui, sans-serif;
+    }
+    /* Alfa Slab One has a single heavy weight; asking for 800/900 would make the
+       browser fake-bold it. */
+    .head-xl, .lower-third > b, .circ-list h3, .burst, .week-what, .signup-done, .player-title, .compact h2, .work b, .nl-title { font-weight: 400; letter-spacing: -.01em; }
+    .hero h1 { font-size: clamp(46px, 7vw, 104px); line-height: 1; }
+    body { font-size: 17px; }
+}
 
 @media print { .armed { opacity: 1 !important; clip-path: none !important; transform: none !important; } }
 
