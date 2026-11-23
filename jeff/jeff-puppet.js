@@ -341,7 +341,8 @@
       o.prop = function (c) { scissors(c, h, dir, open); };
       return o;   // anchored at the blade tips, which ride the line
     }
-    function still() { var G = geom(); st.clear(); line(st.ctx, G, G.x1); sk.draw(st.ctx, pose(G, G.x1, 0, false, .15)); }
+    // With the page's cut-off flap (data-flap on .closer), the flap's edge is the cut, so don't draw the line.
+    function still() { var G = geom(); st.clear(); if (!host.hasAttribute('data-flap')) line(st.ctx, G, G.x1); sk.draw(st.ctx, pose(G, G.x1, 0, false, .15)); }
     resizers.push(function () { if (state === 'done') still(); else if (state === null) { var G = geom(); st.clear(); line(st.ctx, G, G.x0); } });
     // hook for the 'cut-off flap' upgrade (README): fires once the coupon line is fully cut
     // lineY is read from the current stage size, not geom(): geom() resizes the canvas, which wiped the

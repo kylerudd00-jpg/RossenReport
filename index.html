@@ -348,6 +348,21 @@ main:focus, section:focus, ol:focus { outline: none; }
     body { zoom: .9; }
 }
 
+/* ── THE CUT-OFF FLAP (jeff:cut from jeff-puppet.js) ──
+   Jeff's scissors cut the page for real: the navy strip above the cut comes
+   loose, pinned at the right where he stands, and tips down at the left to
+   show bare paper behind it. Decoration only: aria-hidden, no pointer. */
+.jeff-cut.jeff-flap-cut { overflow: hidden; }
+.jeff-cut.jeff-flap-cut::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: 36px; z-index: 0;
+    background: var(--thermal); box-shadow: inset 0 6px 8px -6px rgba(0,0,0,.45); }
+.jeff-flap { position: absolute; left: 0; right: 0; top: 0; bottom: 36px; z-index: 1; pointer-events: none;
+    background-color: var(--navy-deep); background-image: var(--tex-halftone); background-position: 0 0; /* same origin as .closer, so the dots line up */
+    transform-origin: right bottom; transform: rotate(var(--flap-a, 0deg)) translateY(3px);
+    box-shadow: 0 1px 0 rgba(244,239,227,.5); filter: drop-shadow(0 3px 3px rgba(0,0,0,.35)); }
+.motion .jeff-flap { animation: flap-drop .45s cubic-bezier(.3,1.5,.5,1) both; }
+@keyframes flap-drop { from { transform: none; } to { transform: rotate(var(--flap-a, 0deg)) translateY(3px); } }
+@media print { .jeff-flap, .jeff-cut.jeff-flap-cut::before { display: none !important; } }
+
 @media print { .armed { opacity: 1 !important; clip-path: none !important; transform: none !important; } }
 
 /* ── RESPONSIVE ── */
@@ -577,7 +592,7 @@ main:focus, section:focus, ol:focus { outline: none; }
 
 </main>
 
-<footer class="closer on-dark">
+<footer class="closer on-dark" data-flap>
     <div class="wrap">
         <div class="closer-grid">
             <h2 class="head-xl" id="closeFormTitle">Clip this.<br><span>Save all year.</span></h2>
@@ -1230,6 +1245,26 @@ onReady(function () {
     new MutationObserver(function () { arm(document.querySelector('#circTags .burst')); })
         .observe(document.getElementById('circTags'), { childList: true });
 })();
+
+// ── THE CUT-OFF FLAP: when Jeff finishes cutting, the strip above the cut comes loose ──
+document.querySelector('.closer').addEventListener('jeff:cut', function (e) {
+    var strip = e.detail && e.detail.strip;
+    if (!strip || strip.querySelector('.jeff-flap')) return;
+    // Tip it by an angle that opens a 12px wedge at the left on desktop, 8px on phones,
+    // whatever the screen width (3px of that comes from the drop).
+    function angle() {
+        var w = strip.clientWidth || 1, wedge = w < 600 ? 8 : 12;
+        return (-Math.atan((wedge - 3) / w) * 180 / Math.PI).toFixed(3) + 'deg';
+    }
+    var flap = document.createElement('div');
+    flap.className = 'jeff-flap';
+    flap.setAttribute('aria-hidden', 'true');
+    flap.style.setProperty('--flap-a', angle());
+    window.addEventListener('resize', function () { flap.style.setProperty('--flap-a', angle()); });
+    if (e.detail.still) flap.style.animation = 'none';     // reduced motion: the end state, no movement
+    strip.classList.add('jeff-flap-cut');
+    strip.insertBefore(flap, strip.firstChild);             // under Jeff's canvas, which stays put
+});
 </script>
 <script defer src="jeff/jeff-puppet.js" data-art="jeff/"></script>
 </body>
