@@ -16,16 +16,16 @@
     <script defer src="/_vercel/insights/script.js"></script>
     <meta property="og:title" content="Jeff Rossen | Rossen Reports">
     <meta property="og:description" content="Saving you money, finding the best deals, and helping you shop smarter. Award-winning consumer journalist Jeff Rossen — new episodes every Wednesday & Friday.">
-    <meta property="og:image" content="jeff-rossennew.png">
-    <meta property="og:image:width" content="800">
-    <meta property="og:image:height" content="1067">
+    <meta property="og:image" content="https://rossen-report.vercel.app/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Rossen Reports">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@jeffrossen">
     <meta name="twitter:title" content="Jeff Rossen | Rossen Reports">
     <meta name="twitter:description" content="The best deals, money-saving tips, and smart-shopping advice from award-winning journalist Jeff Rossen.">
-    <meta name="twitter:image" content="jeff-rossennew.png">
+    <meta name="twitter:image" content="https://rossen-report.vercel.app/og-image.jpg">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -34,7 +34,7 @@
       "jobTitle": "Consumer Investigative Journalist",
       "description": "Award-winning consumer journalist. Saving you money, finding the best deals, and helping you shop smarter.",
       "url": "https://rossen-report.vercel.app",
-      "image": "https://rossen-report.vercel.app/jeff-rossennew.png",
+      "image": "https://rossen-report.vercel.app/jeff-rossen-headshot.jpg",
       "sameAs": [
         "https://www.youtube.com/@RossenReports",
         "https://www.instagram.com/jeffrossen/",
@@ -72,6 +72,9 @@
                different palettes and start reading as one. */
             --dark:       #071B45;
             --paper:      #F6F1E6;
+            /* Newsprint grain for the light sections: fractal noise stretched into
+               fibres, warm-tinted, very low alpha so text contrast is unchanged. */
+            --tex-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .04' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .25 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
             /* A second paper, one step cooler, so two light sections can sit near
                each other without either looking like a mistake. Replaces the
                #F0F2F5 grey that had no relationship to anything else on the page. */
@@ -2658,6 +2661,14 @@
             .nl-sticky input { width: auto; flex: 1; }
         }
 
+        /* Paper grain on the light sections. background-image only, so each
+           section keeps its own background-color from the rules above. */
+        .shop, .deals, .scam-alerts, .contact-section { background-image: var(--tex-paper); }
+
+        /* "Live every Wednesday & Friday" is nowrap and ran 26px off a 320px screen. */
+        @media (max-width: 360px) {
+            .live-badge { white-space: normal; letter-spacing: 0.1em; }
+        }
     </style>
 </head>
 <body>
@@ -2682,7 +2693,7 @@
             <a href="#contact"  data-section="contact">Work With Jeff</a>
         </nav>
         <a href="#subscribe" class="site-header-cta">
-            <i class="fas fa-envelope" aria-hidden="true"></i> Newsletter
+            <i class="fas fa-envelope" aria-hidden="true"></i> Get the Deals
         </a>
     </div>
 </header>
@@ -2905,14 +2916,15 @@
     <div class="container">
         <div class="email-inner">
             <div>
-                <div class="email-eyebrow"><i class="fas fa-envelope"></i> Free Newsletter</div>
+                <div class="email-eyebrow"><i class="fas fa-envelope" aria-hidden="true"></i> Free Newsletter</div>
                 <h2 class="email-title">Get Jeff's Best Deals<br><span>In Your Inbox</span></h2>
                 <p class="email-sub">Weekly deals, money-saving tips, and smart-shopping advice — straight from Jeff. No spam, ever.</p>
             </div>
             <div>
                 <form class="email-form" id="emailForm">
-                    <input type="email" id="emailInput" placeholder="Your email address" required>
-                    <button type="submit">Subscribe Free <i class="fas fa-arrow-right"></i></button>
+                    <label class="sr-only" for="emailInput">Email address</label>
+                    <input type="email" id="emailInput" placeholder="Your email address" autocomplete="email" required>
+                    <button type="submit">Get the Deals — Free <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
                 </form>
                 <div class="email-success" id="emailSuccess">
                     <i class="fas fa-check-circle" style="font-size:1.4rem;"></i> You're in — check your inbox!
@@ -4234,21 +4246,21 @@ onReady(function () {
         <i class="fab fa-youtube" aria-hidden="true"></i>
         <span>Watch</span>
     </a>
-    <a href="#alerts" class="bnav-item" data-section="alerts">
-        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
-        <span>Alerts</span>
-    </a>
     <a href="#deals" class="bnav-item" data-section="deals">
         <i class="fas fa-tag" aria-hidden="true"></i>
         <span>Deals</span>
     </a>
-    <a href="#follow" class="bnav-item" data-section="follow">
-        <i class="fas fa-share-alt" aria-hidden="true"></i>
-        <span>Follow</span>
-    </a>
     <a href="#shop" class="bnav-item" data-section="shop">
         <i class="fas fa-shopping-bag" aria-hidden="true"></i>
         <span>Shop</span>
+    </a>
+    <a href="#alerts" class="bnav-item" data-section="alerts">
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+        <span>Alerts</span>
+    </a>
+    <a href="#follow" class="bnav-item" data-section="follow">
+        <i class="fas fa-share-alt" aria-hidden="true"></i>
+        <span>Follow</span>
     </a>
 </nav>
 
@@ -4261,7 +4273,7 @@ onReady(function () {
          into the email field: nobody asked for this to open, so the title and
          description need to be heard before an edit field grabs forms mode.
          aria-label because the heading contains a <br>, which doesn't reliably
-         contribute a space — the name could compute as "Don't GetRipped Off". -->
+         contribute a space — the name could compute as "NeverOverpay Again". -->
     <div class="nl-card" role="dialog" aria-modal="true" tabindex="-1"
          aria-label="Never Overpay Again" aria-describedby="nlSub">
         <button type="button" class="nl-close" id="nlClose" data-nl-dismiss aria-label="Close newsletter signup">
@@ -4276,7 +4288,7 @@ onReady(function () {
             <label class="sr-only" for="nlModalEmail">Email address</label>
             <input type="email" id="nlModalEmail" name="email" placeholder="Your email address"
                    autocomplete="email" required aria-describedby="nlModalStatus">
-            <button type="submit">Sign Me Up — It's Free</button>
+            <button type="submit">Get the Deals — Free</button>
         </form>
         <p class="nl-status" id="nlModalStatus" role="status"></p>
         <p class="nl-note">Powered by Jeff's Substack. Unsubscribe any time.</p>
@@ -4291,7 +4303,7 @@ onReady(function () {
         <label class="sr-only" for="nlStickyEmail">Email address</label>
         <input type="email" id="nlStickyEmail" name="email" placeholder="Your email address"
                autocomplete="email" required aria-describedby="nlStickyStatus">
-        <button type="submit">Subscribe</button>
+        <button type="submit">Get the Deals</button>
     </form>
     <!-- role="alert", and visible: this was sr-only, so a sighted user who typed a
          bad address saw nothing change at all. -->
