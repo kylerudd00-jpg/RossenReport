@@ -3,3 +3,6 @@ db/
 .vercel
 FundedFinder/
 .env*.local
+
+# Raw reference captures (66MB). The contact sheets in design-source/refs are kept.
+design-source/refs/*.png

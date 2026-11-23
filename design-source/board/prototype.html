@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rossen Reports — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Direction: a Sunday-paper deals circular crossed with a TV news lower third.
+   Every colour is taken from a real object in Jeff's world. */
+:root {
+  --navy:      #0B2C6B; /* Rossen Reports logo navy. White on it: 13.4:1 */
+  --yellow:    #FFD100; /* logo yellow / lower-third bar. Navy on it: 10.6:1. Never small text on paper */
+  --newsprint: #F4EFE3; /* Sunday circular stock. Page ground */
+  --press:     #16181D; /* press-black ink. Body text on newsprint: 16:1 */
+  --press-2:   #4A4D55; /* second ink, small text on newsprint: 7.6:1 */
+  --tag-red:   #C3102D; /* sale-tag red. White on it: 6.2:1; as small text on newsprint: 5.4:1 */
+  --thermal:   #FBFAF6; /* receipt paper */
+  --rule:      rgba(22,24,29,.18);
+
+  --f-head: 'Big Shoulders Display', sans-serif;  /* TV lower thirds, varsity price cards */
+  --f-label:'Archivo', sans-serif;                /* circular section labels */
+  --f-body: 'Newsreader', serif;                  /* the newspaper column */
+  --f-mono: 'Courier Prime', monospace;           /* register tape */
+
+  /* newsprint grain: noise stretched into fibres, warm, low alpha */
+  --tex-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .04' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .25 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* halftone dots, like a cheap colour circular, for the navy band */
+  --tex-halftone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3Ccircle cx='6' cy='6' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+body { margin: 0; background-color: var(--newsprint); background-image: var(--tex-paper); color: var(--press); font-family: var(--f-body); font-size: 18px; line-height: 1.5; }
+a { color: inherit; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ── MASTHEAD: the circular's dated top strip ── */
+.mast { border-bottom: 3px double var(--press); }
+.mast .wrap { display: flex; align-items: center; gap: 20px; padding-top: 14px; padding-bottom: 10px; }
+.mast img { height: 42px; }
+.mast-issue { font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--press-2); }
+.mast nav { margin-left: auto; display: flex; gap: 22px; font-family: var(--f-label); font-weight: 700; font-size: 14px; }
+.mast nav a { text-decoration: none; }
+.mast nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; padding: 14px 22px; border: 2px solid var(--navy); text-decoration: none; cursor: pointer; }
+.btn-main { background: var(--navy); color: #fff; }
+.btn-main:hover { background: var(--press); border-color: var(--press); }
+.btn-quiet { background: transparent; color: var(--navy); }
+.btn:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--tag-red); outline-offset: 3px; }
+
+/* ── HERO ── */
+.hero .wrap { display: grid; grid-template-columns: 1.25fr .75fr; gap: 48px; padding-top: 40px; padding-bottom: 56px; align-items: start; }
+.kicker { display: inline-block; font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 6px 10px; }
+.hero h1 { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; font-size: clamp(46px, 8.4vw, 116px); line-height: .98; letter-spacing: -.01em; margin: 18px 0 18px; color: var(--navy); }
+.hero h1 em { font-style: normal; background: linear-gradient(transparent 10%, var(--yellow) 10%, var(--yellow) 94%, transparent 94%); padding: 0 .08em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hero .lede { font-size: 22px; max-width: 34ch; margin: 0 0 28px; }
+
+/* the coupon: dashed cut line, scissors, the signup lives inside it */
+.coupon { position: relative; border: 2px dashed var(--navy); background: #fff; padding: 22px 24px 20px; max-width: 560px; }
+.coupon::before { content: "✂"; position: absolute; top: -15px; left: 22px; background: var(--newsprint); padding: 0 6px; font-size: 20px; color: var(--navy); line-height: 1; }
+.coupon-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+.coupon-head b { font-family: var(--f-head); font-weight: 800; text-transform: uppercase; font-size: 30px; line-height: 1; color: var(--navy); }
+.coupon-head span { font-family: var(--f-label); font-weight: 800; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--tag-red); white-space: nowrap; }
+.coupon form { display: flex; gap: 8px; }
+.coupon input { flex: 1; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border: 2px solid var(--press); background: var(--thermal); }
+.coupon small { display: block; margin-top: 10px; font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
+
+/* the photo card keeps the TV lower third Jeff is known for */
+.anchor { position: relative; }
+.anchor img { display: block; width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: center 20%; }
+.lower-third { position: absolute; left: -18px; right: 18px; bottom: 26px; }
+.lower-third b { display: block; background: var(--yellow); color: var(--navy); font-family: var(--f-head); font-weight: 800; font-size: 30px; text-transform: uppercase; padding: 6px 16px; line-height: 1.05; }
+.lower-third span { display: block; background: var(--navy); color: #fff; font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 6px 16px; }
+.seen { margin-top: 18px; font-family: var(--f-label); font-size: 13px; color: var(--press-2); }
+.seen b { color: var(--press); }
+
+/* ── THIS WEEK'S CIRCULAR: real posts as shelf tags ── */
+.circular { border-top: 3px double var(--press); padding: 48px 0 64px; }
+.circ-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
+.circ-head h2 { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; font-size: clamp(40px, 5vw, 64px); line-height: .9; margin: 0; color: var(--navy); }
+.circ-head p { margin: 0; max-width: 36ch; color: var(--press-2); font-size: 17px; }
+.tags { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0; border: 2px solid var(--press); background: #fff; }
+.tag { padding: 22px; border-left: 2px solid var(--press); display: flex; flex-direction: column; gap: 10px; text-decoration: none; }
+.tag:first-child { border-left: 0; background: var(--yellow); }
+.tag-date { font-family: var(--f-mono); font-size: 14px; color: var(--press-2); }
+.tag:first-child .tag-date { color: var(--press); }
+.tag h3 { font-family: var(--f-head); font-weight: 800; text-transform: uppercase; font-size: 28px; line-height: 1; margin: 0; color: var(--navy); }
+.tag:first-child h3 { font-size: 46px; }
+.tag p { margin: 0; font-size: 16px; }
+.burst { align-self: flex-start; font-family: var(--f-head); font-weight: 900; font-size: 22px; text-transform: uppercase; color: #fff; background: var(--tag-red); padding: 4px 10px 2px; transform: rotate(-3deg); }
+.tag-go { margin-top: auto; font-family: var(--f-label); font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
+.tag:hover h3 { text-decoration: underline; text-underline-offset: 5px; }
+
+/* ── JEFF'S RECEIPTS: the credentials as a register tape ── */
+.receipts { background-color: var(--navy); background-image: var(--tex-halftone); color: #fff; padding: 64px 0; }
+.receipts .wrap { display: grid; grid-template-columns: 1fr 380px; gap: 56px; align-items: center; }
+.receipts h2 { font-family: var(--f-head); font-weight: 900; text-transform: uppercase; font-size: clamp(44px, 6vw, 80px); line-height: .88; margin: 0 0 16px; }
+.receipts h2 span { color: var(--yellow); }
+.receipts p { font-size: 20px; max-width: 38ch; margin: 0; color: rgba(255,255,255,.88); }
+.tape { background: var(--thermal); color: var(--press); font-family: var(--f-mono); font-size: 15px; padding: 26px 24px 30px; transform: rotate(1.5deg); box-shadow: 0 14px 30px rgba(0,0,0,.35);
+  -webkit-mask: radial-gradient(circle 7px at 50% 100%, transparent 6.5px, #000 7px) bottom/16px 100% repeat-x; mask: radial-gradient(circle 7px at 50% 100%, transparent 6.5px, #000 7px) 0 100%/16px 14px repeat-x, linear-gradient(#000,#000) 0 0/100% calc(100% - 13px) no-repeat; }
+.tape h3 { font-family: var(--f-mono); font-size: 16px; text-align: center; margin: 0 0 4px; letter-spacing: .08em; }
+.tape .c { text-align: center; color: var(--press-2); margin: 0 0 14px; font-size: 13px; }
+.tape dl { margin: 0; }
+.tape div { display: flex; gap: 6px; padding: 3px 0; }
+.tape dt { white-space: nowrap; }
+.tape dt::after { content: ""; }
+.tape .dots { flex: 1; border-bottom: 2px dotted rgba(22,24,29,.4); transform: translateY(-6px); }
+.tape dd { margin: 0; white-space: nowrap; font-weight: 700; }
+.tape hr { border: 0; border-top: 2px dashed rgba(22,24,29,.4); margin: 12px 0; }
+.tape .tot { font-weight: 700; font-size: 17px; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .receipts .wrap { grid-template-columns: 1fr; gap: 32px; }
+  .anchor { max-width: 420px; }
+  .tags { grid-template-columns: 1fr; }
+  .tag { border-left: 0; border-top: 2px solid var(--press); }
+  .tag:first-child { border-top: 0; }
+  .mast nav { display: none; }
+  .circ-head { flex-direction: column; align-items: start; }
+}
+@media (max-width: 480px) {
+  .coupon form { flex-direction: column; }
+  .coupon-head { flex-direction: column; gap: 4px; }
+  .lower-third { left: -8px; right: 8px; }
+  .tape { font-size: 13px; padding: 22px 16px 28px; }
+  .tape dt { white-space: normal; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .burst { transition: transform .2s; }
+  .tag:hover .burst { transform: rotate(-6deg) scale(1.05); }
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <img src="../../rossenlogo.png" alt="Rossen Reports">
+    <span class="mast-issue">Week of Nov 22, 2026 · Free every week</span>
+    <nav aria-label="Primary">
+      <a href="#deals">Deals</a><a href="#">Watch</a><a href="#">Shop</a><a href="#">Scam Alerts</a><a href="#">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div>
+      <span class="kicker">This week</span>
+      <h1 id="h1">Never pay <em>full price</em> again.</h1>
+      <p class="lede">Jeff Rossen spent 16 years investigating for NBC and Hearst. Now he hunts down the deals worth your money, and skips the ones that aren't.</p>
+
+      <div class="coupon">
+        <div class="coupon-head"><b>Jeff's deals, every week</b><span>Free · no spam</span></div>
+        <form onsubmit="event.preventDefault()">
+          <label class="sr-only" for="em">Email address</label>
+          <input id="em" type="email" placeholder="Your email address" autocomplete="email">
+          <button class="btn btn-main" type="submit">Get the Deals</button>
+        </form>
+        <small>Joins Jeff's Substack. Unsubscribe any time.</small>
+      </div>
+    </div>
+
+    <div>
+      <div class="anchor">
+        <img src="../../jeff-rossen-headshot.jpg" alt="Jeff Rossen">
+        <div class="lower-third"><b>Jeff Rossen</b><span>Rossen Reports · Consumer journalist</span></div>
+      </div>
+      <p class="seen">As seen on <b>NBC Nightly News · TODAY · Dateline · Hearst TV</b></p>
+    </div>
+  </div>
+</section>
+
+<section class="circular" id="deals" aria-labelledby="dealsH">
+  <div class="wrap">
+    <div class="circ-head">
+      <h2 id="dealsH">This week's<br>circular</h2>
+      <p>Straight from Jeff's newsletter. New picks every week, with the promo codes his team dug up.</p>
+    </div>
+    <div class="tags">
+      <a class="tag" href="https://rossenreports.substack.com/archive">
+        <span class="tag-date">NOV 18 · NEWSLETTER</span>
+        <span class="burst">10 deals</span>
+        <h3>Amazon early Black Friday: 10 insane deals</h3>
+        <p>New, hidden promo codes on electronics and household goods.</p>
+        <span class="tag-go">Read the picks →</span>
+      </a>
+      <a class="tag" href="https://rossenreports.substack.com/archive">
+        <span class="tag-date">NOV 11</span>
+        <h3>Amazon's early Black Friday top 10</h3>
+        <p>Big-ticket items and everyday essentials, already marked down.</p>
+        <span class="tag-go">See them →</span>
+      </a>
+      <a class="tag" href="https://rossenreports.substack.com/archive">
+        <span class="tag-date">OCT 19</span>
+        <h3>5 things to never pay full price for</h3>
+        <p>Shopping tricks that save you money even after checkout.</p>
+        <span class="tag-go">Learn the tricks →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="receipts" aria-labelledby="recH">
+  <div class="wrap">
+    <div>
+      <h2 id="recH">He's got <span>the receipts.</span></h2>
+      <p>Before deals, Jeff ran the investigative unit at NBC News. The same rules apply here: test it, check it, then tell you straight.</p>
+    </div>
+    <div class="tape" role="group" aria-label="Jeff Rossen's career, as a receipt">
+      <h3>ROSSEN REPORTS</h3>
+      <p class="c">CONSUMER JOURNALISM</p>
+      <dl>
+        <div><dt>WABC-TV New York</dt><span class="dots"></span><dd>2001</dd></div>
+        <div><dt>NBC News / TODAY</dt><span class="dots"></span><dd>2008–19</dd></div>
+        <div><dt>Hearst Television</dt><span class="dots"></span><dd>2019–24</dd></div>
+        <div><dt>Book: Rossen to the Rescue</dt><span class="dots"></span><dd>2017</dd></div>
+      </dl>
+      <hr>
+      <dl>
+        <div><dt>Peabody &amp; Murrow</dt><span class="dots"></span><dd>9/11</dd></div>
+        <div><dt>YouTube subscribers</dt><span class="dots"></span><dd>773K</dd></div>
+      </dl>
+      <hr>
+      <div class="tot"><span>YEARS ON YOUR SIDE</span><span class="dots"></span><span>25+</span></div>
+    </div>
+  </div>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rossen Direction Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --navy:#0B2C6B; --yellow:#FFD100; --newsprint:#F4EFE3; --press:#16181D; --press-2:#4A4D55; --tag-red:#C3102D; --thermal:#FBFAF6; }
+* { box-sizing: border-box; }
+body { margin:0; background:#ECE7DA; color:var(--press); font-family:'Newsreader',serif; font-size:18px; line-height:1.5; }
+.wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+header.top { background:var(--navy); color:#fff; padding:40px 0 34px; }
+header.top small { font-family:'Archivo',sans-serif; font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:12px; color:var(--yellow); }
+header.top h1 { font-family:'Big Shoulders Display',sans-serif; font-weight:900; text-transform:uppercase; font-size:clamp(40px,6vw,76px); line-height:.9; margin:8px 0 12px; }
+header.top p { margin:0; max-width:60ch; font-size:20px; color:rgba(255,255,255,.9); }
+header.top em { font-style:italic; color:var(--yellow); }
+section { padding:48px 0; border-bottom:3px double rgba(22,24,29,.3); }
+h2 { font-family:'Big Shoulders Display',sans-serif; font-weight:900; text-transform:uppercase; font-size:44px; line-height:.95; margin:0 0 6px; color:var(--navy); }
+h2 + p { margin:0 0 24px; max-width:68ch; color:var(--press-2); }
+.num { font-family:'Archivo',sans-serif; font-weight:800; font-size:13px; letter-spacing:.14em; color:var(--tag-red); text-transform:uppercase; }
+.frame { border:2px solid var(--press); background:#fff; }
+.frame iframe { display:block; width:100%; height:1500px; border:0; }
+.pair { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+figure { margin:0; }
+figure img { display:block; width:100%; border:1px solid rgba(22,24,29,.25); background:#fff; }
+figcaption { font-size:15px; margin-top:8px; }
+figcaption b { font-family:'Archivo',sans-serif; font-size:13px; letter-spacing:.06em; text-transform:uppercase; display:block; }
+.refs { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.refs figcaption i { display:block; color:var(--press-2); font-style:normal; }
+.refs figcaption span { display:block; margin-top:4px; }
+.refs figcaption span::before { content:"Borrowing: "; font-family:'Archivo',sans-serif; font-weight:800; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--tag-red); }
+.swatches { display:grid; grid-template-columns:repeat(7,1fr); gap:12px; }
+.sw div { height:90px; border:1px solid rgba(22,24,29,.25); }
+.sw b { display:block; font-family:'Archivo',sans-serif; font-size:13px; margin-top:6px; }
+.sw span { display:block; font-family:'Courier Prime',monospace; font-size:13px; color:var(--press-2); line-height:1.35; }
+.type { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-top:28px; }
+.type div { background:var(--newsprint); padding:18px; border:1px solid rgba(22,24,29,.2); }
+.type small { font-family:'Archivo',sans-serif; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--press-2); display:block; margin-bottom:6px; }
+.t1 { font-family:'Big Shoulders Display'; font-weight:900; font-size:52px; line-height:.9; text-transform:uppercase; color:var(--navy); }
+.t2 { font-family:'Archivo'; font-weight:800; font-size:18px; letter-spacing:.14em; text-transform:uppercase; }
+.t3 { font-family:'Newsreader'; font-size:22px; }
+.t4 { font-family:'Courier Prime'; font-size:20px; }
+.tex { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px; }
+.tex div { height:120px; display:flex; align-items:end; padding:12px; font-family:'Archivo',sans-serif; font-weight:700; font-size:13px; }
+.tex .paper { background-color:var(--newsprint); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .04' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .37 0 0 0 0 .25 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"); border:1px solid rgba(22,24,29,.2); }
+.tex .half { background-color:var(--navy); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3Ccircle cx='6' cy='6' r='1' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E"); color:#fff; }
+.origin { display:grid; grid-template-columns:1fr 60px 1fr; gap:14px; align-items:center; margin-bottom:22px; }
+.origin .arrow { font-family:'Big Shoulders Display'; font-weight:900; font-size:44px; color:var(--tag-red); text-align:center; }
+ul.plan { margin:0; padding-left:22px; }
+ul.plan li { margin-bottom:10px; }
+ul.plan b { font-family:'Archivo',sans-serif; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+h3 { font-family:'Archivo',sans-serif; font-weight:800; font-size:15px; letter-spacing:.1em; text-transform:uppercase; margin:0 0 12px; }
+.ask { background:var(--yellow); padding:28px; }
+.ask ol { margin:0; padding-left:22px; }
+.ask li { margin-bottom:8px; }
+@media (max-width:860px) { .pair,.refs,.cols,.type,.tex { grid-template-columns:1fr; } .swatches { grid-template-columns:repeat(2,1fr); } .origin { grid-template-columns:1fr; } .origin .arrow { transform:rotate(90deg); } .frame iframe { height:2300px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <small>Rossen Reports redesign · Direction board · Nov 22, 2026 · Private preview</small>
+    <h1>A Sunday deals circular,<br>read by a TV anchor.</h1>
+    <p>Direction: <em>a Sunday-paper deals circular crossed with a TV news lower third.</em> The deals circular is what Jeff's newsletter already is every week. The lower third is how America knows his face. Nothing here is live. I need a "go" (or a "no") before I rebuild every page.</p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <span class="num">1 · Working prototype</span>
+    <h2>The three signature sections</h2>
+    <p>The hero with the signup inside a clip-out coupon, "This week's circular" built from Jeff's real Substack deal posts, and "He's got the receipts", his real career on a register tape. Scroll inside the frame. It works on phones too.</p>
+    <div class="frame"><iframe src="prototype.html" title="Prototype of the redesigned hero, deals and credentials sections"></iframe></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="num">Before</span>
+    <h2>Where we're starting</h2>
+    <p>Today's hero is well made, but it's a template: an eyebrow, a big name, two buttons and a stat band. Further down, every section is "heading plus a grid of white cards." Deals are four category links, not actual deals.</p>
+    <div class="pair">
+      <figure><img src="img/before-hero.jpg" alt="Current Rossen Reports homepage hero"><figcaption><b>Now</b>Navy hero, stat band, scam alerts strip.</figcaption></figure>
+      <figure><img src="img/thepennyhoarder_com.jpg" alt="The Penny Hoarder homepage"><figcaption><b>The category average (thepennyhoarder.com)</b>A white card grid with stock photos. This is the look the money niche defaults to.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="num">2 · References</span>
+    <h2>26 sites studied, 12 borrows</h2>
+    <p>The memorable ones get their character from their own printed matter and voice. Trader Joe's is its flyer, Costco is its price signs, MoneySavingExpert is Martin Lewis's face plus a yellow email band. The forgettable ones are interchangeable card grids. The full notes are in design-source/REFERENCES.md.</p>
+    <div class="refs">
+      <figure><img src="img/moneysavingexpert_com.jpg" alt=""><figcaption><b>moneysavingexpert.com</b><i>Closest analog: famous consumer journalist plus weekly deals email</i><span>The signup next to Jeff's face, in his yellow, repeated with the same words.</span></figcaption></figure>
+      <figure><img src="img/clark_com.jpg" alt=""><figcaption><b>clark.com</b><i>Clark Howard, same audience</i><span>The newsletter signup moves up into the hero.</span></figcaption></figure>
+      <figure><img src="img/traderjoes_com_home.jpg" alt=""><figcaption><b>traderjoes.com</b><i>The whole identity comes from its printed Fearless Flyer</i><span>Build from Jeff's own printed thing, the weekly circular: a dated issue line and a column voice.</span></figcaption></figure>
+      <figure><img src="img/costco_com.jpg" alt=""><figcaption><b>costco.com</b><i>Red price bursts are the loudest thing on the page</i><span>One sale-tag red burst per deal, used sparingly.</span></figcaption></figure>
+      <figure><img src="img/publix_com_savings_weekly-ad.jpg" alt=""><figcaption><b>publix.com weekly ad</b><i>"BOGO" chips and "Save $2.10" lines</i><span>Every pick says what you save, in plain words.</span></figcaption></figure>
+      <figure><img src="img/slickdeals_net.jpg" alt=""><figcaption><b>slickdeals.net</b><i>Date and store stamps on every deal</i><span>Mono date stamps on deal tags, so picks read as current.</span></figcaption></figure>
+      <figure><img src="img/consumerreports_org.jpg" alt=""><figcaption><b>consumerreports.org</b><i>Trust proof right under the pitch</i><span>Credentials stay, told as a story ("the receipts"), not a stat band.</span></figcaption></figure>
+      <figure><img src="img/nytimes_com_wirecutter.jpg" alt=""><figcaption><b>Wirecutter</b><i>Deals live inside reporting</i><span>Picks read as reporting with Jeff's byline, not ads.</span></figcaption></figure>
+      <figure><img src="img/semafor_com.jpg" alt=""><figcaption><b>semafor.com</b><i>Tinted newsprint, hairline rules</i><span>A newsprint ground and the double rules of newspaper layout.</span></figcaption></figure>
+      <figure><img src="img/puck_news.jpg" alt=""><figcaption><b>puck.news</b><i>One loud red block, the rest quiet</i><span>The lead deal gets the one loud block; the others stay calm.</span></figcaption></figure>
+      <figure><img src="img/theverge_com.jpg" alt=""><figcaption><b>theverge.com</b><i>One enormous type moment</i><span>One huge headline: "Never pay full price again."</span></figcaption></figure>
+      <figure><img src="img/morningbrew_com.jpg" alt=""><figcaption><b>morningbrew.com</b><i>Same signup band, same words, three times</i><span>"Get the Deals" in the header, hero, mid-page and closer.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="num">3 · Palette, type, texture</span>
+    <h2>Taken from real things</h2>
+    <p>Every colour is named after the object it comes from, and has a job with its contrast checked.</p>
+    <div class="swatches">
+      <div class="sw"><div style="background:#0B2C6B"></div><b>Logo navy</b><span>#0B2C6B<br>headlines, button<br>white 13.4:1</span></div>
+      <div class="sw"><div style="background:#FFD100"></div><b>Lower-third yellow</b><span>#FFD100<br>highlight only<br>navy 10.6:1</span></div>
+      <div class="sw"><div style="background:#F4EFE3"></div><b>Newsprint</b><span>#F4EFE3<br>page ground</span></div>
+      <div class="sw"><div style="background:#16181D"></div><b>Press black</b><span>#16181D<br>body 16:1</span></div>
+      <div class="sw"><div style="background:#4A4D55"></div><b>Second ink</b><span>#4A4D55<br>small text 7.6:1</span></div>
+      <div class="sw"><div style="background:#C3102D"></div><b>Sale-tag red</b><span>#C3102D<br>bursts, focus<br>white 6.2:1</span></div>
+      <div class="sw"><div style="background:#FBFAF6"></div><b>Receipt paper</b><span>#FBFAF6<br>inputs, tape</span></div>
+    </div>
+    <div class="type">
+      <div><small>Big Shoulders Display · TV lower thirds, price cards</small><div class="t1">Never pay full price</div></div>
+      <div><small>Archivo · circular section labels</small><div class="t2">This week's circular</div></div>
+      <div><small>Newsreader · the newspaper column</small><div class="t3">Jeff spent 16 years investigating for NBC and Hearst.</div></div>
+      <div><small>Courier Prime · register tape, date stamps</small><div class="t4">NOV 18 · NBC NEWS ..... 2008–19</div></div>
+    </div>
+    <div class="tex">
+      <div class="paper">Newsprint fibre grain: page and cards</div>
+      <div class="half">Halftone dots: navy bands (cheap colour printing)</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="num">4 · Where the design comes from</span>
+    <h2>Jeff's own material, not a template</h2>
+    <p>Each signature element is lifted from something Jeff already makes.</p>
+    <div class="origin">
+      <figure><img src="img/src-substack.png" alt="Jeff's Substack archive of weekly deal posts"><figcaption><b>His Substack archive</b>Weekly "We found new Amazon promo codes" posts: a circular in all but name.</figcaption></figure>
+      <div class="arrow" aria-hidden="true">→</div>
+      <figcaption><b>"This week's circular"</b>Dated shelf tags built from those real posts, with the lead one on yellow. Fed automatically from the Substack feed in the full build.</figcaption>
+    </div>
+    <div class="origin">
+      <figure><img src="img/src-youtube.png" alt="Rossen Reports YouTube channel"><figcaption><b>His broadcast look</b>The navy and yellow of the Rossen Reports logo and YouTube thumbnails, plus the name-bar "lower third" of TV news, where he spent 16 years.</figcaption></figure>
+      <div class="arrow" aria-hidden="true">→</div>
+      <figcaption><b>The photo card and headlines</b>His name sits in a lower third on the photo, set in a condensed broadcast face. Logo navy and yellow carry everything.</figcaption>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap cols">
+    <div>
+      <span class="num">5 · What the full build adds</span>
+      <h2>And what it cuts</h2>
+      <ul class="plan">
+        <li><b>Real deals, automatically:</b> "This week's circular" reads Jeff's Substack RSS and shows the latest deal posts. Admin can pin one.</li>
+        <li><b>Signup first:</b> a coupon in the hero, a mid-page band about 1/5 of the way down, a closer above the footer, and a floating phone button. All labelled "Get the Deals".</li>
+        <li><b>"He's got the receipts":</b> the credentials told as a story, replacing the stat band and the icon row.</li>
+        <li><b>Scam alerts, shorter:</b> the 5 newest plus "see all", placed after deals.</li>
+        <li><b>Shop &amp; save merged into deals</b> as "Where Jeff shops".</li>
+        <li><b>Varied sections:</b> no two sections share a layout.</li>
+        <li><b>Art:</b> real photos first. If we want spot illustrations (price tags, scissors, a shopping cart in engraving style), I'll write ChatGPT prompts and label anything generated "Concept".</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Cut</h3>
+      <ul class="plan">
+        <li>Stat band of big yellow numbers</li>
+        <li>Four icon-card grids (deals, shop, credentials, work-with)</li>
+        <li>The scrolling testimonials, unless we get real quotes</li>
+        <li>The scam-alert strip in the hero</li>
+      </ul>
+      <div class="ask">
+        <h3>What I need from you (once)</h3>
+        <ol>
+          <li><b>Go / no-go</b> on this direction.</li>
+          <li><b>Photos:</b> original full-size shots of Jeff: on set, shopping, testing products. Casual beats suit.</li>
+          <li><b>The viewer quotes:</b> are the current ones real? Any real messages about money saved?</li>
+          <li><b>Awards:</b> confirm "Peabody &amp; Murrow for 9/11 coverage, plus an Emmy". I couldn't verify it in public sources.</li>
+          <li><b>Newsletter numbers</b> we're allowed to show (subscriber count, open rate)?</li>
+          <li><b>Admin storage:</b> OK to create a Vercel Blob store so the admin page can save again?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+</body>
+</html>

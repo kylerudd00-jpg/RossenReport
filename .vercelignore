@@ -10,3 +10,6 @@ node_modules/
 # These two hold real people's email addresses and must never be in a deploy bundle.
 db/subscribers.json
 db/contacts.json
+
+# Redesign working files: art, prompts, reference shots. Not part of the site.
+design-source/
