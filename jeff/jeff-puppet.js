@@ -202,15 +202,18 @@
 
     function run() {
       var s = st.w < 600 ? .25 : .34, W = st.w, strap = 70 * s;
-      // the ride: left to right, a short turnaround past the right edge, then back right to left
+      // the ride: left to right, a short turnaround past the right edge, then back right to left, coasting
+      // to a stop near the left edge, where he stays parked (and grabbable) for the rest of the visit.
+      // Parked, he goes still and nothing runs in the background until someone grabs him.
       var LEG = W < 600 ? 3.6 : 4.8, TURN = .45, M = W < 600 ? 95 : 130, END = 2 * LEG + TURN;
-      var X0 = -M, X1 = W + M, armR = -2.5, CORE = [357, 250];
-      var rideT = 0, phi = 0, dphi = 0, xPrev = null, vPrev = 0, last = null;
+      var X0 = -M, X1 = W + M, PARK = W < 600 ? 52 : 90, armR = -2.5, CORE = [357, 250];
+      var rideT = 0, phi = 0, dphi = 0, xPrev = null, vPrev = 0, last = null, running = true;
       function along(u) { return .88 * u + .12 * easeInOut(u); }
+      function coast(u) { return 1 - Math.pow(1 - u, 2.2); }   // decelerates into the parking spot
       function rideX(t) {
         if (t < LEG) return [X0 + (X1 - X0) * along(t / LEG), 1];
         if (t < LEG + TURN) return [X1, -1];
-        return [X1 - (X1 - X0) * along(Math.min(1, (t - LEG - TURN) / LEG)), -1];
+        return [X1 - (X1 - PARK) * coast(Math.min(1, (t - LEG - TURN) / LEG)), -1];
       }
 
       // The toss layer lives on <html>, outside the site's desktop CSS zoom, so pointer coordinates and
@@ -238,11 +241,11 @@
           pose: { armR: armR, armL: 1.55 + .28 * Math.sin(t * 10), legL: .45 + .3 * kick, legR: .25 - .3 * kick, head: -.06 + .05 * Math.sin(t * 5) } } };
       }
       function trolley(c, x, cable, dir, v, hand) {
-        if (hand) {   // speed lines trail behind him, then the strap down to his fist
+        if (hand) {   // speed lines trail behind him (only while moving), then the strap down to his fist
           var sp = Math.abs(v);
-          c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
+          if (sp > 20) { c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
           [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
-          c.restore();
+          c.restore(); }
           c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(hand[0], hand[1]); c.stroke();
         } else {      // empty strap, swinging a little
           c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(x + Math.sin(performance.now() / 300) * 4, cable + 4 + strap * .6); c.stroke();
@@ -259,8 +262,10 @@
       }
 
       // ---- pointer: grab, drag, throw ----
+      function wake() { if (!running) { running = true; tPrev = null; requestAnimationFrame(frame); } }
       function startGrab(e) {
         if (state === 'hop' || done) return;
+        wake();
         e.preventDefault();
         try { grab.setPointerCapture(e.pointerId); } catch (_) {}
         if (state === 'ride' && last) {
@@ -319,19 +324,21 @@
         st.clear(); var c = st.ctx;
 
         if (state === 'ride') {
-          rideT += dt;
+          var parked = rideT >= END;
+          if (!parked) rideT = Math.min(END, rideT + dt);
           var rx = rideX(rideT), x = rx[0], dir = rx[1];
           var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
           var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
           var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
-          var R0 = rideOpts(x, dir, phi, rideT);
+          var R0 = rideOpts(x, dir, phi, parked ? END : rideT);   // parked: legs and mic stop wiggling
           trolley(c, x, R0.cable, dir, v, R0.hand);
           sk.draw(c, R0.o);
           var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(R0.hand[0] - bd[0] * 9, R0.hand[1] - bd[1] * 9); c.lineTo(R0.hand[0] + bd[0] * 9, R0.hand[1] + bd[1] * 9); c.stroke();
           last = { o: R0.o, x: x, dir: dir, v: v };
           var core = view(toStage(R0.o, CORE)); placeGrab(core[0], core[1], core[2]);
           grab.style.display = '';
-          if (rideT >= END) { finish(); return; }
+          // parked and the swing has died away: draw nothing more until he is grabbed
+          if (parked && Math.abs(phi) < .003 && Math.abs(dphi) < .003) { drawToss(); running = false; return; }
         } else {
           // the empty trolley waits on the line where he left it
           var cable = st.rectOf(host).y + 1.5; trolley(c, last.x, cable, last.dir, 0, null);
@@ -384,12 +391,12 @@
         drawToss();
         requestAnimationFrame(frame);
       }
-      function finish() {
-        done = true; st.clear(); oc.clearRect(0, 0, ov.width, ov.height);
-        window.removeEventListener('resize', sizeOv);
-        if (grab.parentNode) grab.parentNode.removeChild(grab);
-        if (ov.parentNode) ov.parentNode.removeChild(ov);
-      }
+      // while idle the page still scrolls and resizes: keep the grab handle on him, and redraw after a resize
+      window.addEventListener('scroll', function () {
+        if (running || !last) return;
+        var core = view(toStage(last.o, CORE)); placeGrab(core[0], core[1], core[2]);
+      }, { passive: true });
+      resizers.push(wake);
       requestAnimationFrame(frame);
     }
   }
