@@ -241,8 +241,8 @@
       <!-- ── DEALS ── -->
       <section class="content-section" id="section-deals" data-section="deals">
         <div class="section-head">
-          <h2 id="dealsHeading">Deals of the Week</h2>
-          <p>Edit, add, remove, or reorder the cards shown on the public site's "Deals of the Week" section. Changes go live immediately.</p>
+          <h2 id="dealsHeading">Where Jeff Shops</h2>
+          <p>The storefront links under "This Week's Circular" on the public site. The circular itself fills in automatically from Jeff's newest Substack deal posts. Changes go live immediately.</p>
         </div>
         <div class="panel">
           <div id="dealsEditList"></div>
@@ -276,27 +276,20 @@
       <section class="content-section" id="section-content" data-section="content">
         <div class="section-head">
           <h2 id="contentHeading">Site Content</h2>
-          <p>Edit the hero introduction, the About section, and viewer testimonials.</p>
+          <p>Edit the hero introduction and the About section. The receipt lines are the Credentials below (label on the left, number on the right).</p>
         </div>
 
         <div class="panel">
           <h3>Hero</h3>
-          <div class="field-row"><label for="heroEyebrowInput">Eyebrow Text</label><input type="text" id="heroEyebrowInput"></div>
-          <div class="field-row"><label for="heroLine1Input">Tagline — Line 1</label><input type="text" id="heroLine1Input"></div>
-          <div class="field-row"><label for="heroLine2Input">Tagline — Line 2 (bold)</label><input type="text" id="heroLine2Input"></div>
-          <div id="heroStatsEdit"></div>
+          <div class="field-row"><label for="heroEyebrowInput">Red Label Above the Headline</label><input type="text" id="heroEyebrowInput"></div>
+          <div class="field-row"><label for="heroLine1Input">Intro Paragraph</label><input type="text" id="heroLine1Input"></div>
+          <div class="field-row"><label for="heroLine2Input">Intro Paragraph, Bold Ending (optional)</label><input type="text" id="heroLine2Input"></div>
         </div>
 
         <div class="panel">
           <h3>About</h3>
           <div class="field-row"><label for="aboutQuoteInput">Pull Quote</label><textarea id="aboutQuoteInput"></textarea></div>
           <div id="credsEdit"></div>
-        </div>
-
-        <div class="panel">
-          <h3>Testimonials</h3>
-          <div id="testimonialsEdit"></div>
-          <button class="btn-add" id="addTestimonialBtn" type="button"><i class="fas fa-plus" aria-hidden="true"></i> Add a Testimonial</button>
         </div>
 
         <div class="panel">
@@ -554,11 +547,11 @@ function saveContent(patch, btn, statusEl, okMsg) {
 
 // ══════════════════════════ PAGE ORDER ══════════════════════════
 var SECTION_LABELS = {
-  latest: 'Latest Episode', alerts: 'Scam Alerts', deals: 'Deals of the Week',
-  wins: 'Viewer Wins', subscribe: 'Newsletter Signup', follow: 'Social Links',
-  shop: 'Shop & Save', about: 'About Jeff', contact: 'Work With Jeff'
+  deals: "This Week's Circular + Where Jeff Shops", subscribe: 'Newsletter Signup Band',
+  latest: 'Watch Jeff', alerts: 'Scam Alerts', about: 'About Jeff (The Receipts)',
+  follow: 'Follow Jeff', contact: 'Work With Jeff'
 };
-var RECOMMENDED_ORDER = ['latest', 'alerts', 'deals', 'wins', 'subscribe', 'follow', 'shop', 'about', 'contact'];
+var RECOMMENDED_ORDER = ['deals', 'subscribe', 'latest', 'alerts', 'about', 'follow', 'contact'];
 var currentOrder = [];
 
 // Deferred so the polite update lands after the focus announcement — a focus
@@ -978,12 +971,10 @@ function renderContent() {
   document.getElementById('heroLine1Input').value = currentContent.hero.taglineLine1 || '';
   document.getElementById('heroLine2Input').value = currentContent.hero.taglineLine2 || '';
 
-  var statsEl = document.getElementById('heroStatsEdit');
-  statsEl.innerHTML = '<div class="field-grid-2">' + currentContent.hero.stats.map(function (s, i) {
-    return '<div class="field-row"><label for="stat-' + i + '-value">Stat ' + (i + 1) + ' Value</label><input type="text" id="stat-' + i + '-value" value="' + esc(s.value) + '"></div>' +
-      '<div class="field-row"><label for="stat-' + i + '-suffix">Stat ' + (i + 1) + ' Suffix</label><input type="text" id="stat-' + i + '-suffix" value="' + esc(s.suffix) + '"></div>' +
-      '<div class="field-row" style="grid-column:1/-1"><label for="stat-' + i + '-label">Stat ' + (i + 1) + ' Label</label><input type="text" id="stat-' + i + '-label" value="' + esc(s.label) + '"></div>';
-  }).join('') + '</div>';
+  // The stat band and the testimonials were cut in the Nov 2026 redesign.
+  // Emptied here so the next save clears them rather than carrying them along.
+  currentContent.hero.stats = [];
+  currentContent.testimonials = [];
 
   document.getElementById('aboutQuoteInput').value = currentContent.about.quote || '';
 
@@ -995,58 +986,16 @@ function renderContent() {
       '</div>';
   }).join('');
 
-  renderTestimonials();
 }
-
-function renderTestimonials() {
-  var wrap = document.getElementById('testimonialsEdit');
-  wrap.innerHTML = currentContent.testimonials.map(function (t, i) {
-    return '<fieldset class="edit-card" data-index="' + i + '">' +
-      '<legend>Testimonial ' + (i + 1) + '</legend>' +
-      '<div class="edit-card-tools">' +
-        '<button type="button" class="tool-btn danger" data-remove-testi="' + i + '"><i class="fas fa-trash" aria-hidden="true"></i> Remove</button>' +
-      '</div>' +
-      '<div class="field-row"><label for="testi-' + i + '-quote">Quote</label><textarea id="testi-' + i + '-quote">' + esc(t.quote) + '</textarea></div>' +
-      '<div class="field-row"><label for="testi-' + i + '-name">Attribution</label><input type="text" id="testi-' + i + '-name" value="' + esc(t.name) + '"></div>' +
-      '</fieldset>';
-  }).join('');
-
-  wrap.querySelectorAll('[data-remove-testi]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var i = Number(btn.dataset.removeTesti);
-      if (!confirm('Remove this testimonial from ' + (currentContent.testimonials[i].name || 'this person') + '?')) return;
-      syncContentFromForm();
-      currentContent.testimonials.splice(i, 1);
-      renderTestimonials();
-      document.getElementById('contentHeading').focus();
-    });
-  });
-}
-
-document.getElementById('addTestimonialBtn').addEventListener('click', function () {
-  syncContentFromForm();
-  currentContent.testimonials.push({ quote: '', name: '' });
-  renderTestimonials();
-  var areas = document.querySelectorAll('#testimonialsEdit textarea');
-  areas[areas.length - 1].focus();
-});
 
 function syncContentFromForm() {
   currentContent.hero.eyebrow = document.getElementById('heroEyebrowInput').value;
   currentContent.hero.taglineLine1 = document.getElementById('heroLine1Input').value;
   currentContent.hero.taglineLine2 = document.getElementById('heroLine2Input').value;
-  currentContent.hero.stats.forEach(function (s, i) {
-    var v = document.getElementById('stat-' + i + '-value'), sf = document.getElementById('stat-' + i + '-suffix'), l = document.getElementById('stat-' + i + '-label');
-    if (v) s.value = v.value; if (sf) s.suffix = sf.value; if (l) s.label = l.value;
-  });
   currentContent.about.quote = document.getElementById('aboutQuoteInput').value;
   currentContent.about.credentials.forEach(function (c, i) {
     var n = document.getElementById('cred-' + i + '-num'), l = document.getElementById('cred-' + i + '-label');
     if (n) c.num = n.value; if (l) c.label = l.value;
-  });
-  currentContent.testimonials.forEach(function (t, i) {
-    var q = document.getElementById('testi-' + i + '-quote'), n = document.getElementById('testi-' + i + '-name');
-    if (q) t.quote = q.value; if (n) t.name = n.value;
   });
 }
 

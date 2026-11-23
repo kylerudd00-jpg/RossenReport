@@ -4,6 +4,7 @@ const fs      = require('fs');
 const crypto  = require('crypto');
 
 const { getScamFeed } = require('./lib/scamFeed');
+const { getNewsletterFeed } = require('./lib/newsletterFeed');
 const storage = require('./lib/storage');
 
 const app  = express();
@@ -15,44 +16,34 @@ const PORT = process.env.PORT || 3000;
 
 const DEFAULT_CONTENT = {
     hero: {
-        eyebrow: 'Award-Winning Consumer Journalist',
-        taglineLine1: 'Saving you money, finding the best deals, and helping you shop smarter.',
-        taglineLine2: 'Your trusted guide to living smarter.',
-        stats: [
-            { value: '2.4', suffix: 'M+', label: 'Followers' },
-            // source:'youtube' makes this one read the real subscriber count at
-            // runtime. The typed-in value is only what shows if the API is
-            // unreachable. It said 40K; the channel is well past half a million.
-            { value: '773', suffix: 'K', label: 'YouTube Subscribers', source: 'youtube' },
-            { value: '25', suffix: '+', label: 'Years on Air' },
-        ],
+        eyebrow: 'This week',
+        taglineLine1: "Jeff Rossen spent 16 years investigating for NBC and Hearst. Now he hunts down the deals worth your money, and skips the ones that aren't.",
+        taglineLine2: '',
+        // The stat band was cut in the Nov 2026 redesign. Kept as an empty list
+        // because the control board's save endpoint still sends the field.
+        stats: [],
     },
     about: {
         quote: "I'll save you money by revealing the best deals, and exposing the worst scams — the stories that actually matter to your life.",
+        // Printed as the receipt in the About section: label on the left, num on
+        // the right. A label containing "subscriber" picks up the live YouTube count.
         credentials: [
-            { num: '15+', label: 'Years as a National News Correspondent (NBC & Hearst)' },
-            { num: 'Peabody & Murrow', label: 'Award Winner for 9/11 Coverage, Plus an Emmy' },
-            { num: 'Best-Selling', label: 'Author of Rossen to the Rescue — Get the Book' },
-            { num: '2.4M+', label: 'Followers Across All Platforms' },
+            { num: '2001', label: 'WABC-TV New York' },
+            { num: '2008–19', label: 'NBC News / TODAY' },
+            { num: '2019–24', label: 'Hearst Television' },
+            { num: '2017', label: 'Book: Rossen to the Rescue' },
+            { num: '773K', label: 'YouTube subscribers' },
         ],
     },
-    testimonials: [
-        { quote: "Jeff's tip about hidden cable fees saved me $87 a month. I called my provider and they dropped the charges immediately.", name: 'Linda M., Ohio' },
-        { quote: "I almost fell for a fake IRS scam call. Watched Jeff's segment that morning and knew exactly what to do. He literally saved me $2,000.", name: 'Dave K., Florida' },
-        { quote: 'Bought a security camera Jeff recommended on Amazon — half the price of the brand-name ones and works even better.', name: 'Maria T., Texas' },
-        { quote: "Jeff showed us the hidden fees on travel booking sites. Booked directly and saved $340 on our family vacation.", name: 'The Hendersons, New York' },
-        { quote: "My mom almost wired $3,000 to a scammer. I'd watched Rossen Reports the week before and recognized every red flag.", name: 'Rachel S., Illinois' },
-        { quote: "Used Jeff's grocery savings tricks for one month and cut my weekly bill from $180 to $115. Every single week now.", name: 'Tom B., Michigan' },
-        { quote: 'Jeff exposed a contractor scam targeting seniors in my neighborhood. Shared the episode and three families avoided getting ripped off.', name: 'Carol W., Pennsylvania' },
-        { quote: 'I negotiated my medical bill down 40% using exactly the script Jeff laid out. The hospital agreed without a fight.', name: 'James R., Georgia' },
-    ],
+    // Testimonials were cut in the Nov 2026 redesign (none could be verified).
+    testimonials: [],
 
     // Order the sections appear in on the homepage. The server rebuilds
     // index.html to match, so DOM order always equals visual order — using CSS
     // `order` instead would leave keyboard and screen-reader users navigating a
     // different sequence from the one everyone else sees.
     // 'home' is deliberately absent: the hero is always first.
-    sectionOrder: ['latest', 'deals', 'shop', 'alerts', 'wins', 'subscribe', 'follow', 'about', 'contact'],
+    sectionOrder: ['deals', 'subscribe', 'latest', 'alerts', 'about', 'follow', 'contact'],
 
     // 'auto' tracks the newest upload on the channel. 'manual' pins a specific
     // video, for when the newest upload isn't the one to lead with.
@@ -135,7 +126,7 @@ const INDEX_PATH = path.join(__dirname, 'index.html');
 let orderedPage = { key: null, html: null };
 
 function reorderSections(html, order) {
-    const START = '<!-- ── LATEST EPISODE ── -->';
+    const START = '<!-- ── SECTIONS START ── -->';
     const END = '\n</main>';
     const i = html.indexOf(START), j = html.indexOf(END);
     if (i < 0 || j < 0 || j < i) return html;         // markup moved; serve as-is
@@ -307,6 +298,16 @@ app.get('/api/scams', async (req, res) => {
     }
 });
 
+// ── API: Jeff's newsletter deal posts (the homepage circular) ──
+app.get('/api/newsletter', async (req, res) => {
+    try {
+        res.json(await getNewsletterFeed());
+    } catch (err) {
+        // The page keeps its static fallback picks when this is empty.
+        res.json({ deals: [], updatedAt: null });
+    }
+});
+
 // ── API: Email subscribe ──
 app.post('/api/subscribe', wrap(async (req, res) => {
     const { email } = req.body || {};
@@ -471,7 +472,14 @@ app.delete('/api/admin/contacts/:id', requireAdmin, wrap(async (req, res) => {
 // this, every field added from here on would read as undefined for anyone who
 // had already used the control board once.
 function withDefaults(stored) {
-    return Object.assign({}, DEFAULT_CONTENT, stored || {});
+    const merged = Object.assign({}, DEFAULT_CONTENT, stored || {});
+    // An order saved before a redesign can name sections that no longer exist,
+    // which would then fail validation on every admin save. Keep the known ids,
+    // and append any new sections the saved order doesn't mention.
+    const known = DEFAULT_CONTENT.sectionOrder;
+    const saved = Array.isArray(merged.sectionOrder) ? merged.sectionOrder.filter(id => known.includes(id)) : [];
+    merged.sectionOrder = saved.concat(known.filter(id => !saved.includes(id)));
+    return merged;
 }
 
 async function getContent() {
