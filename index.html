@@ -166,7 +166,9 @@ main:focus, section:focus, ol:focus { outline: none; }
 
 /* the circular's art: engraved groceries, printed straight onto the page */
 .circ-layout { display: grid; grid-template-columns: 1fr 340px; gap: clamp(24px, 4vw, 56px); align-items: start; }
-.circ-art { display: block; width: 100%; height: auto; margin-top: -12px; position: sticky; top: 96px; }
+.circ-art { display: block; width: 100%; height: auto; margin-top: -12px; }
+/* only beside the list (two columns) does the art ride along; stacked on phones it must scroll away */
+@media (min-width: 861px) { .circ-art { position: sticky; top: 96px; } }
 
 /* ── MID-PAGE SIGNUP: full-bleed yellow ── */
 .band { background: var(--yellow); }

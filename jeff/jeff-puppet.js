@@ -197,33 +197,43 @@
       setTimeout(function () { load().then(run); }, wait + 350);
     });
     function run() {
-      var s = st.w < 600 ? .25 : .34, W = st.w, T = W < 600 ? 4.5 : 5.8, strap = 70 * s;   // slowed from 2.8 / 3.6 s (owner, Nov 23)
-      var X0 = -150, X1 = W + 150, phi = 0, dphi = 0, vPrev = 0;
+      // Round trip (owner, Nov 23): left to right, a short turnaround just past the right edge, then back
+      // right to left. Near-constant speed so he is only off screen for moments: ~0.3 s entering, ~1 s at
+      // the turnaround, ~0.3 s leaving.
+      var s = st.w < 600 ? .25 : .34, W = st.w, strap = 70 * s;
+      var LEG = W < 600 ? 3.6 : 4.8, TURN = .45, M = W < 600 ? 95 : 130;   // seconds per leg, pause, off-screen margin
+      var X0 = -M, X1 = W + M, phi = 0, dphi = 0, xPrev = null, vPrev = 0;
       var armR = -2.5;   // free hand up and out to the side, gripping the bar
+      function along(u) { return .88 * u + .12 * easeInOut(u); }   // mostly linear, softened at the ends
       play(function (t, dt) {
-        var p = Math.min(1, t / T), x = X0 + (X1 - X0) * (1.4 * p * p - .4 * p * p * p);
-        var v = (X1 - X0) * (2.8 * p - 1.2 * p * p) / T, acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
-        // the body swings on the strap like a pendulum: it lags as he speeds up
+        var x, dir;
+        if (t < LEG) { x = X0 + (X1 - X0) * along(t / LEG); dir = 1; }
+        else if (t < LEG + TURN) { x = X1; dir = -1; }
+        else { x = X1 - (X1 - X0) * along(Math.min(1, (t - LEG - TURN) / LEG)); dir = -1; }
+        var v = (xPrev === null || !dt) ? 0 : (x - xPrev) / dt; xPrev = x;
+        var acc = dt ? (v - vPrev) / dt : 0; vPrev = v;
+        // the body swings on the strap like a pendulum: it lags as he speeds up or turns
         var w0 = 3.4; dphi += (-w0 * w0 * phi - 2 * .18 * w0 * dphi + acc / 520) * dt; phi += dphi * dt; phi = clamp(phi, -.6, .6);
         var cable = st.rectOf(host).y + 1.5;
         st.clear(); var c = st.ctx;
         var hand = [x - Math.sin(phi) * strap, cable + 6 + Math.cos(phi) * strap];
-        // speed lines
+        // speed lines trail behind him, whichever way he is going
+        var sp = Math.abs(v);
         c.save(); c.strokeStyle = 'rgba(22,24,29,.28)'; c.lineCap = 'round'; c.lineWidth = 2;
-        [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - 70 * s * 2 - i * 6, l = q[1] * Math.min(1, v / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - l, y); c.stroke(); });
+        [[26, 70], [52, 48], [78, 60]].forEach(function (q, i) { var y = hand[1] + q[0] * s * 2.2, x0 = hand[0] - dir * (70 * s * 2 + i * 6), l = q[1] * Math.min(1, sp / 500); c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 - dir * l, y); c.stroke(); });
         c.restore();
         // strap from the trolley down to his fist
         c.strokeStyle = INK; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x, cable + 4); c.lineTo(hand[0], hand[1]); c.stroke();
         var kick = Math.sin(t * 9);
-        sk.draw(c, { s: s, at: hand, anchor: handAt(armR), rot: -.32 + phi, pose: { armR: armR, armL: 1.55 + .28 * Math.sin(t * 10), legL: .45 + .3 * kick, legR: .25 - .3 * kick, head: -.06 + .05 * Math.sin(t * 5) } });
+        sk.draw(c, { s: s, at: hand, anchor: handAt(armR), rot: dir * -.32 + phi, flip: dir < 0, pose: { armR: armR, armL: 1.55 + .28 * Math.sin(t * 10), legL: .45 + .3 * kick, legR: .25 - .3 * kick, head: -.06 + .05 * Math.sin(t * 5) } });
         // the T-bar in his fist
         var bd = rot([1, 0], phi); c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(hand[0] - bd[0] * 9, hand[1] - bd[1] * 9); c.lineTo(hand[0] + bd[0] * 9, hand[1] + bd[1] * 9); c.stroke();
         // the trolley riding on top of the rule: bracket, wheel, spinning yellow spokes
         c.lineWidth = 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x, cable + 5); c.stroke();
         c.fillStyle = INK; c.beginPath(); c.arc(x, cable - 6, 7, 0, TAU); c.fill();
-        c.strokeStyle = YEL; c.lineWidth = 1.6; var sp = x / 7;
-        for (var i = 0; i < 3; i++) { var a = sp + i * TAU / 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x + Math.cos(a) * 5, cable - 6 + Math.sin(a) * 5); c.stroke(); }
-        if (p >= 1) { st.clear(); done = true; return false; }
+        c.strokeStyle = YEL; c.lineWidth = 1.6; var spin = x / 7;
+        for (var i = 0; i < 3; i++) { var a = spin + i * TAU / 3; c.beginPath(); c.moveTo(x, cable - 6); c.lineTo(x + Math.cos(a) * 5, cable - 6 + Math.sin(a) * 5); c.stroke(); }
+        if (t >= 2 * LEG + TURN) { st.clear(); done = true; return false; }
       });
     }
   }
