@@ -2422,76 +2422,6 @@
         @media (max-width: 960px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 600px) { .contact-grid { grid-template-columns: 1fr; } }
 
-        .contact-form-wrap {
-            max-width: 640px;
-            margin: 3rem auto 0;
-            background: var(--white);
-            padding: 2.5rem;
-            border-top: var(--card-rule) solid var(--blue);
-            box-shadow: var(--card-shadow);
-        }
-        .contact-form-title {
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            font-size: 1.15rem;
-            color: var(--blue);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 0.35rem;
-        }
-        .contact-form-sub { font-size: 0.85rem; color: var(--gray); margin-bottom: 1.5rem; }
-        .contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-        .contact-form-wrap label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray);
-            margin-bottom: 0.35rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .contact-form-wrap input,
-        .contact-form-wrap select,
-        .contact-form-wrap textarea {
-            width: 100%;
-            padding: 0.7rem 0.85rem;
-            border: 1px solid var(--gray-light);
-            background: var(--gray-light);
-            font-family: 'Archivo', sans-serif;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-        .contact-form-wrap input:focus,
-        .contact-form-wrap select:focus,
-        .contact-form-wrap textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; background: var(--white); }
-        .contact-form-field { margin-bottom: 1rem; }
-        .contact-form-wrap textarea { min-height: 110px; resize: vertical; }
-        .contact-form-wrap button {
-            font-family: 'Archivo', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: var(--blue);
-            color: var(--yellow);
-            border: 2px solid var(--blue);
-            padding: 0.85rem 1.75rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .contact-form-wrap button:focus { outline: 2px solid var(--yellow); outline-offset: 2px; }
-        .contact-form-wrap button:hover { background: transparent; color: var(--blue); }
-        .contact-form-wrap button:disabled { opacity: 0.6; cursor: wait; }
-        .contact-form-success {
-            display: none;
-            align-items: center;
-            gap: 0.6rem;
-            color: var(--blue);
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-        .contact-form-error { display: none; color: var(--alert); font-size: 0.85rem; margin-top: 0.75rem; }
-        @media (max-width: 640px) { .contact-form-row { grid-template-columns: 1fr; } .contact-form-wrap { padding: 1.75rem; } }
-
         /* ─────────────── NEWSLETTER MODAL ─────────────── */
         /* z-index sits above the sticky header (600) and the mobile nav (500). */
         .nl-modal { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 1.25rem; }
@@ -3119,46 +3049,6 @@
 
         </div>
 
-        <div class="contact-form-wrap">
-            <div class="contact-form-title">Advertise With Rossen Reports</div>
-            <p class="contact-form-sub">Brands and agencies — send the details of your inquiry directly and the team will follow up.</p>
-            <form id="advertiserForm">
-                <div class="contact-form-row">
-                    <div class="contact-form-field">
-                        <label for="advName">Name</label>
-                        <input type="text" id="advName" name="name" autocomplete="name" required>
-                    </div>
-                    <div class="contact-form-field">
-                        <label for="advEmail">Email</label>
-                        <input type="email" id="advEmail" name="email" autocomplete="email" required>
-                    </div>
-                </div>
-                <div class="contact-form-row">
-                    <div class="contact-form-field">
-                        <label for="advCompany">Company / Brand</label>
-                        <input type="text" id="advCompany" name="company" autocomplete="organization">
-                    </div>
-                    <div class="contact-form-field">
-                        <label for="advType">Inquiry Type</label>
-                        <select id="advType" name="type">
-                            <option value="Advertising / Brand Partnership" selected>Advertising / Brand Partnership</option>
-                            <option value="Speaking Engagement">Speaking Engagement</option>
-                            <option value="Media / Press">Media / Press</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="contact-form-field">
-                    <label for="advMessage">Message</label>
-                    <textarea id="advMessage" name="message" required></textarea>
-                </div>
-                <button type="submit" id="advSubmitBtn">Send Inquiry</button>
-                <div class="contact-form-error" id="advError" role="alert">This form couldn't be submitted right now. Please reach out through the Brand Partnerships or Media &amp; Press links just above — those go straight to the team.</div>
-            </form>
-            <div class="contact-form-success" id="advSuccess" role="status">
-                <i class="fas fa-check-circle" style="font-size:1.2rem;"></i> Thanks — Jeff's team will be in touch.
-            </div>
-        </div>
     </div>
 </section>
 
@@ -3734,46 +3624,6 @@ document.getElementById('emailForm').addEventListener('submit', function (e) {
     });
 });
 
-
-// ── ADVERTISER CONTACT FORM ──
-document.getElementById('advertiserForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var form = e.target;
-    var submitBtn = document.getElementById('advSubmitBtn');
-    var successEl = document.getElementById('advSuccess');
-    var errorEl = document.getElementById('advError');
-    errorEl.style.display = 'none';
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
-
-    fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            name: document.getElementById('advName').value,
-            email: document.getElementById('advEmail').value,
-            type: document.getElementById('advType').value + (document.getElementById('advCompany').value ? ' — ' + document.getElementById('advCompany').value : ''),
-            message: document.getElementById('advMessage').value
-        })
-    })
-    .then(function (r) { if (!r.ok) throw new Error('request failed'); return r.json(); })
-    .then(function () {
-        form.hidden = true;
-        successEl.style.display = 'flex';
-        // moving focus here does double duty: it's what reliably triggers most
-        // screen readers to announce the message, and it stops focus from silently
-        // falling back to <body> now that the (previously focused) submit button is gone.
-        successEl.setAttribute('tabindex', '-1');
-        successEl.focus();
-    })
-    .catch(function () {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Inquiry';
-        errorEl.style.display = 'block';
-        errorEl.setAttribute('tabindex', '-1');
-        errorEl.focus();
-    });
-});
 
 // ── LIVE SUBSCRIBER COUNT ──
 // The hero's subscriber figure used to be typed in by hand and went stale the
