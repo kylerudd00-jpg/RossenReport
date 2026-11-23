@@ -12,6 +12,7 @@
          media query means phones never download these fonts. -->
     <link rel="stylesheet" media="(min-width: 861px)" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Franklin:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="jeff/jeff-puppet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="rossenlogo.png">
     <link rel="apple-touch-icon" href="rossenlogo.png">
     <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
@@ -692,7 +693,8 @@ function newsletterState() { try { return localStorage.getItem('rrNewsletter') |
 // tick it appears announces nothing. Clear, then set on a delay.
 function setStatus(node, msg) {
     node.textContent = '';
-    setTimeout(function () { node.textContent = msg; }, 120);
+    clearTimeout(node._statusT);
+    node._statusT = setTimeout(function () { node.textContent = msg; }, 120);
 }
 var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -721,6 +723,7 @@ var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             busy = false;
             if (!res.ok) { setStatus(status, "That didn't go through. Please try again."); return; }
             markSubscribed();
+            clearTimeout(status._statusT);
             status.textContent = '';
             form.hidden = true;
             done.hidden = false;
@@ -1228,5 +1231,6 @@ onReady(function () {
         .observe(document.getElementById('circTags'), { childList: true });
 })();
 </script>
+<script defer src="jeff/jeff-puppet.js" data-art="jeff/"></script>
 </body>
 </html>

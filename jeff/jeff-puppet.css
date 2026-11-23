@@ -1,0 +1,16 @@
+/* Cartoon Jeff (jeff-puppet.js). Every canvas is decoration: no pointer, no screen reader. */
+.jeff-stage { position: absolute; pointer-events: none; z-index: 3; }
+.jeff-zip { z-index: 4; }
+
+/* receipt: on phones Jeff stands under the receipt, so give him room */
+@media (max-width: 860px) { .receipts.jeff-receipt-on .wrap { padding-bottom: 104px; } }
+
+/* "Clip this": the coupon line Jeff cuts sits in the closer's top padding */
+.closer.jeff-cut-on { padding-top: 0; }
+.jeff-cut { position: relative; height: clamp(100px, 10vw, 136px); margin-bottom: clamp(8px, 2vw, 24px); }
+
+/* the thumbs up beside "You're in" */
+.jeff-thumb { position: relative; display: inline-block; width: 2.6em; height: 2.6em; margin-left: .25em; vertical-align: -.9em; }
+.jeff-thumb .jeff-stage { z-index: 1; -webkit-mask-image: linear-gradient(#000 72%, transparent 98%); mask-image: linear-gradient(#000 72%, transparent 98%); }
+
+@media print { .jeff-stage, .jeff-cut { display: none !important; } .closer.jeff-cut-on { padding-top: clamp(56px, 7vw, 96px); } }
