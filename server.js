@@ -167,21 +167,27 @@ function renderDealsPage() {
     const chips = ['<button type="button" data-cat="all" aria-pressed="true">All <span>' + total + '</span></button>']
         .concat(cats.map(c => `<button type="button" data-cat="cat-${slug(c.name)}" aria-pressed="false">${escHtml(c.name)} <span>${c.deals.length}</span></button>`))
         .join('');
-    const sections = cats.map(c => {
-        const id = 'cat-' + slug(c.name);
-        const deals = c.deals;   // Jeff's order, as in the video
-        // Missing photo: a light brand-blue tile with a tag icon (style guide), never a broken image.
-        const NOPIC = '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.4 11.6 12.4 2.6A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7c0 .53.21 1.04.59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.82ZM6.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>';
-        const pic = d => (/^https:\/\/(m\.media-amazon\.com|i5\.walmartimages\.com)\//.test(d.image || '')
-            ? `<img src="${escHtml(d.image)}" alt="" width="250" height="250" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
-            : `<span class="nopic">${NOPIC}</span>`);
-        const rows = deals.map(d => `            <li class="deal"><a href="${escHtml(safe(d.url))}" target="_blank" rel="sponsored noopener">
-                <span class="deal-pic">${pic(d)}${d.top ? '<span class="tag">Jeff’s pick</span>' : ''}</span>
+    // Missing photo: a light brand-blue tile with a tag icon (style guide), never a broken image.
+    const NOPIC = '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.4 11.6 12.4 2.6A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7c0 .53.21 1.04.59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.82ZM6.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>';
+    const pic = (d, eager) => (/^https:\/\/(m\.media-amazon\.com|i5\.walmartimages\.com)\//.test(d.image || '')
+        ? `<img src="${escHtml(d.image)}" alt="" width="250" height="250"${eager ? '' : ' loading="lazy"'} decoding="async" referrerpolicy="no-referrer">`
+        : `<span class="nopic">${NOPIC}</span>`);
+    const saved = d => { const p = Number(d.price), w = Number(d.was); return w > p && p > 0 ? Math.round(w - p) : 0; };
+    const offPct = d => { const p = Number(d.price), w = Number(d.was); return w > p && p > 0 ? Math.round((w - p) / w * 100) : 0; };
+    // SAVE sticker (style guide): whole dollars, only when the saving is real money.
+    const sticker = d => saved(d) >= 5 ? `<span class="save" aria-hidden="true"><span>Save<br><b>$${saved(d).toLocaleString('en-US')}</b></span></span>` : '';
+    const card = (d, catId, cls, eager) => `            <li class="deal${cls || ''}" data-num="${d.num}" data-price="${Number(d.price) || 0}" data-off="${offPct(d)}" data-cat="${catId}"><a href="${escHtml(safe(d.url))}" target="_blank" rel="sponsored noopener">
+                <span class="deal-pic">${pic(d, eager)}${sticker(d)}</span>
                 <span class="deal-num">#${d.num}</span>
                 <span class="deal-name">${escHtml(d.name)}</span>
-                ${priceLine(d)}
+                ${priceLine(d)}${saved(d) >= 5 ? `<span class="sr-only">, you save $${saved(d)}</span>` : ''}
                 <span class="deal-store">Buy at ${escHtml(d.store)}<span class="sr-only"> (opens in a new tab)</span></span>
-            </a></li>`).join('\n');
+            </a></li>`;
+    const all = [];
+    const sections = cats.map(c => {
+        const id = 'cat-' + slug(c.name);
+        c.deals.forEach(d => all.push({ d, id }));
+        const rows = c.deals.map(d => card(d, id)).join('\n');   // Jeff's order, as in the video
         return `        <section class="cat" id="${id}" data-name="${escHtml(c.name)}" aria-labelledby="${id}-h">
             <div class="cat-head"><h2 id="${id}-h">${escHtml(c.name)}</h2><span class="cat-count">${c.deals.length} deals</span></div>
             <ul class="list">
@@ -189,11 +195,20 @@ ${rows}
             </ul>
         </section>`;
     }).join('\n');
+    // Biggest savings: the five deepest discounts, shown big before the grid.
+    const top = all.filter(x => offPct(x.d) > 0).sort((a, b) => offPct(b.d) - offPct(a.d)).slice(0, 5);
+    const featured = top.length ? `        <section class="featured" id="biggest" aria-labelledby="biggest-h">
+            <div class="cat-head"><h2 id="biggest-h">Biggest savings</h2><span class="cat-count">Up to ${offPct(top[0].d)}% off</span></div>
+            <ul class="list feat-list">
+${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
+            </ul>
+        </section>` : '';
     const updated = new Date((data.updated || '') + 'T12:00:00Z');
     const valid = !isNaN(updated);
     return fs.readFileSync(DEALS_PAGE, 'utf8')
         .replace('<!--CHIPS-->', chips)
         .replace('<!--DEALS-->', sections)
+        .replace('<!--FEATURED-->', featured)
         .replace(/<!--DEAL_COUNT-->/g, String(total))
         .replace('<!--PRICES_AT-->', data.pricesAt ? 'Prices checked ' + escHtml(data.pricesAt) + '. ' : '')
         .replace('<!--VIDEO-->', /^[\w-]{6,20}$/.test(data.video || '') ? `<a class="watch" href="https://www.youtube.com/watch?v=${data.video}" target="_blank" rel="noopener">Watch Jeff’s video<span class="sr-only"> (opens in a new tab)</span></a>` : '')
