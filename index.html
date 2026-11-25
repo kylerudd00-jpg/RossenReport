@@ -548,6 +548,16 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
 .foot small a { color: var(--white-2); text-decoration: underline; text-underline-offset: 3px; }
 .foot small a:hover { color: var(--white); }
 .affil { flex-basis: 100%; margin: 0; font-size: 13px; line-height: 1.45; color: var(--white-2); max-width: 80ch; }
+/* Page-to-page slide. Coming home slides the other way from going out to
+   /deals or /privacy, so it reads as going back. Browsers without view
+   transitions just navigate as before. */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-out; }
+    ::view-transition-new(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-in; }
+    @keyframes vt-out { to { transform: translateX(30%); opacity: 0; } }
+    @keyframes vt-in { from { transform: translateX(-100%); } }
+}
 </style>
 </head>
 <body>

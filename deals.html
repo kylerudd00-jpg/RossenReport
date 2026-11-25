@@ -265,6 +265,15 @@ main:focus { outline: none; }
 }
 @media (max-height: 500px) { .mast, .finder { position: static; } }
 @media print { .finder { display: none; } .mast { position: static; } }
+/* Page-to-page slide: this page comes in from the right (the home page
+   mirrors it). Browsers without view transitions just navigate as before. */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-out; }
+    ::view-transition-new(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-in; }
+    @keyframes vt-out { to { transform: translateX(-30%); opacity: 0; } }
+    @keyframes vt-in { from { transform: translateX(100%); } }
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>

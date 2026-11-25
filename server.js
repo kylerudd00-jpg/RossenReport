@@ -224,7 +224,8 @@ function renderDealsPage(opts) {
     // Numbered in the video's order, so "deal 12" in the video is #12 here.
     let num = 0;
     cats.forEach(c => c.deals.forEach(d => { d.num = ++num; }));
-    const money = n => '$' + (Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    // Always with cents: "$8" beside "$12.99" read as two different formats.
+    const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const priceLine = d => {
         const p = Number(d.price), w = Number(d.was);
         if (!(p > 0)) return '';

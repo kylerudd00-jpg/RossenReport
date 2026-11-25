@@ -37,6 +37,15 @@ ul { padding-left: 1.25em; }
 li { margin-bottom: 6px; }
 footer { padding: 0 0 48px; color: var(--subtext); font-size: .9375rem; text-align: center; }
 @media (max-width: 600px) { .mast nav { display: none; } article { padding: 24px 16px; } h1 { font-size: 1.625rem; } }
+/* Page-to-page slide: this page comes in from the right (the home page
+   mirrors it). Browsers without view transitions just navigate as before. */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-out; }
+    ::view-transition-new(root) { animation: .28s cubic-bezier(.3, 0, .2, 1) both vt-in; }
+    @keyframes vt-out { to { transform: translateX(-30%); opacity: 0; } }
+    @keyframes vt-in { from { transform: translateX(100%); } }
+}
 </style>
 </head>
 <body>
