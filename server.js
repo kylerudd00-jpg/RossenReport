@@ -153,7 +153,7 @@ app.use((req, res, next) => {
 // would hand them out. Instead of blocking known names (which encoded paths
 // like /%73erver.js slipped past), static files are served only from an
 // allowlist, checked on the decoded, normalised path the file server sees.
-const PUBLIC_FILE = /^\/(?:[\w.-]+\.(?:html|png|jpe?g|webp)|art\/[\w.-]+\.webp|jeff\/[\w.-]+\.(?:js|css|json|webp))$/;
+const PUBLIC_FILE = /^\/(?:[\w.-]+\.(?:html|png|jpe?g|webp)|jeff\/[\w.-]+\.(?:js|css|json|webp))$/;
 function isPublicFile(rawPath) {
     let p;
     try { p = path.posix.normalize(decodeURIComponent(rawPath)); } catch (_) { return false; }

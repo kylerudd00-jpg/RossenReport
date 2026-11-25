@@ -277,7 +277,7 @@ p { text-wrap: pretty; }
     .bottom-nav { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--navy-deep); border-top: 3px solid var(--yellow); padding-bottom: env(safe-area-inset-bottom); }
     .bnav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 58px; color: var(--white-2); text-decoration: none; font-family: var(--f-label); font-weight: 700; font-size: 12px; }
     .bnav-item i { font-size: 18px; }
-    .bnav-item.active { color: var(--yellow); }
+    .bnav-item.active { color: var(--yellow); box-shadow: inset 0 3px 0 var(--yellow); }
 }
 
 /* ── YOUR WEEK WITH JEFF (in the yellow band) ──
@@ -421,6 +421,7 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
 .mast-logo img { height: 44px; }
 .mast nav a { font-weight: 600; font-size: 1rem; border-bottom: 0; padding: 12px 0; }
 .mast nav a:hover, .mast nav a[aria-current] { color: var(--brand-blue); }
+.mast nav a[aria-current] { text-decoration: underline; text-underline-offset: 6px; }
 .mast .btn { min-height: 44px; padding: 0 16px; font-size: 1rem; }
 
 /* hero: the brand-blue striped band with the angled bottom edge */
