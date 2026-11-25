@@ -1,0 +1,797 @@
+{
+ "updated": "2026-11-24",
+ "categories": [
+  {
+   "name": "Smart home & tech",
+   "deals": [
+    {
+     "name": "Blink Outdoor 4 + Free Battery Doorbell 2K+",
+     "url": "https://amzn.to/4tgm9w6",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0HLTLH1FN",
+     "image": "https://m.media-amazon.com/images/I/51wejE1nF9L._AC_SL500_.jpg",
+     "price": 27.99,
+     "was": 149.98
+    },
+    {
+     "name": "Apple Watch SE 3 (40mm, GPS)",
+     "url": "https://amzn.to/4ARniwX",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0HJ9ZNRKT",
+     "image": "https://m.media-amazon.com/images/I/61hDZx1bOoL._AC_SL500_.jpg",
+     "price": 179.0,
+     "was": 249.0
+    },
+    {
+     "name": "Amazon Alexa Tablet 11 (128GB)",
+     "url": "https://amzn.to/4l38k28",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0DN6WM2HF",
+     "image": "https://m.media-amazon.com/images/I/71c+GrZ6kVL._SL500_.jpg",
+     "price": 219.99,
+     "was": 379.99
+    },
+    {
+     "name": "Amazon Kindle Paperwhite (16GB)",
+     "url": "https://amzn.to/4Cng1X0",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0CFPJYX7P",
+     "image": "https://m.media-amazon.com/images/I/71YwNBmu+aL._AC_SL500_.jpg",
+     "price": 129.99,
+     "was": 199.99
+    },
+    {
+     "name": "Amazon Echo Spot Alarm Clock",
+     "url": "https://amzn.to/4ksYLcC",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0BFC7WQ6R",
+     "image": "https://m.media-amazon.com/images/I/71cSMRiDN2L._AC_SL500_.jpg",
+     "price": 44.99,
+     "was": 109.99
+    },
+    {
+     "name": "Amazon Smart Plug",
+     "url": "https://amzn.to/4zKvgXQ",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B089DR29T6",
+     "image": "https://m.media-amazon.com/images/I/61t5zBS57gL._AC_SL500_.jpg",
+     "price": 14.99,
+     "was": 24.99
+    },
+    {
+     "name": "Amazon Basics Qi2 MagSafe Charging Pad",
+     "url": "https://amzn.to/3VLF9GA",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0FPDWY9QD",
+     "image": "https://m.media-amazon.com/images/I/51szzB5d-bL._AC_SL500_.jpg",
+     "price": 9.7,
+     "was": 19.59
+    }
+   ]
+  },
+  {
+   "name": "TVs & home theater",
+   "deals": [
+    {
+     "name": "Insignia 55” 4K Smart Fire TV",
+     "url": "https://amzn.to/4ksZbzH",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0F1BXQNR5",
+     "image": "https://m.media-amazon.com/images/I/81jLRWNrTXL._AC_SL500_.jpg",
+     "price": 169.99,
+     "was": 349.99
+    },
+    {
+     "name": "Hisense 75” H5R1 4K Smart Roku TV",
+     "url": "https://bit.ly/4jBtr9F",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Hisense-75-Class-H5R1-Series-4K-UHD-HDR-Smart-Roku-TV-75H5R1-2026-Model-Full-Array-LED-Dolby-Vision-AI-4K-Upscaler-Game-Mode-Plus-DTS-Virtual-X-Noise_b4306cca-196b-4eaf-bffb-3a0e514062d4.29fe8501ec020ffa7a2c77a5aca6489e.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 328.0,
+     "was": 668.0
+    },
+    {
+     "name": "TCL 98” Q Series QLED 4K Google TV",
+     "url": "https://bit.ly/4eXVEG2",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/TCL-98-Q-Series-NEW-2025-4K-QLED-144Hz-Dolby-Vision-HDR-Dolby-Atmos-Google-TV-including-Built-in-Google-Assistant-with-Voice-Remote-98Q51BG_4b72e327-8918-4b9e-b20e-f3d17f55ec25.9f49078cc8c7cc9be38832e3680600f4.png?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 898.0,
+     "was": 1499.99
+    },
+    {
+     "name": "Samsung 65” U8000H Crystal UHD 4K TV",
+     "url": "https://bit.ly/4jaVf5L",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Samsung-65-Class-U8000H-Series-Crystal-UHD-4K-UHD-Samsung-Vision-AI-Companion-Smart-Tizen-TV-2026-UN65U8000HFXZA_86f64318-e38c-4328-a519-95737b743ce4.b401ef77ece63d81a54a2c45d2d56182.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 298.0,
+     "was": 378.0
+    },
+    {
+     "name": "Amazon Fire TV Stick 4K Bundle",
+     "url": "https://amzn.to/3X3cHAl",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0HKY7X9Q4",
+     "image": "https://m.media-amazon.com/images/I/61QI50gQ6ZL._AC_SL500_.jpg",
+     "price": 24.97,
+     "was": 89.97
+    },
+    {
+     "name": "Samsung B-Series Soundbar",
+     "url": "https://amzn.to/3VQVEBf",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0DY1Z934F",
+     "image": "https://m.media-amazon.com/images/I/71UWF0d1kVL._AC_SL500_.jpg",
+     "price": 69.99,
+     "was": 139.99
+    },
+    {
+     "name": "ELIVED Full-Motion TV Wall Mount",
+     "url": "https://amzn.to/49iZiH2",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B08865Q8Q8",
+     "image": "https://m.media-amazon.com/images/I/61ak+2a0H1L._AC_SL500_.jpg",
+     "price": 16.13,
+     "was": 28.99
+    }
+   ]
+  },
+  {
+   "name": "Headphones & speakers",
+   "deals": [
+    {
+     "name": "Beats Studio Pro Headphones (White & Black)",
+     "url": "https://bit.ly/4jABnc9",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Beats-Studio-Pro-Wireless-Headphones-White-Black_d3ef2be0-c9d3-43cb-bd56-1d943fa0fc18.2a8af19f53e7462421ca07d25c7c04fe.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 99.0,
+     "was": 299.0
+    },
+    {
+     "name": "Apple AirPods 4",
+     "url": "https://bit.ly/4eVJ6io",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Apple-AirPods-4_43ffea38-e233-4fee-8a6f-7ff92ad713ae.97d6d24546e5cbdfcdc0e2fa52c969b1.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 89.0,
+     "was": 129.99
+    },
+    {
+     "name": "Sony ULT Field 1 Bluetooth Speaker",
+     "url": "https://amzn.to/4jafmzo",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0HF6FY9H6",
+     "image": "https://m.media-amazon.com/images/I/71Dl179bu2L._AC_SL500_.jpg",
+     "price": 68.0,
+     "was": 139.99
+    },
+    {
+     "name": "JBL Tune Buds Noise Cancelling Earbuds",
+     "url": "https://amzn.to/3UMocLW",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0C1QWWZR4",
+     "image": "https://m.media-amazon.com/images/I/51EZig0rEAL._AC_SL500_.jpg",
+     "price": 44.95,
+     "was": 99.95
+    }
+   ]
+  },
+  {
+   "name": "Small appliances",
+   "deals": [
+    {
+     "name": "KitchenAid 5.5-Qt Bowl-Lift Stand Mixer",
+     "url": "https://amzn.to/4tf8Gok",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0G8HN99MK",
+     "image": "https://m.media-amazon.com/images/I/61npYtS+JiL._AC_SL500_.jpg",
+     "price": 299.99,
+     "was": 499.99
+    },
+    {
+     "name": "Vitamix Propel 750 Blender",
+     "url": "https://amzn.to/48zlJHV",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0BWSJVTCJ",
+     "image": "https://m.media-amazon.com/images/I/71vZk6aXveL._AC_SL500_.jpg",
+     "price": 359.95,
+     "was": 629.95
+    },
+    {
+     "name": "Instant Vortex Plus Mini 4-Qt Air Fryer",
+     "url": "https://amzn.to/49iZqX2",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B08R6KMBQT",
+     "image": "https://m.media-amazon.com/images/I/71XyGxT1ITL._AC_SL500_.jpg",
+     "price": 59.99,
+     "was": 129.99
+    },
+    {
+     "name": "Nespresso Vertuo Pop Coffee & Espresso Maker",
+     "url": "https://bit.ly/4AOHkbf",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Nespresso-Vertuo-Pop-by-De-Longhi-Coffee-and-Espresso-Maker-with-Coffee-Tasting-Set-Black_2fbcceba-acfd-495e-99a8-959dd6776d81.bac0cabc2489f8b12edc8a5607ee5103.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 59.0,
+     "was": 119.0
+    },
+    {
+     "name": "Keurig K-Express Essentials Coffee Maker",
+     "url": "https://bit.ly/4j8uVI2",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Keurig-K-Express-Essentials-Black-Single-Serve-K-Cup-Pod-Coffee-Maker_70d03917-65f9-480f-8391-aade09ee61ca.c44d2b2f723cb1529a4c181faed76958.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 35.0,
+     "was": 68.99
+    },
+    {
+     "name": "LINKChef 1000W 5-in-1 Immersion Blender",
+     "url": "https://bit.ly/4j3xNaw",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/LINKChef-Immersion-Blender-1000W-20-Speed-5-in-1-Hand-Blender-with-Turbo-Mode-Scratch-Resistant-Stick-Blender-for-Baby-Food-Ice-Smoothie-Black_def09866-47f3-408c-b34d-cbebb6acc6b5.7c27a4fbec3ea86a3905e57ccac3fd48.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 24.69,
+     "was": 51.99
+    },
+    {
+     "name": "WHALL Touchscreen 2-Slice Toaster",
+     "url": "https://bit.ly/4AWU9AC",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/WHALL-Touchscreen-Toaster-2-Slice-Stainless-Steel-Warming-Rack-Wide-Slots-Bagel-Defrost-850W_76d30b73-1a05-4a55-87d6-286ce70eadf8.5b997cf672949acb039ef56dd7dba3d5.png?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 26.97,
+     "was": 58.49
+    },
+    {
+     "name": "Chefman Warming Tray",
+     "url": "https://amzn.to/3VcIBK1",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0DJ3HR489",
+     "image": "https://m.media-amazon.com/images/I/71lq27oLi0L._AC_SL500_.jpg",
+     "price": 39.99,
+     "was": 79.99
+    },
+    {
+     "name": "Zulay Milk Frother",
+     "url": "https://amzn.to/4zKviiq",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0F1WB2PVS",
+     "image": "https://m.media-amazon.com/images/I/71NIePygSGL._AC_SL500_.jpg",
+     "price": 16.99,
+     "was": 27.99
+    }
+   ]
+  },
+  {
+   "name": "Vacuums",
+   "deals": [
+    {
+     "name": "Shark AI Ultra Robot Vacuum",
+     "url": "https://amzn.to/3VeSqai",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B09H8CWFNK",
+     "image": "https://m.media-amazon.com/images/I/71Us8ka++dL._AC_SL500_.jpg",
+     "price": 259.99,
+     "was": 549.99
+    },
+    {
+     "name": "Dyson V9 Motorbar Cordless Vacuum",
+     "url": "https://bit.ly/4zD3iwM",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Dyson-V9-Motorbar-Cordless-Vacuum-Nickel-New_4f8b280e-6874-43a7-9d41-075b8b7e5237.54109713b90f70fbb76064522ebe191d.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 269.95,
+     "was": 599.99
+    },
+    {
+     "name": "Dyson V12 Detect Slim Cordless Vacuum",
+     "url": "https://bit.ly/4jAmpC3",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/Dyson-V12-Detect-Slim-Cordless-Vacuum-Yellow-Nickel-New-Newest-Gen_b5bfc63a-5bd1-477e-b033-28013a161fe3.77df5cd05ece92e39bcf41b94f378b81.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 399.99,
+     "was": 729.99
+    },
+    {
+     "name": "BISSELL PowerForce Helix Upright Vacuum",
+     "url": "https://bit.ly/4kAKKK6",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/BISSELL-PowerForce-Helix-Bagless-Upright-Vacuum-Pet-Friendly-Scatter-Free-Technology-Helix-Dirt-Separation-System-Lightweight-3313-Blue-Black_b4d59d70-b5ea-4712-a4ce-37763ea7887d.96f446b511bbb59bb090205518f7b1b1.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 59.76,
+     "was": 109.99
+    }
+   ]
+  },
+  {
+   "name": "Cookware & tools",
+   "deals": [
+    {
+     "name": "STAUB 4-Qt Cast Iron Dutch Oven",
+     "url": "https://amzn.to/4zJQmW6",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B003G65YQ0",
+     "image": "https://m.media-amazon.com/images/I/71b4VjvtzJL._SL500_.jpg",
+     "price": 149.95,
+     "was": 379.99
+    },
+    {
+     "name": "Rachael Ray Hard-Anodized Pots & Pans Set",
+     "url": "https://amzn.to/4ti66xO",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B00J9FFP98",
+     "image": "https://m.media-amazon.com/images/I/71yDjqc9QRL._AC_SL500_.jpg",
+     "price": 79.99,
+     "was": 199.99
+    },
+    {
+     "name": "Blackstone 28” 2-Burner Outdoor Griddle",
+     "url": "https://bit.ly/3X1jIle",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Blackstone-Original-Outdoor-Griddle-28-inch-2-Burner-Flat-Top-Grill-with-Hard-Cover-Black_bee2f3d9-8478-4651-88fa-09cce965ea92.44780d1d232d9dcd6a4839e722a71191.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 150.0,
+     "was": 224.0
+    },
+    {
+     "name": "CAROTE Silicone & Wood Utensil Set (10-Pc)",
+     "url": "https://bit.ly/4BedltN",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/CAROTE-10-Piece-Silicone-and-Wood-Cooking-Utensil-Set-Heat-Resistant-Safe-for-Nonstick-Cookware_07419f5f-0543-431c-bc2c-3ef5a18714f0.f4bc121efb0532c9a10e4c247e687602.png?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 14.99,
+     "was": 36.99
+    },
+    {
+     "name": "Fullstar Vegetable Chopper",
+     "url": "https://amzn.to/4jABynP",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0764HS4SL",
+     "image": "https://m.media-amazon.com/images/I/710yC4VLzaL._SL500_.jpg",
+     "price": 23.74,
+     "was": 49.99
+    }
+   ]
+  },
+  {
+   "name": "Storage & drinkware",
+   "deals": [
+    {
+     "name": "Stanley Quencher 40 oz Tumbler",
+     "url": "https://amzn.to/4zGzLmc",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0CP9Z1S51",
+     "image": "https://m.media-amazon.com/images/I/51M9tu3lpIL._AC_SL500_.jpg",
+     "price": 22.5,
+     "was": 45.0
+    },
+    {
+     "name": "Ello Everyday Glass Food Storage Set (30-Pc)",
+     "url": "https://bit.ly/3UVx6GZ",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Ello-Everyday-30PC-Mixed-Glass-Food-Storage-Set-BPA-Free-Plastic-Lids-Oven-Dishwasher-Safe-Icy-Pine_2c805582-2721-43c8-a8c0-a65dbb832384.9d17eb48f62ba304b184807a7473721b.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 25.0,
+     "was": 52.99
+    },
+    {
+     "name": "Rubbermaid Brilliance Pantry Container Set",
+     "url": "https://amzn.to/4zLoOQn",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B076N6DLFJ",
+     "image": "https://m.media-amazon.com/images/I/71RzVS49QEL._AC_SL500_.jpg",
+     "price": 24.99,
+     "was": 49.99
+    },
+    {
+     "name": "Rubbermaid EasyStore Food Storage Set (26-Pc)",
+     "url": "https://bit.ly/3V6DV8F",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/Rubbermaid-EasyStore-Containers-26-Piece-Set-Food-Storage-Container-Set-Food-Storage-Containers-With-Lids_9c7c792f-b918-4e5e-bce2-d3eb1b34a931.b41954d948ffe2f2397400d932d7340c.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 8.0,
+     "was": 44.43
+    }
+   ]
+  },
+  {
+   "name": "Cozy home & holiday",
+   "deals": [
+    {
+     "name": "Shark TurboBlade 2-in-1 Fan + Heater",
+     "url": "https://amzn.to/4A7NzqQ",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0FM9CR2RF",
+     "image": "https://m.media-amazon.com/images/I/611F8lkS5LL._SL500_.jpg",
+     "price": 199.99,
+     "was": 399.99
+    },
+    {
+     "name": "Sunbeam Heated Mattress Pad (King)",
+     "url": "https://amzn.to/4jfEtkE",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0D2DNJQ2M",
+     "image": "https://m.media-amazon.com/images/I/813bsbpb+iL._SL500_.jpg",
+     "price": 48.49,
+     "was": 109.99
+    },
+    {
+     "name": "Best Choice 6-Ft Pre-Lit Christmas Tree",
+     "url": "https://bit.ly/4jboCn7",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Best-Choice-Products-SMU-2-6-5ft-Pre-Lit-Artificial-Slim-Aspen-Noble-Fir-Christmas-Tree-w-1-350-Branch-Tips-300-LED-Lights-Remote_e8fd6b9f-4ed4-4610-948e-5c06383b1492.0bd79dd37eb538a3b54e7af5b944a14d.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 119.99,
+     "was": 257.99
+    },
+    {
+     "name": "Niagara Queen Mattress Topper",
+     "url": "https://amzn.to/4CmQGMX",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0FVY72GV7",
+     "image": "https://m.media-amazon.com/images/I/71qrkpp+0IL._AC_SL500_.jpg",
+     "price": 37.99,
+     "was": 69.99
+    },
+    {
+     "name": "Bedsure Sherpa Throw Blanket",
+     "url": "https://amzn.to/3VehSNm",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0158EQJSY",
+     "image": "https://m.media-amazon.com/images/I/91pivOofzNL._SL500_.jpg",
+     "price": 15.99,
+     "was": 34.99
+    },
+    {
+     "name": "Intex Dura-Beam Twin Air Mattress",
+     "url": "https://amzn.to/4fuRFkr",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0869D64HL",
+     "image": "https://m.media-amazon.com/images/I/61l-3GCmGhL._SL500_.jpg",
+     "price": 33.92,
+     "was": 54.99
+    },
+    {
+     "name": "Yankee Candle Balsam & Cedar (22 oz)",
+     "url": "https://amzn.to/4jdtWXd",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0F3DPXQP1",
+     "image": "https://m.media-amazon.com/images/I/81y0P92PBEL._AC_SL500_.jpg",
+     "price": 14.99,
+     "was": 24.99
+    },
+    {
+     "name": "Gorilla Grip Chenille Bath Rug (24x17)",
+     "url": "https://bit.ly/4j2gNjm",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/GORILLA-GRIP-Chenille-Bath-Rug-24x17-Rubber-Backing-Quick-Dry-Washable-Microfiber-Mats-Gray_72b9e221-edbe-460c-bce3-4be94e8072d2.b38cde8b9d8fc70d2b2f010e061a8d61.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 10.78,
+     "was": 15.99
+    }
+   ]
+  },
+  {
+   "name": "Health & wellness",
+   "deals": [
+    {
+     "name": "Theragun Prime Massage Gun",
+     "url": "https://amzn.to/4fQcuH7",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0FKCJNHWB",
+     "image": "https://m.media-amazon.com/images/I/71ZcT5-d1EL._AC_SL500_.jpg",
+     "price": 189.99,
+     "was": 329.99
+    },
+    {
+     "name": "Waterpik Aquarius Water Flosser",
+     "url": "https://amzn.to/4jgGjln",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B00HFQQ0VU",
+     "image": "https://m.media-amazon.com/images/I/71wBPSRpgeL._AC_SL500_.jpg",
+     "price": 49.99,
+     "was": 99.99
+    },
+    {
+     "name": "iHealth Blood Pressure Monitor",
+     "url": "https://amzn.to/3XLQwyP",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B01C5QS1T8",
+     "image": "https://m.media-amazon.com/images/I/71wVl0n2dmL._SL500_.jpg",
+     "price": 26.58,
+     "was": 49.98
+    },
+    {
+     "name": "Bodyrestore Heated Eye Mask",
+     "url": "https://amzn.to/4fTcGp5",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0DM2PZ1B8",
+     "image": "https://m.media-amazon.com/images/I/61cGBo8uApL._SL500_.jpg",
+     "price": 7.59,
+     "was": 18.19
+    }
+   ]
+  },
+  {
+   "name": "Beauty & personal care",
+   "deals": [
+    {
+     "name": "Shark Glossi 2-in-1 Hair Tool",
+     "url": "https://bit.ly/4fRgCqi",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Shark-Glossi-2-in-1-Hair-Styling-Tool-Air-Glosser-Hot-Tool-Heat-Controlled-Blow-Dryer-HT302GD-Gold_6743c2b8-05be-499f-bdcd-a60251a19fc0.629200739fc1280848630460ff211ea4.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 108.0,
+     "was": 179.99
+    },
+    {
+     "name": "Lancôme Lash Idôle Mascara",
+     "url": "https://amzn.to/48yA9YR",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B08TPCHYLW",
+     "image": "https://m.media-amazon.com/images/I/51Nj0hcoopL._AC_SL500_.jpg",
+     "price": 14.0,
+     "was": 30.0
+    },
+    {
+     "name": "First Aid Beauty Ultra Repair Cream",
+     "url": "https://amzn.to/4zFDArw",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0FY3Q2F2M",
+     "image": "https://m.media-amazon.com/images/I/610P0q3xiSL._AC_SL500_.jpg",
+     "price": 21.0,
+     "was": 42.0
+    },
+    {
+     "name": "Crest 3D Whitestrips Professional Effects",
+     "url": "https://amzn.to/4AW9zFf",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B00AHAWWO0",
+     "image": "https://m.media-amazon.com/images/I/71JH8MLN5vL._SL500_.jpg",
+     "price": 29.99,
+     "was": 45.99
+    },
+    {
+     "name": "Body Restore Shower Steamers",
+     "url": "https://amzn.to/4j5XXrK",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0BJYCRS51",
+     "image": "https://m.media-amazon.com/images/I/71tsJE8r5BL._SL500_.jpg",
+     "price": 7.99,
+     "was": 16.99
+    },
+    {
+     "name": "Wet Brush Speed Dry Detangler",
+     "url": "https://amzn.to/4AReSp5",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0DMZSD9LW",
+     "image": "https://m.media-amazon.com/images/I/81mS875FK6L._SL500_.jpg",
+     "price": 5.91,
+     "was": 17.49
+    }
+   ]
+  },
+  {
+   "name": "Clothing & footwear",
+   "deals": [
+    {
+     "name": "UGG Women’s Classic Micro Boots",
+     "url": "https://amzn.to/4zI864b",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0G3M7N3TH",
+     "image": "https://m.media-amazon.com/images/I/81PijUuP83L._SL500_.jpg",
+     "price": 97.99,
+     "was": 139.95
+    },
+    {
+     "name": "Hanes Beefy Men’s Fleece Hoodie",
+     "url": "https://bit.ly/4tmY1Z4",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Hanes-Beefy-Mens-Hoodie-Pullover-Hooded-Sweatshirt-Heavyweight-Fleece-S-XL_60f0ded4-a9f4-49f4-89de-a23a2a23b53d.30bc0adf8b81eea9b7371ab99fcd7bef.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 9.0,
+     "was": 27.98
+    },
+    {
+     "name": "Hanes Beefy Men’s Fleece Joggers",
+     "url": "https://bit.ly/48yyMJE",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Hanes-Beefy-Mens-Joggers-Fleece-Sweatpants-Heavyweight-Fleece-Drawcord-Waist-S-XL_e21ada06-45bb-46da-9de6-ee5f3ad8b563.6a9cda931cda8a49ed0106b89d1ff69d.png?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 9.0,
+     "was": 27.98
+    },
+    {
+     "name": "DryGuy Boot & Shoe Dryer",
+     "url": "https://amzn.to/4kS7zJp",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B010A5J5FU",
+     "image": "https://m.media-amazon.com/images/I/61MdpFfnmCL._SL500_.jpg",
+     "price": 45.96,
+     "was": 111.99
+    },
+    {
+     "name": "Crocs Classic Cozzzy Slippers",
+     "url": "https://bit.ly/4AWOHO5",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/Crocs-Adult-Classic-Cozzzy-Slippers-Mushroom-M12_2fa5f3b2-12ea-41a5-8c1e-fd02a7e8aa64.1635645a2ff3f85610a9003bec9056de.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 25.0,
+     "was": 39.99
+    },
+    {
+     "name": "EverFoams Women’s Fuzzy Slippers",
+     "url": "https://amzn.to/4j5Y0Us",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0BYNYSHZD",
+     "image": "https://m.media-amazon.com/images/I/71yhTG8TNrL._AC_SL500_.jpg",
+     "price": 15.31,
+     "was": 35.99
+    },
+    {
+     "name": "adidas Men’s Crew Socks (6 Pairs)",
+     "url": "https://amzn.to/3VaKLtQ",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0DC97KH2V",
+     "image": "https://m.media-amazon.com/images/I/71uOh0i5s6L._SL500_.jpg",
+     "price": 12.99,
+     "was": 26.0
+    },
+    {
+     "name": "Steve Madden Men’s Slim Leather Wallet",
+     "url": "https://amzn.to/4jdu3lB",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B074CKDXMQ",
+     "image": "https://m.media-amazon.com/images/I/71meKh4007L._SL500_.jpg",
+     "price": 5.86,
+     "was": 13.62
+    }
+   ]
+  },
+  {
+   "name": "Car & travel",
+   "deals": [
+    {
+     "name": "Samsonite Omni 2 Luggage Set (2-Pc)",
+     "url": "https://amzn.to/3VFlxUB",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0DXR5HLJX",
+     "image": "https://m.media-amazon.com/images/I/81pcsjUV2XL._SL500_.jpg",
+     "price": 149.0,
+     "was": 389.99
+    },
+    {
+     "name": "Joyway Travel Carry-On Backpack",
+     "url": "https://bit.ly/3VFluIp",
+     "store": "Walmart",
+     "top": true,
+     "image": "https://i5.walmartimages.com/seo/Joyway-Travel-Backpack-Women-Men-Large-Capacity-Carry-Backpack-Shoe-Compartment-Waterproof-Weekender-Bag-Laptop-Backpack-Wide-Opening-Overnight-Bag-T_a36d1da9-df66-4a21-9565-d9eb3ea464ee.22f9c4ce1b7f2b87d6bec6a902431b93.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 25.99,
+     "was": 59.99
+    },
+    {
+     "name": "Lamicall MagSafe Car Vent Mount",
+     "url": "https://amzn.to/4l9dfP0",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B0BQRJ6Y5P",
+     "image": "https://m.media-amazon.com/images/I/61aEVdw+2XL._SL500_.jpg",
+     "price": 8.53,
+     "was": 23.19
+    },
+    {
+     "name": "onn. Full HD 1080p Dash Cam",
+     "url": "https://bit.ly/3WUGyuQ",
+     "store": "Walmart",
+     "top": false,
+     "image": "https://i5.walmartimages.com/seo/onn-Full-HD-1080p-Dash-Cam_34cb124b-599c-4863-a415-ae1efe3580db.6acff2574fd1b73c49bbc8c539735458.jpeg?odnHeight=500&odnWidth=500&odnBg=FFFFFF",
+     "price": 15.0,
+     "was": 24.97
+    },
+    {
+     "name": "AstroAI Portable Tire Inflator",
+     "url": "https://amzn.to/4AR9jar",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0CS3B7MD8",
+     "image": "https://m.media-amazon.com/images/I/71E8Cc-0ctL._SL500_.jpg",
+     "price": 21.83,
+     "was": 39.99
+    }
+   ]
+  },
+  {
+   "name": "Gadgets & essentials",
+   "deals": [
+    {
+     "name": "Streamlight MicroStream Flashlight",
+     "url": "https://amzn.to/3XL7QE5",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B00143JZ08",
+     "image": "https://m.media-amazon.com/images/I/61kYUmAmOGL._SL500_.jpg",
+     "price": 15.18,
+     "was": 38.89
+    },
+    {
+     "name": "Energizer AA & AAA Batteries (48-Ct)",
+     "url": "https://amzn.to/4kzcHlq",
+     "store": "Amazon",
+     "top": true,
+     "asin": "B087GMJXMC",
+     "image": "https://m.media-amazon.com/images/I/81arDHi1PdL._AC_SL500_.jpg",
+     "price": 21.84,
+     "was": 38.98
+    },
+    {
+     "name": "Rabbit Electric Wine Opener",
+     "url": "https://amzn.to/3VOGzjA",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B00NOPV4JY",
+     "image": "https://m.media-amazon.com/images/I/51wTCwdo6vL._SL500_.jpg",
+     "price": 34.99,
+     "was": 58.99
+    },
+    {
+     "name": "Gritin Book Light",
+     "url": "https://amzn.to/49jVmG1",
+     "store": "Amazon",
+     "top": false,
+     "asin": "B0C3BC4QG2",
+     "image": "https://m.media-amazon.com/images/I/711p9Q6p0vL._AC_SL500_.jpg",
+     "price": 9.49,
+     "was": 16.99
+    }
+   ]
+  }
+ ],
+ "pricesAt": "Nov 25, 2026"
+}

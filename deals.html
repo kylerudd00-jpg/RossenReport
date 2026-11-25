@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeff's 75 Black Friday Deals | Rossen Reports</title>
+    <meta name="description" content="Every deal Jeff Rossen is recommending right now, by category: tech, TVs, kitchen, home, beauty, clothing and more, at Amazon and Walmart.">
+    <link rel="canonical" href="https://www.rossenreports.com/deals">
+    <meta property="og:title" content="Jeff's 75 best Black Friday deals">
+    <meta property="og:description" content="Every deal Jeff Rossen is recommending right now, by category.">
+    <meta property="og:image" content="https://www.rossenreports.com/og-image.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/rossenlogo.png">
+    <link rel="apple-touch-icon" href="/rossenlogo.png">
+<style>
+/* Hallmark · checked: 2026-11-25 · genre: editorial (inferred) · job: buy
+ * system: Rossen Reports Style Guide (the Deals app), tokens verbatim · built: the project · v2.0.0 */
+/* The /deals page, in the Deals app's look: quiet gray frame, white cards,
+   brand-blue header band, and colour only where it means something. */
+:root {
+    --brand-blue: #0a58c1;
+    --brand-navy: #0b2c6b;
+    --brand-yellow: #ffd100;
+    --ink: #0a0f1a;
+    --subtext: #4a4f58;
+    --page: #f2f2f5;
+    --card: #ffffff;
+    --chip: #e6e7ec;
+    --line: #00000014;
+    --sale-red: #c41e2a;
+    --blue-tint: #0a58c11a;      /* brand-blue at 10%: chips off, missing-photo tiles */
+    --on-band: #ffffffeb;        /* white text on the band, secondary */
+    --stripe: #ffffff12;         /* the band's diagonal line texture */
+    --card-edge: #0b2c6b12;      /* 0.5px navy border at 7% */
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+    --space-xs: 4px;
+    --space-s: 8px;
+    --space-m: 12px;
+    --space-l: 16px;
+    --space-xl: 24px;
+    --space-xxl: 32px;
+    --radius-card: 16px;
+    --radius-inner: 10px;
+    --radius-pill: 999px;
+    --shadow-card: 0 1px 1px #0b2c6b0d, 0 6px 12px #0b2c6b12;
+    --shadow-sticker: 1px 3px 0 #0000002e;
+    --tap-min: 44px;
+    --button-height: 52px;
+    --band-cut: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { overflow-x: clip; }
+html { scroll-padding-top: var(--stick, 200px); }
+body { margin: 0; background: var(--page); color: var(--ink); font: 400 1.0625rem/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; }
+h1, h2, p, ul { margin: 0; }
+ul { padding: 0; list-style: none; }
+a { color: inherit; }
+main:focus { outline: none; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-l); }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 3px solid var(--brand-blue); outline-offset: 2px; }
+.band :focus-visible, .foot :focus-visible { outline-color: var(--brand-yellow); }
+.skip { position: absolute; left: var(--space-m); top: -60px; z-index: 200; background: var(--brand-navy); color: var(--card); padding: var(--space-m) var(--space-l); border-radius: var(--radius-inner); font-weight: 600; text-decoration: none; }
+.skip:focus { top: var(--space-m); }
+
+/* buttons: primary is yellow with navy text, one per page */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-s); min-height: var(--button-height); padding: 0 var(--space-xl); border-radius: var(--radius-card); background: var(--brand-yellow); color: var(--brand-navy); font: 600 1.0625rem/1.3 var(--font-sans); text-decoration: none; }
+.btn-2 { min-height: var(--tap-min); padding: 0 var(--space-l); background: #0b2c6b14; font-size: 1rem; }
+.btn, .deal a, .cats button { transition: transform .12s ease-out, opacity .12s ease-out; }
+.btn:active, .deal a:active, .cats button:active { transform: scale(.98); opacity: .85; }
+
+/* masthead: white, quiet */
+.mast { position: sticky; top: 0; z-index: 50; background: var(--card); border-bottom: 1px solid var(--line); }
+.mast .wrap { display: flex; align-items: center; gap: var(--space-xl); min-height: 64px; }
+.mast-logo img { display: block; height: 44px; width: auto; }
+.mast nav { margin-left: auto; display: flex; gap: var(--space-xl); }
+.mast nav a { font-weight: 600; font-size: 1rem; text-decoration: none; padding: var(--space-m) 0; }
+.mast nav a:hover { color: var(--brand-blue); }
+.mast nav a[aria-current] { color: var(--brand-blue); }
+
+/* header band: Deals → brand-blue, diagonal lines, bottom edge cut at an angle */
+.band { background: var(--brand-blue) repeating-linear-gradient(135deg, var(--stripe) 0 1.5px, transparent 1.5px 22px); color: var(--card); padding: var(--space-xxl) 0 calc(var(--space-xxl) + var(--band-cut)); clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--band-cut)), 0 100%); }
+.band h1 { font: 700 2.125rem/1.2 var(--font-sans); }
+.band .sub { margin-top: var(--space-s); font-size: 1.0625rem; color: var(--on-band); }
+.band .disclose { margin-top: var(--space-m); max-width: 72ch; font-size: .9375rem; line-height: 1.35; color: var(--on-band); }
+
+/* Black Friday sticker: 14-point yellow starburst, navy text, tilted (style guide) */
+.band .wrap { position: relative; }
+.sticker { position: absolute; right: var(--space-l); top: -8px; width: 132px; height: 132px; display: grid; place-items: center; transform: rotate(-10deg); filter: drop-shadow(1px 3px 0 #0000002e); }
+.sticker::before { content: ""; position: absolute; inset: 0; background: var(--brand-yellow); clip-path: polygon(50% 0%, 58.7% 11.9%, 71.7% 4.9%, 74.9% 19.3%, 89.6% 18.5%, 86.8% 32.9%, 100% 39.5%, 90.1% 50%, 100% 60.5%, 86.8% 67.1%, 89.6% 81.5%, 74.9% 80.7%, 71.7% 95.1%, 58.7% 88.1%, 50% 100%, 41.3% 88.1%, 28.3% 95.1%, 25.1% 80.7%, 10.4% 81.5%, 13.2% 67.1%, 0% 60.5%, 9.9% 50%, 0% 39.5%, 13.2% 32.9%, 10.4% 18.5%, 25.1% 19.3%, 28.3% 4.9%, 41.3% 11.9%); }
+.sticker span { position: relative; font: 800 1.5rem/0.95 var(--font-display); text-transform: uppercase; color: var(--brand-navy); text-align: center; }
+.band h1 { max-width: calc(100% - 160px); }
+.watch { display: inline-flex; align-items: center; min-height: var(--tap-min); margin-top: var(--space-m); padding: 0 var(--space-l); border-radius: var(--radius-card); background: var(--card); color: var(--brand-navy); font-weight: 600; text-decoration: none; }
+.watch::before { content: ""; width: 0; height: 0; margin-right: var(--space-s); border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent var(--sale-red); }
+
+/* the finder: search and category chips, stuck under the masthead */
+.finder { position: sticky; top: 64px; z-index: 40; background: var(--page); padding: var(--space-m) 0; border-bottom: 1px solid var(--line); }
+.finder .wrap { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: var(--space-m) var(--space-xl); align-items: center; }
+.search { position: relative; }
+.search input { width: 100%; min-height: var(--tap-min); padding: 0 var(--tap-min) 0 var(--space-l); font: 400 1.0625rem var(--font-sans); color: var(--ink); background: var(--card); border: 1px solid var(--subtext); border-radius: var(--radius-pill); }
+.search input::placeholder { color: var(--subtext); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search button { position: absolute; right: 0; top: 0; width: var(--tap-min); height: var(--tap-min); border: 0; background: none; border-radius: var(--radius-pill); font: 400 1.5rem/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.cats { display: flex; gap: var(--space-s); overflow-x: auto; padding: var(--space-xs) 40px var(--space-xs) var(--space-xs); scroll-padding-inline: 48px; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent); mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent); }
+.cats::-webkit-scrollbar { display: none; }
+/* chips: off = section colour at 10% with coloured text; on = solid with white */
+.cats button { flex: none; min-height: var(--tap-min); padding: 0 var(--space-l); border: 0; border-radius: var(--radius-pill); background: var(--blue-tint); color: var(--brand-blue); font: 600 .9375rem/1 var(--font-sans); white-space: nowrap; cursor: pointer; }
+.cats button[aria-pressed="true"] { background: var(--brand-blue); color: var(--card); }
+.cats button span { font-weight: 400; font-variant-numeric: tabular-nums; }
+
+/* a category: title-3 heading with the yellow highlighter, then a grid of cards */
+.cat { padding-top: var(--space-xxl); }
+.cat-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-l); margin-bottom: var(--space-m); }
+.cat h2 { position: relative; display: inline-block; z-index: 0; font: 600 1.25rem/1.25 var(--font-sans); }
+.cat h2::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: 3px; height: 11px; border-radius: var(--radius-pill); background: var(--brand-yellow); opacity: .85; transform: rotate(-1.5deg); z-index: -1; }
+.cat-count { flex: none; font-size: .9375rem; color: var(--subtext); }
+.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: var(--space-m); }
+
+/* a deal card: the whole card is the link */
+.deal a { display: flex; flex-direction: column; height: 100%; padding: var(--space-m); background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); text-decoration: none; }
+.deal-pic { position: relative; aspect-ratio: 1; border-radius: var(--radius-inner); background: var(--card); overflow: hidden; display: grid; place-items: center; }
+/* the whole product always shows: the photo is fitted inside the square, never cropped,
+   with a clear strip on top so the tag never sits on the product */
+.deal-pic img { position: absolute; top: 40px; left: var(--space-m); width: calc(100% - 2 * var(--space-m)); height: calc(100% - 40px - var(--space-m)); object-fit: contain; display: block; }
+.nopic { position: absolute; inset: 0; display: grid; place-items: center; background: var(--blue-tint); color: var(--brand-blue); }
+/* deal tag: sale-red pill, white heavy caps, tilted, top-left of the photo */
+.tag { position: absolute; left: var(--space-s); top: var(--space-s); padding: 3px var(--space-m) 2px; border-radius: var(--radius-pill); background: var(--sale-red); color: var(--card); font: 800 1rem/1.15 var(--font-display); text-transform: uppercase; letter-spacing: .02em; transform: rotate(-4deg); box-shadow: var(--shadow-sticker); }
+.deal-num { margin-top: var(--space-m); font-size: .875rem; font-weight: 600; color: var(--subtext); font-variant-numeric: tabular-nums; }
+.deal-name { margin-top: var(--space-xs); font-weight: 600; font-size: 1.0625rem; line-height: 1.3; }
+/* price line: new price big, old price with a red marker slash, then -NN% */
+.deal-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-xs) var(--space-s); margin-top: var(--space-s); font-variant-numeric: tabular-nums; }
+.deal-price .now { flex-basis: 100%; font-size: 1.5rem; line-height: 1.2; font-weight: 700; }
+.deal-price .was { position: relative; font-size: .9375rem; color: var(--subtext); }
+.deal-price .was::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; border-radius: 2px; background: var(--sale-red); transform: rotate(-8deg); }
+.deal-price .off { font-size: .9375rem; font-weight: 700; color: var(--sale-red); }
+.deal-store { display: flex; align-items: center; justify-content: center; min-height: var(--tap-min); margin-top: auto; border-radius: var(--radius-inner); background: #0b2c6b14; font-weight: 600; font-size: .9375rem; color: var(--brand-navy); }
+.deal-price + .deal-store, .deal-name + .deal-store { margin-top: var(--space-m); }
+.deal a { gap: 0; }
+.deal a > .deal-store { margin-top: auto; }
+.deal-price { margin-bottom: var(--space-m); }
+.deal-name { margin-bottom: var(--space-m); }
+.deal a:hover .deal-name { text-decoration: underline; text-underline-offset: 3px; }
+.deal a:hover .deal-store { background: var(--brand-navy); color: var(--card); }
+
+.empty { padding: var(--space-xxl) 0; font-size: 1.125rem; }
+.empty .btn { margin-top: var(--space-l); }
+
+/* closer: the one primary button */
+.closer { margin-top: 64px; }
+.closer-card { padding: var(--space-xxl) var(--space-xl); background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-l) var(--space-xl); }
+.closer h2 { font: 700 1.75rem/1.2 var(--font-sans); }
+.closer p { margin-top: var(--space-xs); color: var(--subtext); }
+.foot { margin-top: var(--space-xxl); background: var(--brand-navy); color: var(--card); padding: var(--space-xl) 0; }
+.foot .wrap { display: flex; flex-wrap: wrap; gap: var(--space-m) var(--space-xl); align-items: center; font-size: .9375rem; }
+.foot img { height: 40px; width: auto; display: block; }
+.foot nav { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-l); }
+.foot a { text-decoration: none; display: inline-block; padding: var(--space-m) 0; }
+.foot a:hover { text-decoration: underline; }
+.foot small { margin-left: auto; font-size: .875rem; color: var(--on-band); }
+
+@media (prefers-reduced-motion: reduce) { .btn, .deal a, .cats button { transition: none; } }
+@media (max-width: 860px) {
+    .mast nav { display: none; }
+    .mast .btn-2 { margin-left: auto; }
+    .finder .wrap { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 861px) { .mast .btn-2 { display: none; } }
+@media (max-width: 520px) {
+    .list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .deal a { padding: var(--space-s); }
+    .deal-name { font-size: 1rem; }
+    .tag { font-size: .875rem; }
+    .band h1 { font-size: 1.75rem; max-width: calc(100% - 96px); }
+    .sticker { width: 88px; height: 88px; right: 0; top: -12px; }
+    .sticker span { font-size: 1.0625rem; }
+    .deal-price .now { font-size: 1.3125rem; }
+    .foot small { margin-left: 0; }
+}
+@media (max-height: 500px) { .mast, .finder { position: static; } }
+@media print { .finder { display: none; } .mast { position: static; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the deals</a>
+
+<header class="mast">
+    <div class="wrap">
+        <a class="mast-logo" href="/"><img src="/rossenlogo-trim.png" alt="Rossen Reports home" width="73" height="44"></a>
+        <nav aria-label="Primary">
+            <a href="/deals" aria-current="page">Deals</a>
+            <a href="/#latest">Watch</a>
+            <a href="/#alerts">Scam Alerts</a>
+            <a href="/#about">About</a>
+            <a href="/#contact">Work With Jeff</a>
+        </nav>
+        <a class="btn btn-2" href="/">Home</a>
+    </div>
+</header>
+
+<main id="main" tabindex="-1">
+    <div class="band">
+        <div class="wrap">
+            <p class="sticker" aria-hidden="true"><span>Black<br>Friday</span></p>
+            <h1>Jeff’s <!--DEAL_COUNT--> best Black Friday deals</h1>
+            <p class="sub">Every deal from the video, at Amazon and Walmart. Tap a deal to shop it.</p>
+            <!--VIDEO-->
+            <p class="disclose"><!--PRICES_AT-->Black Friday prices change fast, so check the price at the store. These are affiliate links: Rossen Reports may earn a commission when you buy, at no extra cost to you.</p>
+        </div>
+    </div>
+
+    <div class="finder" role="search" aria-label="Find a deal">
+        <div class="wrap">
+            <div class="search">
+                <label class="sr-only" for="q">Search the deals</label>
+                <input type="search" id="q" placeholder="Search the deals" autocomplete="off" aria-describedby="dealStatus">
+                <button type="button" id="qClear" aria-label="Clear search" hidden>×</button>
+            </div>
+            <div class="cats" id="cats" role="group" aria-label="Filter by category"><!--CHIPS--></div>
+        </div>
+    </div>
+    <p class="sr-only" id="dealStatus" role="status"></p>
+
+    <div class="wrap" id="dealList">
+<!--DEALS-->
+        <div class="empty" id="empty" hidden>
+            <p>No deals match “<span id="emptyQ"></span>”.</p>
+            <button type="button" class="btn btn-2" id="emptyClear">Show all deals</button>
+        </div>
+    </div>
+
+    <div class="wrap closer">
+        <div class="closer-card">
+            <div>
+                <h2>Get new deals every week</h2>
+                <p>Jeff’s free newsletter has the newest picks first.</p>
+            </div>
+            <a class="btn" href="/#subscribe">Get the deals</a>
+        </div>
+    </div>
+</main>
+
+<footer class="foot">
+    <div class="wrap">
+        <img src="/rossenlogo-trim.png" alt="Rossen Reports" width="67" height="40">
+        <nav aria-label="Footer">
+            <a href="/">Home</a>
+            <a href="/#latest">Watch</a>
+            <a href="/#alerts">Scam Alerts</a>
+            <a href="/#about">About</a>
+        </nav>
+        <small>© 2026 Rossen Reports</small>
+    </div>
+</footer>
+
+<script>
+(function () {
+    var q = document.getElementById('q');
+    var clear = document.getElementById('qClear');
+    var chips = Array.prototype.slice.call(document.querySelectorAll('#cats button'));
+    var cats = Array.prototype.slice.call(document.querySelectorAll('.cat'));
+    var empty = document.getElementById('empty');
+    var status = document.getElementById('dealStatus');
+    var active = 'all', statusT = null;
+
+    // Folds accents and curly quotes so "lancome" finds Lancôme.
+    function norm(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’‘]/g, "'").toLowerCase(); }
+    cats.forEach(function (c) {
+        Array.prototype.forEach.call(c.querySelectorAll('.deal'), function (d) { d._text = norm(d.textContent + ' ' + c.getAttribute('data-name')); });
+    });
+
+    function apply(announce) {
+        var terms = norm(q.value.trim()).split(/\s+/).filter(Boolean);
+        var total = 0;
+        cats.forEach(function (c) {
+            var inCat = active === 'all' || c.id === active;
+            var n = 0;
+            Array.prototype.forEach.call(c.querySelectorAll('.deal'), function (d) {
+                var hit = inCat && terms.every(function (t) { return d._text.indexOf(t) !== -1; });
+                d.hidden = !hit;
+                if (hit) n++;
+            });
+            c.hidden = n === 0;
+            c.querySelector('.cat-count').textContent = n + (n === 1 ? ' deal' : ' deals');
+            total += n;
+        });
+        clear.hidden = !q.value;
+        empty.hidden = total > 0;
+        document.getElementById('emptyQ').textContent = q.value.trim();
+        if (announce) {
+            clearTimeout(statusT);
+            status.textContent = '';
+            statusT = setTimeout(function () { status.textContent = total === 1 ? '1 deal shown' : total + ' deals shown'; }, 400);
+        }
+    }
+    function pick(id) {
+        active = id;
+        chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-cat') === id)); });
+        apply(true);
+    }
+    chips.forEach(function (b) {
+        b.addEventListener('click', function () {
+            pick(b.getAttribute('data-cat'));
+            var list = document.getElementById('dealList');
+            var finder = document.querySelector('.finder').getBoundingClientRect();
+            if (list.getBoundingClientRect().top < finder.bottom) {
+                window.scrollTo({ top: window.scrollY + list.getBoundingClientRect().top - finder.bottom });
+            }
+        });
+    });
+    q.addEventListener('input', function () { apply(true); });
+    // Keep focused rows clear of the masthead and the finder (2.4.11).
+    var mast = document.querySelector('.mast'), finder = document.querySelector('.finder');
+    function stick() {
+        var z = parseFloat(getComputedStyle(document.body).zoom) || 1;
+        // Where the finder's bottom sits once stuck, in viewport pixels (html is outside body's zoom).
+        var cs = getComputedStyle(finder);
+        var h = cs.position === 'sticky' ? parseFloat(cs.top) * z + finder.getBoundingClientRect().height : 0;
+        document.documentElement.style.setProperty('--stick', Math.ceil(h + 16) + 'px');
+    }
+    if ('ResizeObserver' in window) { var ro = new ResizeObserver(stick); ro.observe(mast); ro.observe(finder); }
+    window.addEventListener('resize', stick);
+    stick();
+    function reset() { q.value = ''; pick('all'); q.focus(); }
+    clear.addEventListener('click', reset);
+    document.getElementById('emptyClear').addEventListener('click', reset);
+    q.addEventListener('keydown', function (e) { if (e.key === 'Escape' && q.value) { e.preventDefault(); reset(); } });
+})();
+</script>
+</body>
+</html>

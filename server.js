@@ -24,13 +24,13 @@ const DEFAULT_CONTENT = {
         stats: [],
     },
     about: {
-        quote: "I'll save you money by revealing the best deals, and exposing the worst scams — the stories that actually matter to your life.",
+        quote: "I'll save you money by revealing the best deals, and exposing the worst scams, the stories that actually matter to your life.",
         // Printed as the receipt in the About section: label on the left, num on
         // the right. A label containing "subscriber" picks up the live YouTube count.
         credentials: [
             { num: '2001', label: 'WABC-TV New York' },
-            { num: '2008–19', label: 'NBC News / TODAY' },
-            { num: '2019–24', label: 'Hearst Television' },
+            { num: '2008-19', label: 'NBC News / TODAY' },
+            { num: '2019-24', label: 'Hearst Television' },
             { num: '2017', label: 'Book: Rossen to the Rescue' },
             { num: '773K', label: 'YouTube subscribers' },
         ],
@@ -140,6 +140,77 @@ function reorderSections(html, order) {
 
     return html.slice(0, i) + ids.map(id => byId[id]).join('\n\n') + '\n' + html.slice(j);
 }
+
+// ── /deals: Jeff's full deal list ──
+// The list lives in db/deal-list.json (edited by hand for now) and is rendered
+// into deals.html here, so the page works and is indexable without scripts.
+const DEALS_PAGE = path.join(__dirname, 'deals.html');
+const DEAL_LIST  = path.join(__dirname, 'db', 'deal-list.json');
+const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slug = s => String(s).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function renderDealsPage() {
+    const data = JSON.parse(fs.readFileSync(DEAL_LIST, 'utf8'));
+    const cats = (data.categories || []).filter(c => c.deals && c.deals.length);
+    const total = cats.reduce((n, c) => n + c.deals.length, 0);
+    // Numbered in the video's order, so "deal 12" in the video is #12 here.
+    let num = 0;
+    cats.forEach(c => c.deals.forEach(d => { d.num = ++num; }));
+    const money = n => '$' + (Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    const priceLine = d => {
+        const p = Number(d.price), w = Number(d.was);
+        if (!(p > 0)) return '';
+        const off = w > p ? Math.round((w - p) / w * 100) : 0;
+        return `<span class="deal-price"><span class="now">${money(p)}</span>` +
+            (off >= 5 ? `<span class="was"><span class="sr-only">was </span>${money(w)}</span><span class="off">-${off}%</span>` : '') + '</span>';
+    };
+    const safe = u => (/^https:\/\//.test(u) ? u : '#');
+    const chips = ['<button type="button" data-cat="all" aria-pressed="true">All <span>' + total + '</span></button>']
+        .concat(cats.map(c => `<button type="button" data-cat="cat-${slug(c.name)}" aria-pressed="false">${escHtml(c.name)} <span>${c.deals.length}</span></button>`))
+        .join('');
+    const sections = cats.map(c => {
+        const id = 'cat-' + slug(c.name);
+        const deals = c.deals;   // Jeff's order, as in the video
+        // Missing photo: a light brand-blue tile with a tag icon (style guide), never a broken image.
+        const NOPIC = '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.4 11.6 12.4 2.6A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7c0 .53.21 1.04.59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.82ZM6.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>';
+        const pic = d => (/^https:\/\/(m\.media-amazon\.com|i5\.walmartimages\.com)\//.test(d.image || '')
+            ? `<img src="${escHtml(d.image)}" alt="" width="250" height="250" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+            : `<span class="nopic">${NOPIC}</span>`);
+        const rows = deals.map(d => `            <li class="deal"><a href="${escHtml(safe(d.url))}" target="_blank" rel="sponsored noopener">
+                <span class="deal-pic">${pic(d)}${d.top ? '<span class="tag">Jeff’s pick</span>' : ''}</span>
+                <span class="deal-num">#${d.num}</span>
+                <span class="deal-name">${escHtml(d.name)}</span>
+                ${priceLine(d)}
+                <span class="deal-store">Buy at ${escHtml(d.store)}<span class="sr-only"> (opens in a new tab)</span></span>
+            </a></li>`).join('\n');
+        return `        <section class="cat" id="${id}" data-name="${escHtml(c.name)}" aria-labelledby="${id}-h">
+            <div class="cat-head"><h2 id="${id}-h">${escHtml(c.name)}</h2><span class="cat-count">${c.deals.length} deals</span></div>
+            <ul class="list">
+${rows}
+            </ul>
+        </section>`;
+    }).join('\n');
+    const updated = new Date((data.updated || '') + 'T12:00:00Z');
+    const valid = !isNaN(updated);
+    return fs.readFileSync(DEALS_PAGE, 'utf8')
+        .replace('<!--CHIPS-->', chips)
+        .replace('<!--DEALS-->', sections)
+        .replace(/<!--DEAL_COUNT-->/g, String(total))
+        .replace('<!--PRICES_AT-->', data.pricesAt ? 'Prices checked ' + escHtml(data.pricesAt) + '. ' : '')
+        .replace('<!--VIDEO-->', /^[\w-]{6,20}$/.test(data.video || '') ? `<a class="watch" href="https://www.youtube.com/watch?v=${data.video}" target="_blank" rel="noopener">Watch Jeff’s video<span class="sr-only"> (opens in a new tab)</span></a>` : '')
+        .replace('<!--UPDATED_ISO-->', valid ? data.updated : '')
+        .replace('<!--UPDATED-->', valid ? updated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }) : 'recently');
+}
+app.get(['/deals', '/deals/'], (req, res, next) => {
+    try {
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.set('Cache-Control', 'no-cache');
+        res.send(renderDealsPage());
+    } catch (e) {
+        console.error('deals page:', e.message);
+        next();
+    }
+});
+app.get('/deals.html', (req, res) => res.redirect(301, '/deals'));
 
 app.get(['/', '/index.html'], async (req, res, next) => {
     try {
