@@ -179,11 +179,7 @@ p { text-wrap: pretty; }
 .shops a { font-weight: 700; text-underline-offset: 4px; display: inline-block; padding: 4px 0; }
 .shops a:hover { color: var(--navy); text-decoration-thickness: 3px; }
 
-/* the circular's art: engraved groceries, printed straight onto the page */
 .circ-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(24px, 4vw, 56px); align-items: start; }
-.circ-art { display: block; width: 100%; height: auto; margin-top: -12px; }
-/* only beside the list (two columns) does the art ride along; stacked on phones it must scroll away */
-@media (min-width: 861px) { .circ-art { position: sticky; top: 96px; } }
 
 /* ── MID-PAGE SIGNUP: full-bleed yellow ── */
 .band { background: var(--yellow); }
@@ -287,7 +283,6 @@ p { text-wrap: pretty; }
    up front is what makes a free signup feel safe. */
 .week { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 28px; margin-top: 8px; border-top: 2px solid var(--press); }
 .week li { padding-top: 14px; }
-.week-art { display: block; height: 84px; width: auto; margin-bottom: 10px; }
 .week-when { display: block; font-family: var(--f-label); font-weight: 700; font-size: 15px; }
 .week-what { display: block; font-family: var(--f-head); font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: uppercase; color: var(--navy); margin-top: 4px; }
 .week-today { color: var(--navy); } /* real text, not ::after, so it is read and copied; 9:1 on yellow */
@@ -368,7 +363,6 @@ p { text-wrap: pretty; }
     .anchor { max-width: 440px; }
     .circ-list a { grid-template-columns: 1fr auto; gap: 6px 16px; }
     .circ-layout { grid-template-columns: minmax(0, 1fr); }
-    .circ-art { order: -1; width: 240px; margin: 0 0 8px; }
     .circ-date { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
@@ -503,6 +497,14 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
 .substack-note { font-weight: 600; }
 .bottom-nav { background: var(--navy); }
 
+/* week strip: modern icon tiles in the deals app's tinted style, not engravings */
+.week-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 12px; border-radius: 14px; background: var(--blue-tint); color: var(--brand-blue); font-size: 22px; }
+.week li[data-day] .week-icon { background: #c41e2a14; color: var(--tag-red); }
+/* the highlighter hugs the heading text, not the whole grid cell */
+.band h2 { justify-self: start; }
+/* without the grocery art the circular runs full width */
+.circ-layout { grid-template-columns: minmax(0, 1fr); }
+
 /* ── HOME DEALS: the /deals "Biggest savings" cards, same markup and look ── */
 .home-deals { --space-xs: 4px; --space-s: 8px; --space-m: 12px; --space-l: 16px; --sale-red: var(--tag-red); --brand-navy: var(--navy); --brand-yellow: var(--yellow); margin-bottom: clamp(40px, 5vw, 56px); }
 .hd-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-bottom: 16px; }
@@ -536,8 +538,6 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
     .home-deals .deal { scroll-snap-align: start; }
 }
 
-/* phones: the grocery art no longer pushes the circular a full screen down */
-@media (max-width: 860px) { .circ-art { display: none; } }
 
 /* footer line: copyright and the small Work with Jeff link, spaced */
 .foot small { display: flex; flex-wrap: wrap; gap: 4px 16px; }
@@ -621,7 +621,6 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
             </ul>
         </div>
         </div>
-        <img class="circ-art" src="art/grocery-bag-360.webp" srcset="art/grocery-bag-360.webp 360w, art/grocery-bag-720.webp 720w" sizes="(min-width: 861px) 340px, 240px" width="360" height="364" alt="" loading="lazy" decoding="async">
         </div>
     </div>
 </section>
@@ -636,10 +635,10 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
             </p>
         </div>
         <ul class="week" id="week" aria-label="What you get each week">
-            <li><img class="week-art" src="art/envelope-120.webp" srcset="art/envelope-120.webp 1x, art/envelope-240.webp 2x" width="120" height="129" alt="" loading="lazy" decoding="async"><span class="week-when">Every week</span><span class="week-what">New deals</span></li>
-            <li data-day="3"><img class="week-art" src="art/tv-120.webp" srcset="art/tv-120.webp 1x, art/tv-240.webp 2x" width="120" height="145" alt="" loading="lazy" decoding="async"><span class="week-when">Wednesday</span><span class="week-what">New episode</span></li>
-            <li data-day="5"><img class="week-art" src="art/tv-friday-120.webp" srcset="art/tv-friday-120.webp 1x, art/tv-friday-240.webp 2x" width="120" height="83" alt="" loading="lazy" decoding="async"><span class="week-when">Friday</span><span class="week-what">New episode</span></li>
-            <li><img class="week-art" src="art/magnifier-120.webp" srcset="art/magnifier-120.webp 1x, art/magnifier-240.webp 2x" width="120" height="135" alt="" loading="lazy" decoding="async"><span class="week-when">Every day</span><span class="week-what">Scam alerts, updated</span></li>
+            <li><span class="week-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></span><span class="week-when">Every week</span><span class="week-what">New deals</span></li>
+            <li data-day="3"><span class="week-icon" aria-hidden="true"><i class="fa-solid fa-circle-play"></i></span><span class="week-when">Wednesday</span><span class="week-what">New episode</span></li>
+            <li data-day="5"><span class="week-icon" aria-hidden="true"><i class="fa-solid fa-circle-play"></i></span><span class="week-when">Friday</span><span class="week-what">New episode</span></li>
+            <li><span class="week-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span><span class="week-when">Every day</span><span class="week-what">Scam alerts, updated</span></li>
         </ul>
     </div>
 </section>
