@@ -105,6 +105,25 @@ const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch
 // ── MIDDLEWARE ──
 app.use(express.json());
 
+// ── CDN CACHING ──
+// Every request on Vercel runs this function, so without these headers each
+// visitor re-ran it for the page, every image and every feed. s-maxage lets
+// Vercel's CDN answer repeat requests itself; a new deploy clears that cache.
+// Pages and the editable content refresh within a minute; feeds within five.
+const PAGE_CACHE = 'public, max-age=0, s-maxage=60, stale-while-revalidate=600';
+const PUBLIC_API_CACHE = {
+    '/api/content': PAGE_CACHE,
+    '/api/deals': PAGE_CACHE,
+    '/api/youtube': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600',
+    '/api/scams': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600',
+    '/api/newsletter': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600',
+    '/api/stats': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600',
+};
+app.use((req, res, next) => {
+    if (req.method === 'GET' && PUBLIC_API_CACHE[req.path]) res.set('Cache-Control', PUBLIC_API_CACHE[req.path]);
+    next();
+});
+
 // serve static files from root, block server internals
 app.use(function (req, res, next) {
     const blocked = ['/server.js', '/package.json', '/package-lock.json'];
@@ -224,7 +243,7 @@ ${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
 app.get(['/deals', '/deals/'], (req, res, next) => {
     try {
         res.set('Content-Type', 'text/html; charset=utf-8');
-        res.set('Cache-Control', 'no-cache');
+        res.set('Cache-Control', PAGE_CACHE);
         res.send(renderDealsPage());
     } catch (e) {
         console.error('deals page:', e.message);
@@ -244,7 +263,7 @@ app.get(['/', '/index.html'], async (req, res, next) => {
             orderedPage = { key, html: reorderSections(fs.readFileSync(INDEX_PATH, 'utf8'), order) };
         }
         res.set('Content-Type', 'text/html; charset=utf-8');
-        res.set('Cache-Control', 'no-cache');
+        res.set('Cache-Control', PAGE_CACHE);
         let html = orderedPage.html;
         try {
             const t = renderDealsPage({ topOnly: true });
@@ -256,7 +275,13 @@ app.get(['/', '/index.html'], async (req, res, next) => {
     }
 });
 
-app.use(express.static(__dirname, { index: 'index.html', dotfiles: 'deny' }));
+app.use(express.static(__dirname, {
+    index: 'index.html', dotfiles: 'deny',
+    // Images, scripts and styles: browsers keep them an hour, the CDN a day.
+    setHeaders: (res, file) => res.setHeader('Cache-Control', /\.html$/.test(file)
+        ? PAGE_CACHE
+        : 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400'),
+}));
 
 // ── YOUTUBE CACHE ──
 const YT_CHANNEL_ID = 'UC7PYy5Tx1WhbnGKc3KJeRKw';
