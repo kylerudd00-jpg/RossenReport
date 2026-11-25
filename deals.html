@@ -169,7 +169,7 @@ main:focus { outline: none; }
 .fav[aria-pressed="true"] { color: var(--sale-red); }
 .fav[aria-pressed="true"] svg path { fill: currentColor; }
 .fav:active { transform: scale(.92); }
-#savedChip { background: #c41e2a1a; color: var(--sale-red); }
+#savedChip { background: #c41e2a1a; color: #b3141f; }
 #savedChip[aria-pressed="true"] { background: var(--sale-red); color: var(--card); }
 /* freshness pill in the band (idea from DealNews' "Verified") */
 .verified { display: inline-flex; align-items: center; gap: 6px; margin-bottom: var(--space-m); padding: 4px 12px; border-radius: var(--radius-pill); background: #ffffff26; color: var(--card); font-size: .875rem; font-weight: 600; }
@@ -346,7 +346,7 @@ main:focus { outline: none; }
         </section>
 <!--DEALS-->
         <div class="empty" id="empty" hidden>
-            <p>No deals match “<span id="emptyQ"></span>”.</p>
+            <p id="emptyQ"></p>
             <button type="button" class="btn btn-2" id="emptyClear">Show all deals</button>
         </div>
     </div>
@@ -443,7 +443,7 @@ main:focus { outline: none; }
         shown.textContent = total === gridDeals.length ? 'Showing all ' + total + ' deals' : 'Showing ' + total + ' of ' + gridDeals.length + ' deals';
         clear.hidden = !q.value;
         empty.hidden = total > 0;
-        document.getElementById('emptyQ').textContent = q.value.trim();
+        document.getElementById('emptyQ').textContent = q.value.trim() ? 'No deals match “' + q.value.trim() + '”.' : 'No deals match these filters.';
         if (announce) {
             clearTimeout(statusT);
             status.textContent = '';
@@ -513,6 +513,7 @@ main:focus { outline: none; }
             if (savedSet[n]) delete savedSet[n]; else savedSet[n] = true;
             persist(); syncSaved();
             if (onlySaved) apply(true);
+            if (li.hidden) document.getElementById('savedChip').focus();   // don't drop focus with the card
             clearTimeout(statusT); status.textContent = '';
             statusT = setTimeout(function () { status.textContent = (savedSet[n] ? 'Saved ' : 'Removed ') + name; }, 120);
         });

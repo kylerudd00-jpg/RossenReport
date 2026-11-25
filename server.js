@@ -122,10 +122,25 @@ app.use((req, res, next) => {
     next();
 });
 
-// Security headers on every response. No CSP yet: the pages load fonts,
-// icons and YouTube from several origins, and a wrong policy would break them.
+// Security headers on every response. The CSP lists every origin the pages
+// load from; inline scripts and styles are allowed because the pages are built
+// from them. Adding a new third-party script, font or embed means adding it here.
+const CSP = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    "img-src 'self' data: https:",
+    "frame-src https://www.youtube-nocookie.com",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+].join('; ');
 app.use((req, res, next) => {
     res.set({
+        'Content-Security-Policy': CSP,
         'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'X-Frame-Options': 'SAMEORIGIN',
@@ -173,7 +188,6 @@ function notFound(req, res) {
 // leave keyboard and screen-reader users moving through the page in a
 // different sequence from the one shown, which is a WCAG 1.3.2 failure.
 const INDEX_PATH = path.join(__dirname, 'index.html');
-let orderedPage = { key: null, html: null };
 
 function reorderSections(html, order) {
     const START = '<!-- ── SECTIONS START ── -->';
@@ -224,8 +238,11 @@ function renderDealsPage(opts) {
         .join('');
     // Missing photo: a light brand-blue tile with a tag icon (style guide), never a broken image.
     const NOPIC = '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.4 11.6 12.4 2.6A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7c0 .53.21 1.04.59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.82ZM6.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>';
+    // Walmart only resizes to sizes it knows: 500 isn't one, so ?odnHeight=500
+    // returned the original (up to 3.5MB a photo). 640 comes back around 40KB.
+    const sized = u => u.replace(/odnHeight=\d+&odnWidth=\d+/, 'odnHeight=640&odnWidth=640');
     const pic = (d, eager) => (/^https:\/\/(m\.media-amazon\.com|i5\.walmartimages\.com)\//.test(d.image || '')
-        ? `<img src="${escHtml(d.image)}" alt="" width="250" height="250"${eager ? '' : ' loading="lazy"'} decoding="async" referrerpolicy="no-referrer">`
+        ? `<img src="${escHtml(sized(d.image))}" alt="" width="250" height="250"${eager ? '' : ' loading="lazy"'} decoding="async" referrerpolicy="no-referrer">`
         : `<span class="nopic">${NOPIC}</span>`);
     const saved = d => { const p = Number(d.price), w = Number(d.was); return w > p && p > 0 ? Math.round(w - p) : 0; };
     const offPct = d => { const p = Number(d.price), w = Number(d.was); return w > p && p > 0 ? Math.round((w - p) / w * 100) : 0; };
@@ -276,11 +293,24 @@ ${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
         .replace('<!--UPDATED_ISO-->', valid ? data.updated : '')
         .replace('<!--UPDATED-->', valid ? updated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }) : 'recently');
 }
+// Built pages are kept until a source file changes. Links shared on social
+// carry a unique ?fbclid, which misses the CDN, so on launch day most page
+// views reach this code; rebuilding 75 cards from disk each time capped it at
+// a few hundred pages a second.
+const built = new Map();    // key -> { stamp, html }
+function memo(key, files, build) {
+    const stamp = files.map(f => fs.statSync(f).mtimeMs).join();
+    const hit = built.get(key);
+    if (hit && hit.stamp === stamp) return hit.html;
+    const html = build();
+    built.set(key, { stamp, html });
+    return html;
+}
 app.get(['/deals', '/deals/'], (req, res, next) => {
     try {
         res.set('Content-Type', 'text/html; charset=utf-8');
         res.set('Cache-Control', PAGE_CACHE);
-        res.send(renderDealsPage());
+        res.send(memo('deals', [DEALS_PAGE, DEAL_LIST], () => renderDealsPage()));
     } catch (e) {
         console.error('deals page:', e.message);
         next();
@@ -299,18 +329,16 @@ app.get(['/', '/index.html'], async (req, res, next) => {
         const order = Array.isArray(content.sectionOrder) && content.sectionOrder.length
             ? content.sectionOrder
             : DEFAULT_CONTENT.sectionOrder;
-        const key = order.join(',');
-        if (orderedPage.key !== key) {
-            orderedPage = { key, html: reorderSections(fs.readFileSync(INDEX_PATH, 'utf8'), order) };
-        }
         res.set('Content-Type', 'text/html; charset=utf-8');
         res.set('Cache-Control', PAGE_CACHE);
-        let html = orderedPage.html;
-        try {
-            const t = renderDealsPage({ topOnly: true });
-            html = html.replace('<!--HOME_DEALS-->', t.cards).replace(/<!--HOME_DEAL_COUNT-->/g, String(t.total));
-        } catch (e) { console.error('home deals:', e.message); }
-        res.send(html);
+        res.send(memo('home:' + order.join(','), [INDEX_PATH, DEAL_LIST], () => {
+            let html = reorderSections(fs.readFileSync(INDEX_PATH, 'utf8'), order);
+            try {
+                const t = renderDealsPage({ topOnly: true });
+                html = html.replace('<!--HOME_DEALS-->', t.cards).replace(/<!--HOME_DEAL_COUNT-->/g, String(t.total));
+            } catch (e) { console.error('home deals:', e.message); }
+            return html;
+        }));
     } catch (e) {
         next();     // fall through to the static handler below
     }
