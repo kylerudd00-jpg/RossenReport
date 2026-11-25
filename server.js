@@ -389,24 +389,6 @@ app.get('/api/newsletter', async (req, res) => {
     }
 });
 
-// ── API: Email subscribe ──
-app.post('/api/subscribe', wrap(async (req, res) => {
-    const { email } = req.body || {};
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({ error: 'Invalid email' });
-    }
-    const normalized = email.toLowerCase().trim();
-    const subscribers = await readDB(DOC.subscribers);
-
-    if (subscribers.some(s => s.email === normalized)) {
-        return res.json({ ok: true }); // already subscribed — success to user
-    }
-
-    subscribers.push({ id: Date.now(), email: normalized, created_at: new Date().toISOString() });
-    await writeDB(DOC.subscribers, subscribers);
-    res.json({ ok: true });
-}));
-
 // ── API: Contact form ──
 app.post('/api/contact', wrap(async (req, res) => {
     const { name, email, type, message } = req.body || {};

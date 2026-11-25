@@ -133,16 +133,12 @@ p { text-wrap: pretty; }
 .btn:hover { background: var(--press); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
-.signup input:disabled { opacity: .55; cursor: not-allowed; }
 
-/* signup: an underline field and a button, no frame */
-.signup { display: flex; align-items: end; gap: 12px; max-width: 560px; }
-.signup input { flex: 1; min-width: 0; font: inherit; font-size: 20px; padding: 12px 2px; border: 0; border-bottom: 3px solid var(--press); background: transparent; color: inherit; border-radius: 0; }
-.signup input::placeholder { color: var(--press-2); }
-.signup input[aria-invalid="true"] { border-bottom-color: var(--tag-red); }
-.signup-status { font-family: var(--f-label); font-weight: 700; font-size: 15px; margin-top: 10px; }
-.signup-status:empty { margin: 0; }
-.signup-done { font-family: var(--f-head); font-weight: 800; font-size: 30px; text-transform: uppercase; }
+/* YouTube calls to action: the button, plus an optional text link beside it */
+.yt-ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+.btn .fa-youtube { font-size: 1.3em; margin-right: 10px; }
+.substack-note { font-family: var(--f-label); font-weight: 700; font-size: 15px; margin-top: 16px; }
+.substack-note a { color: inherit; text-underline-offset: 4px; }
 
 /* ── MASTHEAD ── */
 .mast { position: sticky; top: 0; z-index: 50; background-color: var(--newsprint); background-image: var(--tex-paper); border-bottom: 3px double var(--press); }
@@ -269,11 +265,8 @@ p { text-wrap: pretty; }
 .closer { background-color: var(--navy-deep); background-image: var(--tex-halftone); color: var(--white); padding: clamp(56px, 7vw, 96px) 0 40px; }
 .closer-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: end; }
 .closer .head-xl { color: var(--white); font-size: clamp(46px, 6vw, 84px); }
-.closer .signup input { border-bottom-color: var(--white); }
-.closer .signup input::placeholder { color: var(--white-2); }
 .closer .btn { background: var(--yellow); color: var(--navy); }
 .closer .btn:hover { background: var(--white); }
-.closer .signup-done { color: var(--yellow); }
 .foot { margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--white-rule); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-family: var(--f-label); font-size: 14px; color: var(--white-2); }
 .foot img { height: 42px; width: auto; display: block; }
 .foot nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
@@ -291,14 +284,6 @@ p { text-wrap: pretty; }
     .bnav-item i { font-size: 18px; }
     .bnav-item.active { color: var(--yellow); }
 }
-
-/* ── NEWSLETTER POPUP ── */
-.nl-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; }
-.nl-backdrop { position: absolute; inset: 0; background: var(--backdrop); }
-.nl-card { position: relative; width: 100%; max-width: 500px; background-color: var(--newsprint); background-image: var(--tex-paper); padding: 40px 32px 32px; }
-.nl-card:focus { outline: none; }
-.nl-close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border: 0; background: none; font-size: 22px; color: var(--press); cursor: pointer; }
-.nl-title { font-family: var(--f-head); font-weight: 900; font-size: 56px; line-height: 1.04; text-transform: uppercase; text-wrap: balance; color: var(--navy); margin-bottom: 24px; }
 
 /* ── YOUR WEEK WITH JEFF (in the yellow band) ──
    Borrowed concept: say exactly what arrives and when. Knowing the cadence
@@ -332,8 +317,6 @@ p { text-wrap: pretty; }
 .motion .circ-list .arrow { display: inline-block; transition: transform .2s ease; }
 .motion .circ-list a:hover .arrow, .motion .circ-list a:focus-visible .arrow { transform: translateX(6px); }
 /* a confirmation arrives rather than appears */
-.motion .signup-done:not([hidden]) { animation: done-in .45s cubic-bezier(.2,.8,.2,1); }
-@keyframes done-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* ── TYPE: broadcast on phones, price card on desktop (owner's choice) ── */
 @media (min-width: 861px) {
@@ -344,7 +327,7 @@ p { text-wrap: pretty; }
     }
     /* Alfa Slab One has a single heavy weight; asking for 800/900 would make the
        browser fake-bold it. */
-    .head-xl, .lower-third > b, .circ-list h3, .burst, .week-what, .signup-done, .player-title, .compact h2, .work b, .nl-title { font-weight: 400; letter-spacing: -.01em; }
+    .head-xl, .lower-third > b, .circ-list h3, .burst, .week-what, .player-title, .compact h2, .work b { font-weight: 400; letter-spacing: -.01em; }
     .hero h1 { font-size: clamp(46px, 7vw, 104px); line-height: 1; }
     .hero .wrap { min-height: calc(100svh / .9 - 79px); }
     body { font-size: 17px; }
@@ -393,7 +376,6 @@ p { text-wrap: pretty; }
 }
 @media (max-width: 520px) {
     body { font-size: 17px; }
-    .signup { flex-direction: column; align-items: stretch; }
     .lower-third { left: -8px; right: 8px; }
     .lower-third > b { font-size: 26px; }
     .alert-list li { grid-template-columns: 1fr; gap: 6px; }
@@ -404,8 +386,6 @@ p { text-wrap: pretty; }
     .mast .wrap { min-height: 64px; }
     .mast-logo img { height: 42px; }
     .foot small { margin-left: 0; }
-    .nl-card { padding: 40px 20px 24px; }
-    .nl-title { font-size: 46px; }
 }
 
 </style>
@@ -423,7 +403,7 @@ p { text-wrap: pretty; }
             <a href="#about" data-section="about">About</a>
             <a href="#contact" data-section="contact">Work With Jeff</a>
         </nav>
-        <a class="btn" href="#subscribe">Get the Deals</a>
+        <a class="btn" href="https://www.youtube.com/@RossenReports?sub_confirmation=1" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>Subscribe<span class="sr-only"> on YouTube (opens in a new tab)</span></a>
     </div>
 </header>
 
@@ -434,13 +414,10 @@ p { text-wrap: pretty; }
         <div>
             <h1 class="head-xl" id="heroTitle">Never pay <span class="mark">full price</span> again.</h1>
             <p class="hero-lede" id="heroTagline">Jeff Rossen tracks down the deals worth your money. Every week, free.</p>
-            <form class="signup" id="heroForm" novalidate aria-label="Get Jeff’s deals by email">
-                <label class="sr-only" for="heroEmail">Email address</label>
-                <input type="email" id="heroEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="heroStatus">
-                <button class="btn" type="submit">Get the Deals</button>
-            </form>
-            <p class="signup-status" id="heroStatus" role="status"></p>
-            <p class="signup-done" id="heroDone" tabindex="-1" hidden>You’re in. Check your inbox!</p>
+            <p class="yt-ctas">
+                <a class="btn" href="https://www.youtube.com/@RossenReports?sub_confirmation=1" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>Subscribe on YouTube<span class="sr-only"> (opens in a new tab)</span></a>
+                <a class="go" href="#latest">Watch the latest episode</a>
+            </p>
         </div>
         <div>
             <figure class="anchor">
@@ -489,21 +466,17 @@ p { text-wrap: pretty; }
     </div>
 </section>
 
-<!-- ── MID-PAGE SIGNUP ── -->
+<!-- ── MID-PAGE YOUTUBE BAND ── -->
 <section class="band" id="subscribe" tabindex="-1" aria-labelledby="bandTitle">
     <div class="wrap">
-        <h2 class="head-xl" id="bandTitle">Get it every week</h2>
+        <h2 class="head-xl" id="bandTitle">New episodes every week</h2>
         <div>
-            <form class="signup" id="bandForm" novalidate aria-labelledby="bandTitle">
-                <label class="sr-only" for="bandEmail">Email address</label>
-                <input type="email" id="bandEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="bandStatus">
-                <button class="btn" type="submit">Get the Deals</button>
-            </form>
-            <p class="signup-status" id="bandStatus" role="status"></p>
-            <p class="signup-done" id="bandDone" tabindex="-1" hidden>You’re in. Check your inbox!</p>
+            <p class="yt-ctas">
+                <a class="btn" href="https://www.youtube.com/@RossenReports?sub_confirmation=1" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>Subscribe on YouTube<span class="sr-only"> (opens in a new tab)</span></a>
+            </p>
         </div>
         <ul class="week" id="week" aria-label="What you get each week">
-            <li><img class="week-art" src="art/envelope-120.webp" srcset="art/envelope-120.webp 1x, art/envelope-240.webp 2x" width="120" height="129" alt="" loading="lazy" decoding="async"><span class="week-when">Every week</span><span class="week-what">The deals email</span></li>
+            <li><img class="week-art" src="art/envelope-120.webp" srcset="art/envelope-120.webp 1x, art/envelope-240.webp 2x" width="120" height="129" alt="" loading="lazy" decoding="async"><span class="week-when">Every week</span><span class="week-what">New deals</span></li>
             <li data-day="3"><img class="week-art" src="art/tv-120.webp" srcset="art/tv-120.webp 1x, art/tv-240.webp 2x" width="120" height="145" alt="" loading="lazy" decoding="async"><span class="week-when">Wednesday</span><span class="week-what">New episode</span></li>
             <li data-day="5"><img class="week-art" src="art/tv-friday-120.webp" srcset="art/tv-friday-120.webp 1x, art/tv-friday-240.webp 2x" width="120" height="83" alt="" loading="lazy" decoding="async"><span class="week-when">Friday</span><span class="week-what">New episode</span></li>
             <li><img class="week-art" src="art/magnifier-120.webp" srcset="art/magnifier-120.webp 1x, art/magnifier-240.webp 2x" width="120" height="135" alt="" loading="lazy" decoding="async"><span class="week-when">Every day</span><span class="week-what">Scam alerts, updated</span></li>
@@ -605,15 +578,12 @@ p { text-wrap: pretty; }
 <footer class="closer on-dark" data-flap>
     <div class="wrap">
         <div class="closer-grid">
-            <h2 class="head-xl" id="closeFormTitle">Clip this.<br>Save all year.</h2>
+            <h2 class="head-xl">Clip this.<br>Save all year.</h2>
             <div>
-                <form class="signup" id="closeForm" novalidate aria-labelledby="closeFormTitle">
-                    <label class="sr-only" for="closeEmail">Email address</label>
-                    <input type="email" id="closeEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="closeStatus">
-                    <button class="btn" type="submit">Get the Deals</button>
-                </form>
-                <p class="signup-status" id="closeStatus" role="status"></p>
-                <p class="signup-done" id="closeDone" tabindex="-1" hidden>You’re in. Check your inbox!</p>
+                <p class="yt-ctas">
+                    <a class="btn" href="https://www.youtube.com/@RossenReports?sub_confirmation=1" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube" aria-hidden="true"></i>Subscribe on YouTube<span class="sr-only"> (opens in a new tab)</span></a>
+                </p>
+                <p class="substack-note">Prefer email? <a href="https://rossenreports.substack.com/subscribe" target="_blank" rel="noopener noreferrer">Get Jeff’s newsletter on Substack<span class="sr-only"> (opens in a new tab)</span></a></p>
             </div>
         </div>
         <div class="foot">
@@ -636,20 +606,6 @@ p { text-wrap: pretty; }
     <a href="#alerts" class="bnav-item" data-section="alerts"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i><span>Alerts</span></a>
     <a href="#about" class="bnav-item" data-section="about"><i class="fas fa-receipt" aria-hidden="true"></i><span>About</span></a>
 </nav>
-
-<div class="nl-modal" id="nlModal" hidden>
-    <div class="nl-backdrop" data-nl-dismiss></div>
-    <div class="nl-card" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="nlTitle">
-        <button type="button" class="nl-close" id="nlClose" data-nl-dismiss aria-label="Close newsletter signup"><i class="fas fa-xmark" aria-hidden="true"></i></button>
-        <h2 class="nl-title" id="nlTitle">Never overpay again</h2>
-        <form class="signup" id="nlModalForm" novalidate aria-labelledby="nlTitle">
-            <label class="sr-only" for="nlModalEmail">Email address</label>
-            <input type="email" id="nlModalEmail" name="email" placeholder="Your email" autocomplete="email" required aria-describedby="nlModalStatus">
-            <button class="btn" type="submit">Get the Deals</button>
-        </form>
-        <p class="signup-status" id="nlModalStatus" role="status"></p>
-    </div>
-</div>
 
 <script>
 function esc(s) {
@@ -682,26 +638,6 @@ document.getElementById('year').textContent = new Date().getFullYear();
     });
 })();
 
-// ── EMAIL SIGNUP ──
-// One code path for every form on the page, including the Substack fallback.
-function subscribeEmail(email) {
-    return fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-    })
-    // r.ok MUST be checked: a 503 still resolves.
-    .then(function (r) { if (!r.ok) throw new Error('subscribe unavailable'); return r.json(); })
-    .then(function () { return { ok: true }; })
-    .catch(function () {
-        // Hand off to Substack, where the newsletter lives. A blocked popup means
-        // nothing happened, so the caller must not claim success.
-        var w = window.open('https://rossenreports.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank');
-        return { ok: !!w };
-    });
-}
-function markSubscribed() { try { localStorage.setItem('rrNewsletter', 'subscribed'); } catch (_) {} }
-function newsletterState() { try { return localStorage.getItem('rrNewsletter') || ''; } catch (_) { return ''; } }
 // A live region ignores a write identical to its text, and one filled in the same
 // tick it appears announces nothing. Clear, then set on a delay.
 function setStatus(node, msg) {
@@ -709,42 +645,6 @@ function setStatus(node, msg) {
     clearTimeout(node._statusT);
     node._statusT = setTimeout(function () { node.textContent = msg; }, 120);
 }
-var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Hero, mid-page and closer forms: swap the form for a confirmation and move
-// focus to it, which both announces it and keeps the tab order sensible.
-['hero', 'band', 'close'].forEach(function (k) {
-    var form = document.getElementById(k + 'Form');
-    var input = document.getElementById(k + 'Email');
-    var status = document.getElementById(k + 'Status');
-    var done = document.getElementById(k + 'Done');
-    var busy = false;
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var email = input.value.trim();
-        if (!EMAIL_RE.test(email)) {
-            input.setAttribute('aria-invalid', 'true');
-            setStatus(status, 'Please enter a valid email address.');
-            input.focus();
-            return;
-        }
-        if (busy) return;
-        busy = true;
-        input.removeAttribute('aria-invalid');
-        setStatus(status, 'Signing you up…');
-        subscribeEmail(email).then(function (res) {
-            busy = false;
-            if (!res.ok) { setStatus(status, "That didn’t go through. Please try again."); return; }
-            markSubscribed();
-            clearTimeout(status._statusT);
-            status.textContent = '';
-            form.hidden = true;
-            done.hidden = false;
-            done.focus();
-        });
-    });
-});
-
 // ── THIS WEEK'S CIRCULAR: Jeff's newsletter deal posts ──
 (function () {
     var list = document.getElementById('circTags');
@@ -1098,94 +998,6 @@ setInterval(applyLiveStats, 5 * 60 * 1000);
         .catch(function () { /* static markup stays */ })
         .finally(applyLiveStats);
 })();
-
-// ── NEWSLETTER POPUP ──
-onReady(function () {
-    var modal = document.getElementById('nlModal');
-    var card = modal.querySelector('.nl-card');
-    // Not on arrival: the hero already has this form. It asks once, after the
-    // reader has scrolled past the yellow band and the episodes without signing up.
-    var SNOOZE_DAYS = 14;      // re-asking every visit is how a prompt drives people away
-    var lastFocused = null, submitting = false;
-
-    function shouldOpen() {
-        var state = newsletterState();
-        if (state === 'subscribed') return false;
-        if (state.indexOf('dismissed:') === 0 && Date.now() < (Number(state.split(':')[1]) || 0)) return false;
-        return true;
-    }
-    function focusables() {
-        return Array.prototype.filter.call(
-            card.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
-            function (el) { return !el.disabled && el.offsetParent !== null; });
-    }
-    function open() {
-        // Never interrupt someone already typing into a signup form on the page.
-        if (document.activeElement && document.activeElement.type === 'email') return;
-        lastFocused = document.activeElement;
-        modal.hidden = false;
-        document.body.style.overflow = 'hidden';
-        // The dialog itself, not the field: the title and description have to be
-        // heard before an edit field drops a screen reader into forms mode.
-        card.focus({ preventScroll: true });
-        document.addEventListener('keydown', onKeydown, true);
-    }
-    function close(snooze) {
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', onKeydown, true);
-        if (snooze && newsletterState() !== 'subscribed') { try { localStorage.setItem('rrNewsletter', 'dismissed:' + (Date.now() + SNOOZE_DAYS * 864e5)); } catch (_) {} }
-        var restore = (lastFocused && lastFocused !== document.body && document.contains(lastFocused) && lastFocused.focus)
-            ? lastFocused : document.getElementById('main');
-        try { restore.focus({ preventScroll: true }); } catch (_) { restore.focus(); }
-    }
-    function onKeydown(e) {
-        if (e.key === 'Escape') { e.preventDefault(); close(true); return; }
-        if (e.key !== 'Tab') return;
-        var f = focusables();
-        if (!f.length) return;
-        var first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && (document.activeElement === first || document.activeElement === card)) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-    Array.prototype.forEach.call(modal.querySelectorAll('[data-nl-dismiss]'), function (el) {
-        el.addEventListener('click', function () { close(true); });
-    });
-    document.getElementById('nlModalForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        var input = document.getElementById('nlModalEmail');
-        var status = document.getElementById('nlModalStatus');
-        var email = input.value.trim();
-        if (!EMAIL_RE.test(email)) {
-            setStatus(status, 'Please enter a valid email address.');
-            input.setAttribute('aria-invalid', 'true');
-            input.focus();
-            return;
-        }
-        if (submitting) return;
-        submitting = true;
-        input.removeAttribute('aria-invalid');
-        setStatus(status, 'Signing you up…');
-        subscribeEmail(email).then(function (res) {
-            submitting = false;
-            if (!res.ok) { setStatus(status, "That didn’t go through. Please try again."); return; }
-            markSubscribed();
-            // No auto-close: taking the message away on a timer is a time limit
-            // on content the reader is still hearing.
-            setStatus(status, "You’re in. Check your inbox! You can close this now.");
-            document.getElementById('nlClose').focus();
-        });
-    });
-    var trigger = document.getElementById('alerts');
-    if (shouldOpen() && trigger && 'IntersectionObserver' in window) {
-        var seen = new IntersectionObserver(function (entries) {
-            if (!entries[0].isIntersecting) return;
-            seen.disconnect();
-            if (shouldOpen()) open();
-        });
-        seen.observe(trigger);
-    }
-});
 
 // ── MOTION: entrances that explain something ──
 // Arm and observe in the same pass: nothing is hidden unless it is also being
