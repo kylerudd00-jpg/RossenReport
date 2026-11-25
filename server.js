@@ -153,7 +153,7 @@ app.get('/robots.txt', (req, res) => {
 });
 app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml').set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
-        .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${SITE}/</loc><changefreq>daily</changefreq></url>\n<url><loc>${SITE}/deals</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n</urlset>\n`);
+        .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${SITE}/</loc><changefreq>daily</changefreq></url>\n<url><loc>${SITE}/deals</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n<url><loc>${SITE}/privacy</loc><changefreq>yearly</changefreq></url>\n</urlset>\n`);
 });
 // Browsers ask for /favicon.ico on their own; without this every visit 404s through the function.
 app.get('/favicon.ico', (req, res) => {
@@ -286,6 +286,11 @@ app.get(['/deals', '/deals/'], (req, res, next) => {
     }
 });
 app.get('/deals.html', (req, res) => res.redirect(301, '/deals'));
+// Privacy and affiliate disclosures, linked from every footer.
+app.get(['/privacy', '/privacy/'], (req, res) => {
+    res.set('Cache-Control', PAGE_CACHE).sendFile(path.join(__dirname, 'privacy.html'));
+});
+app.get('/privacy.html', (req, res) => res.redirect(301, '/privacy'));
 
 app.get(['/', '/index.html'], async (req, res, next) => {
     try {
@@ -328,7 +333,7 @@ let ytCache = { data: null, fetchedAt: 0 };
 
 async function fetchYouTubeVideos() {
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) throw new Error(`YouTube RSS ${res.status}`);
     const xml = await res.text();
 
@@ -349,7 +354,7 @@ async function fetchYouTubeVideos() {
 async function fetchVideoTitle(id) {
     try {
         const r = await fetch('https://www.youtube.com/oembed?format=json&url=' +
-            encodeURIComponent('https://www.youtube.com/watch?v=' + id));
+            encodeURIComponent('https://www.youtube.com/watch?v=' + id), { signal: AbortSignal.timeout(5000) });
         if (!r.ok) return null;
         const j = await r.json();
         return j.title || null;
@@ -419,7 +424,7 @@ app.get('/api/stats', wrap(async (req, res) => {
     }
     try {
         const r = await fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' +
-            YT_CHANNEL_ID + '&key=' + key);
+            YT_CHANNEL_ID + '&key=' + key, { signal: AbortSignal.timeout(5000) });
         const j = await r.json();
         const stats = j && j.items && j.items[0] && j.items[0].statistics;
         if (!stats) throw new Error('no statistics in response');

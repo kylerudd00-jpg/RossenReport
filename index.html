@@ -545,6 +545,7 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
 .foot small { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .foot small a { color: var(--white-2); text-decoration: underline; text-underline-offset: 3px; }
 .foot small a:hover { color: var(--white); }
+.affil { flex-basis: 100%; margin: 0; font-size: 13px; line-height: 1.45; color: var(--white-2); max-width: 80ch; }
 </style>
 </head>
 <body>
@@ -743,7 +744,8 @@ body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400
                 <a href="#alerts">Scam Alerts</a>
                 <a href="#about">About</a>
             </nav>
-            <small><span>© <span id="year">2026</span> Rossen Reports</span><a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">Work with Jeff<span class="sr-only"> on LinkedIn (opens in a new tab)</span></a></small>
+            <small><span>© <span id="year">2026</span> Rossen Reports</span><a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">Work with Jeff<span class="sr-only"> on LinkedIn (opens in a new tab)</span></a><a href="/privacy">Privacy</a></small>
+            <p class="affil">Some links on this site are affiliate links: Rossen Reports may earn a commission when you buy, at no extra cost to you. As an Amazon Associate, Rossen Reports earns from qualifying purchases.</p>
         </div>
     </div>
 </footer>
@@ -883,7 +885,7 @@ function setStatus(node, msg) {
     }
 
     thumbBtn.addEventListener('click', function () {
-        iframe.src = 'https://www.youtube.com/embed/' + encodeURIComponent(latestId) + '?autoplay=1&rel=0';
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(latestId) + '?autoplay=1&rel=0';
         iframe.hidden = false;
         thumbBtn.hidden = true;
         iframe.focus();
