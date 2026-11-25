@@ -7,10 +7,7 @@
     <meta name="description" content="Consumer journalist Jeff Rossen finds the deals worth your money: weekly promo codes, price drops and smart-shopping tricks, free in your inbox.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Desktop type (owner's pick, Nov 23): the vintage price-card slab. The
-         media query means phones never download these fonts. -->
-    <link rel="stylesheet" media="(min-width: 861px)" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Franklin:wght@400;600;700;800&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="jeff/jeff-puppet.css">
     <link rel="icon" type="image/png" sizes="32x32" href="rossenlogo.png">
@@ -388,6 +385,123 @@ p { text-wrap: pretty; }
     .foot small { margin-left: 0; }
 }
 
+/* ══ DEALS LOOK (Nov 25) ══
+   Most visitors land on /deals first, so the home page now wears the same
+   system: quiet gray page, white rounded cards, the brand-blue striped band,
+   yellow buttons with navy text, and system sans type. Tokens match deals.html. */
+:root, :root * {
+    --page: #f2f2f5; --card: #ffffff; --ink: #0a0f1a; --subtext: #4a4f58;
+    --brand-blue: #0a58c1; --line: #00000014; --blue-tint: #0a58c11a;
+    --stripe: #ffffff12; --card-edge: #0b2c6b12; --on-band: #ffffffeb;
+    --shadow-card: 0 1px 1px #0b2c6b0d, 0 6px 12px #0b2c6b12;
+    --radius-card: 16px; --radius-inner: 10px; --radius-pill: 999px; --band-cut: 16px;
+    --f-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --f-head: var(--f-sans); --f-label: var(--f-sans); --f-body: var(--f-sans);
+    --f-display: 'Big Shoulders Display', Impact, 'Arial Narrow', sans-serif;
+    --press: var(--ink); --press-2: var(--subtext); --rule: var(--line);
+}
+body { zoom: 1 !important; background: var(--page); color: var(--ink); font: 400 1.0625rem/1.5 var(--f-sans); }
+:focus-visible { outline-color: var(--brand-blue); }
+
+/* type: sans, bold, sentence case, deals-page sizes */
+.head-xl, .compact h2, .work b, .circ-list h3, .player-title, .week-what { font-family: var(--f-sans) !important; font-weight: 700 !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--ink); line-height: 1.2 !important; }
+.section > .wrap > h2.head-xl, .circ-layout h2.head-xl, .alerts-top h2, .band h2, .receipts .head-xl, .closer .head-xl, .compact h2 { font-size: clamp(1.5rem, 2.6vw, 2.125rem) !important; }
+/* section titles get the deals page's yellow highlighter stroke */
+.section h2.head-xl, .band h2, .compact h2 { position: relative; display: inline-block; z-index: 0; }
+.section h2.head-xl::after, .band h2::after, .compact h2::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: .12em; height: .32em; border-radius: var(--radius-pill); background: var(--yellow); opacity: .85; transform: rotate(-1.5deg); z-index: -1; }
+.section, .compact { padding: clamp(32px, 4vw, 48px) 0; border: 0 !important; }
+
+/* buttons and links */
+.btn { border-radius: var(--radius-card); background: var(--yellow); color: var(--navy); font: 600 1.0625rem/1.3 var(--f-sans); text-transform: none; letter-spacing: 0; min-height: 52px; padding: 0 24px; }
+.btn:hover { background: var(--yellow); filter: brightness(.95); }
+.btn .fa-youtube { color: var(--tag-red); }
+.go { font-weight: 600; font-size: 1rem; border-bottom-width: 2px; color: var(--brand-blue); }
+.go:hover { color: var(--navy); border-bottom-width: 2px; }
+
+/* masthead: white, quiet */
+.mast { background: var(--card); border-bottom: 1px solid var(--line); }
+.mast .wrap { min-height: 64px; }
+.mast-logo img { height: 44px; }
+.mast nav a { font-weight: 600; font-size: 1rem; border-bottom: 0; padding: 12px 0; }
+.mast nav a:hover, .mast nav a[aria-current] { color: var(--brand-blue); }
+.mast .btn { min-height: 44px; padding: 0 16px; font-size: 1rem; }
+
+/* hero: the brand-blue striped band with the angled bottom edge */
+.hero { background: var(--brand-blue) repeating-linear-gradient(135deg, var(--stripe) 0 1.5px, transparent 1.5px 22px); color: var(--card); clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--band-cut)), 0 100%); }
+.hero .wrap { min-height: 0 !important; padding-top: clamp(32px, 4vw, 56px); padding-bottom: calc(clamp(32px, 4vw, 56px) + var(--band-cut)); }
+.hero h1 { color: var(--card); font-size: clamp(2.5rem, 5.5vw, 4.25rem) !important; }
+/* static highlight: navy text must never sit on the blue band without the yellow behind it */
+.hero .mark { color: var(--navy); background: var(--yellow) !important; animation: none !important; border-radius: 6px; }
+.hero-lede { color: var(--on-band); margin: 16px 0 24px; }
+.hero .go { color: var(--card); }
+.hero .go:hover { color: var(--yellow); }
+.anchor img { border-radius: var(--radius-card); }
+.lower-third > b { font-family: var(--f-display); font-weight: 800; border-radius: var(--radius-inner) var(--radius-inner) 0 0; }
+.lower-third > span { font-family: var(--f-sans); font-weight: 600; border-radius: 0 0 var(--radius-inner) var(--radius-inner); }
+.seen { color: var(--on-band); font-weight: 600; }
+
+/* circular: each pick is a white card */
+.circ-list { display: grid; gap: 12px; }
+.circ-list li, .circ-list li:last-child { border: 0; }
+.circ-list a, .circ-list li:first-child a { padding: 18px 20px; background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); }
+.circ-list h3, .circ-list li:first-child h3 { font-size: clamp(1.125rem, 1.6vw, 1.375rem) !important; color: var(--ink); }
+.circ-list li:first-child h3 { font-size: clamp(1.375rem, 2.2vw, 1.75rem) !important; }
+.circ-date { font-family: var(--f-sans); font-weight: 600; font-size: .9375rem; }
+.circ-list .arrow { font-family: var(--f-sans); color: var(--brand-blue); font-size: 1.5rem; }
+.burst { font-family: var(--f-display); font-weight: 800; font-size: 1rem; border-radius: var(--radius-pill); padding: 3px 12px 2px; margin-bottom: 8px; transform: rotate(-4deg); box-shadow: 1px 3px 0 #0000002e; }
+.shops a { color: var(--brand-blue); }
+
+/* YouTube band: a white card instead of full-bleed yellow */
+.band { background: none; padding: 0 0 8px; }
+.band .wrap { padding-top: 0; padding-bottom: 0; }
+.band .wrap { background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); padding: clamp(24px, 3vw, 32px); max-width: calc(1240px - 2 * var(--gutter)); margin: 0 auto; width: calc(100% - 2 * var(--gutter)); }
+.week { border-top: 1px solid var(--line); }
+.week-what { font-size: 1.125rem !important; color: var(--ink); }
+.week-today { color: var(--brand-blue); font-weight: 600; }
+
+/* watch, receipts, follow, work: light sections with white cards */
+.watch, .receipts { background: none; color: var(--ink); }
+.watch .head-xl, .receipts .head-xl { color: var(--ink); }
+.player, .player-thumb, .player-thumb img { border-radius: var(--radius-card); overflow: hidden; }
+.player-thumb .play { border-radius: 14px; }
+.player-title { font-size: 1.25rem !important; }
+.guide { background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); padding: 8px 16px 16px; }
+.guide li + li { border-top-color: var(--line); }
+.guide button { color: var(--ink); }
+.guide button img { border-radius: var(--radius-inner); }
+.guide button small { color: var(--subtext); }
+.guide button[aria-current="true"] span { color: var(--brand-blue); font-weight: 600; }
+.watch .go { color: var(--brand-blue); margin-left: 0; }
+.watch .go:hover { color: var(--navy); }
+.receipts blockquote { color: var(--subtext); }
+.tape { border-radius: var(--radius-inner) var(--radius-inner) 0 0; box-shadow: var(--shadow-card); }
+
+/* scam alerts: chips and white cards, like the deals finder */
+.alert-filters { gap: 8px; }
+.alert-filter { min-height: 44px; padding: 0 16px; border: 0 !important; border-radius: var(--radius-pill); background: var(--blue-tint); color: var(--brand-blue); font: 600 .9375rem/1 var(--f-sans); }
+.alert-filter:hover { color: var(--navy); }
+.alert-filter[aria-pressed="true"] { background: var(--brand-blue); color: var(--card); }
+.alert-list { display: grid; gap: 12px; }
+.alert-list li { padding: 16px 20px; border: 0; background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); }
+.alert-meta { font-family: var(--f-sans); }
+.alert-title { font-size: 1.125rem; font-weight: 600; }
+.alerts-more { color: var(--brand-blue); }
+
+.link-list, .work { font-family: var(--f-sans); font-weight: 600; }
+.link-list { gap: 12px; font-size: 1.0625rem; }
+.link-list li { border: 0; }
+.link-list a { padding: 14px 16px; background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); }
+.link-list i { color: var(--brand-blue); }
+.work li { padding: 16px 20px; background: var(--card); border-radius: var(--radius-card); box-shadow: var(--shadow-card), 0 0 0 .5px var(--card-edge); }
+.work b { font-size: 1.125rem !important; }
+.work a { color: var(--brand-blue); }
+
+/* closer + footer: flat brand navy, like the deals footer */
+.closer { background: var(--navy); margin-top: 32px; }
+.closer .head-xl { color: var(--card); }
+.closer .btn:hover { background: var(--yellow); }
+.substack-note { font-weight: 600; }
+.bottom-nav { background: var(--navy); }
 </style>
 </head>
 <body>
