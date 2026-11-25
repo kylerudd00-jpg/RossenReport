@@ -208,6 +208,11 @@ main:focus { outline: none; }
     .finder .wrap { grid-template-columns: minmax(0, 1fr); }
 }
 @media (min-width: 861px) { .mast .btn-2 { display: none; } }
+/* YouTube subscribe in the masthead, same as the home page */
+.mast .btn-yt { min-height: var(--tap-min); padding: 0 var(--space-l); font-size: 1rem; }
+@media (max-width: 860px) { .mast .btn-2 { margin-left: auto; } }
+@media (max-width: 400px) { .mast .btn-2 { display: none; } .mast .btn-yt { margin-left: auto; } }
+.foot small a { color: inherit; }
 @media (max-width: 520px) {
     .list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .deal a { padding: var(--space-s); }
@@ -239,9 +244,9 @@ main:focus { outline: none; }
             <a href="/#latest">Watch</a>
             <a href="/#alerts">Scam Alerts</a>
             <a href="/#about">About</a>
-            <a href="/#contact">Work With Jeff</a>
         </nav>
         <a class="btn btn-2" href="/">Home</a>
+        <a class="btn btn-yt" href="https://www.youtube.com/@RossenReports?sub_confirmation=1" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="#c41e2a" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8Z"/><path fill="#fff" d="m9.6 15.6 6.2-3.6-6.2-3.6z"/></svg>Subscribe<span class="sr-only"> on YouTube (opens in a new tab)</span></a>
     </div>
 </header>
 
@@ -318,7 +323,7 @@ main:focus { outline: none; }
             <a href="/#alerts">Scam Alerts</a>
             <a href="/#about">About</a>
         </nav>
-        <small>© 2026 Rossen Reports</small>
+        <small>© 2026 Rossen Reports · <a href="https://www.linkedin.com/in/jeffrossen/" target="_blank" rel="noopener noreferrer">Work with Jeff<span class="sr-only"> on LinkedIn (opens in a new tab)</span></a></small>
     </div>
 </footer>
 

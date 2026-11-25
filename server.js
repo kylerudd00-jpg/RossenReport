@@ -43,7 +43,7 @@ const DEFAULT_CONTENT = {
     // `order` instead would leave keyboard and screen-reader users navigating a
     // different sequence from the one everyone else sees.
     // 'home' is deliberately absent: the hero is always first.
-    sectionOrder: ['deals', 'subscribe', 'latest', 'alerts', 'about', 'follow', 'contact'],
+    sectionOrder: ['deals', 'subscribe', 'latest', 'alerts', 'about', 'follow'],
 
     // 'auto' tracks the newest upload on the channel. 'manual' pins a specific
     // video, for when the newest upload isn't the one to lead with.
@@ -148,7 +148,7 @@ const DEALS_PAGE = path.join(__dirname, 'deals.html');
 const DEAL_LIST  = path.join(__dirname, 'db', 'deal-list.json');
 const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = s => String(s).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-function renderDealsPage() {
+function renderDealsPage(opts) {
     const data = JSON.parse(fs.readFileSync(DEAL_LIST, 'utf8'));
     const cats = (data.categories || []).filter(c => c.deals && c.deals.length);
     const total = cats.reduce((n, c) => n + c.deals.length, 0);
@@ -203,6 +203,8 @@ ${rows}
 ${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
             </ul>
         </section>` : '';
+    // The home page shows the same top cards, linking through to /deals.
+    if (opts && opts.topOnly) return { cards: top.map(x => card(x.d, x.id, ' feat')).join('\n'), total, maxOff: top.length ? offPct(top[0].d) : 0 };
     const updated = new Date((data.updated || '') + 'T12:00:00Z');
     const valid = !isNaN(updated);
     return fs.readFileSync(DEALS_PAGE, 'utf8')
@@ -239,7 +241,12 @@ app.get(['/', '/index.html'], async (req, res, next) => {
         }
         res.set('Content-Type', 'text/html; charset=utf-8');
         res.set('Cache-Control', 'no-cache');
-        res.send(orderedPage.html);
+        let html = orderedPage.html;
+        try {
+            const t = renderDealsPage({ topOnly: true });
+            html = html.replace('<!--HOME_DEALS-->', t.cards).replace(/<!--HOME_DEAL_COUNT-->/g, String(t.total));
+        } catch (e) { console.error('home deals:', e.message); }
+        res.send(html);
     } catch (e) {
         next();     // fall through to the static handler below
     }
