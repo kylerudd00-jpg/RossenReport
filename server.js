@@ -7,6 +7,7 @@ const { getNewsletterFeed } = require('./lib/newsletterFeed');
 const storage = require('./lib/storage');
 
 const app  = express();
+app.disable('x-powered-by');   // don't advertise the framework
 const PORT = process.env.PORT || 3000;
 
 // Where content actually lives is lib/storage's problem: disk in development,
