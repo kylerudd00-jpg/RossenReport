@@ -397,7 +397,7 @@ p { text-wrap: pretty; }
     <div class="wrap">
         <a class="mast-logo" href="#main"><img src="rossenlogo-trim.png" alt="Rossen Reports, back to top" width="87" height="52"></a>
         <nav aria-label="Primary">
-            <a href="#deals" data-section="deals">Deals</a>
+            <a href="/deals">Deals</a>
             <a href="#latest" data-section="latest">Watch</a>
             <a href="#alerts" data-section="alerts">Scam Alerts</a>
             <a href="#about" data-section="about">About</a>
@@ -589,7 +589,7 @@ p { text-wrap: pretty; }
         <div class="foot">
             <img src="rossenlogo-trim.png" alt="Rossen Reports" width="70" height="42">
             <nav aria-label="Footer">
-                <a href="#deals">Deals</a>
+                <a href="/deals">Deals</a>
                 <a href="#latest">Watch</a>
                 <a href="#alerts">Scam Alerts</a>
                 <a href="#about">About</a>
@@ -601,7 +601,7 @@ p { text-wrap: pretty; }
 </footer>
 
 <nav class="bottom-nav on-dark" id="bottomNav" aria-label="Primary, mobile">
-    <a href="#deals" class="bnav-item" data-section="deals"><i class="fas fa-tag" aria-hidden="true"></i><span>Deals</span></a>
+    <a href="/deals" class="bnav-item"><i class="fas fa-tag" aria-hidden="true"></i><span>Deals</span></a>
     <a href="#latest" class="bnav-item" data-section="latest"><i class="fab fa-youtube" aria-hidden="true"></i><span>Watch</span></a>
     <a href="#alerts" class="bnav-item" data-section="alerts"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i><span>Alerts</span></a>
     <a href="#about" class="bnav-item" data-section="about"><i class="fas fa-receipt" aria-hidden="true"></i><span>About</span></a>
@@ -941,12 +941,12 @@ function setStatus(node, msg) {
         if (active === 'subscribe' || active === 'home') active = active === 'home' ? null : 'deals';
         if (active === 'follow') active = 'about';
         Array.prototype.forEach.call(hnav, function (a) {
-            if (a.getAttribute('data-section') === active) a.setAttribute('aria-current', 'location');
+            if (active && a.getAttribute('data-section') === active) a.setAttribute('aria-current', 'location');
             else a.removeAttribute('aria-current');
         });
         Array.prototype.forEach.call(bnav, function (a) {
             var id = active === 'contact' ? 'about' : active;
-            var on = a.getAttribute('data-section') === id;
+            var on = !!id && a.getAttribute('data-section') === id;
             a.classList.toggle('active', on);
             if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
         });
