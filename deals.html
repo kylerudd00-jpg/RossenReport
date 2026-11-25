@@ -160,6 +160,19 @@ main:focus { outline: none; }
 .price-chips { flex-wrap: wrap; }
 .shown { margin-top: var(--space-m); font-size: .9375rem; color: var(--subtext); font-variant-numeric: tabular-nums; }
 .pick { color: var(--brand-navy); }
+/* heart: sits over the photo's top-right corner, outside the card link */
+.deal { position: relative; }
+.fav { position: absolute; top: 18px; right: 18px; z-index: 2; width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--card); box-shadow: 0 1px 3px #0b2c6b33; color: var(--subtext); cursor: pointer; }
+.fav svg path { fill: none; stroke: currentColor; stroke-width: 2; }
+.fav:hover { color: var(--sale-red); }
+.fav[aria-pressed="true"] { color: var(--sale-red); }
+.fav[aria-pressed="true"] svg path { fill: currentColor; }
+.fav:active { transform: scale(.92); }
+#savedChip { background: #c41e2a1a; color: var(--sale-red); }
+#savedChip[aria-pressed="true"] { background: var(--sale-red); color: var(--card); }
+/* freshness pill in the band (idea from DealNews' "Verified") */
+.verified { display: inline-flex; align-items: center; gap: 6px; margin-bottom: var(--space-m); padding: 4px 12px; border-radius: var(--radius-pill); background: #ffffff26; color: var(--card); font-size: .875rem; font-weight: 600; }
+@media (max-width: 520px) { .fav { top: 12px; right: 12px; } }
 /* phones: all quick filters in one swipeable row, like the category chips */
 @media (max-width: 640px) {
     .tools { flex-direction: column; align-items: stretch; }
@@ -274,6 +287,7 @@ main:focus { outline: none; }
     <div class="band">
         <div class="wrap">
             <p class="sticker" aria-hidden="true"><span>Black<br>Friday</span></p>
+            <!--VERIFIED-->
             <h1>Jeff’s <!--DEAL_COUNT--> best Black Friday deals</h1>
             <p class="sub">Every deal from the video, at Amazon and Walmart. Tap a deal to shop it.</p>
             <figure class="jeff">
@@ -304,6 +318,7 @@ main:focus { outline: none; }
                     <button type="button" id="pickChip" aria-pressed="false">★ Jeff’s top picks <span><!--PICK_COUNT--></span></button>
                     <button type="button" data-store="Amazon" aria-pressed="false">Amazon <span><!--AMAZON_COUNT--></span></button>
                     <button type="button" data-store="Walmart" aria-pressed="false">Walmart <span><!--WALMART_COUNT--></span></button>
+                    <button type="button" id="savedChip" aria-pressed="false" hidden>♥ Saved <span id="savedCount">0</span></button>
                 </div>
                 <div class="price-chips" role="group" aria-label="Filter by price">
                     <button type="button" data-max="25" aria-pressed="false">Under $25</button>
@@ -365,7 +380,7 @@ main:focus { outline: none; }
     var cats = Array.prototype.slice.call(document.querySelectorAll('.cat'));
     var empty = document.getElementById('empty');
     var status = document.getElementById('dealStatus');
-    var active = 'all', statusT = null, maxPrice = 0, sortBy = 'num', onlyPicks = false, store = '';
+    var active = 'all', statusT = null, maxPrice = 0, sortBy = 'num', onlyPicks = false, store = '', onlySaved = false;
     var pickChip = document.getElementById('pickChip');
     var storeBtns = Array.prototype.slice.call(document.querySelectorAll('.pick-chips [data-store]'));
     var shown = document.getElementById('shown');
@@ -402,7 +417,8 @@ main:focus { outline: none; }
             var okPrice = !maxPrice || Number(d.dataset.price) < maxPrice;
             var okPick = !onlyPicks || d.dataset.top === '1';
             var okStore = !store || d.dataset.store === store;
-            return inCat && okPrice && okPick && okStore && terms.every(function (t) { return d._text.indexOf(t) !== -1; });
+            var okSaved = !onlySaved || !!savedSet[d.dataset.num];
+            return inCat && okPrice && okPick && okStore && okSaved && terms.every(function (t) { return d._text.indexOf(t) !== -1; });
         }
         cats.forEach(function (c) {
             var n = 0;
@@ -420,7 +436,7 @@ main:focus { outline: none; }
         }
         flat.hidden = !flatMode || total === 0;
         // The featured row is for browsing; any search, filter or sort hides it.
-        if (featured) featured.hidden = !!(terms.length || active !== 'all' || maxPrice || flatMode || onlyPicks || store);
+        if (featured) featured.hidden = !!(terms.length || active !== 'all' || maxPrice || flatMode || onlyPicks || store || onlySaved);
         shown.textContent = total === gridDeals.length ? 'Showing all ' + total + ' deals' : 'Showing ' + total + ' of ' + gridDeals.length + ' deals';
         clear.hidden = !q.value;
         empty.hidden = total > 0;
@@ -469,6 +485,42 @@ main:focus { outline: none; }
             apply(true);
         });
     });
+    // ── SAVED DEALS (idea from Brad's Deals and DealNews): a heart on every card,
+    // kept in this browser only, with a Saved chip once anything is saved. ──
+    var SAVE_KEY = 'rrSavedDeals', savedSet = {};
+    try { (JSON.parse(localStorage.getItem(SAVE_KEY) || '[]') || []).forEach(function (n) { savedSet[n] = true; }); } catch (_) {}
+    var savedChip = document.getElementById('savedChip'), savedCount = document.getElementById('savedCount');
+    function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(Object.keys(savedSet))); } catch (_) {} }
+    function syncSaved() {
+        var n = Object.keys(savedSet).length;
+        savedCount.textContent = n;
+        savedChip.hidden = n === 0 && !onlySaved;
+        Array.prototype.forEach.call(document.querySelectorAll('.fav'), function (b) {
+            b.setAttribute('aria-pressed', String(!!savedSet[b.dataset.num]));
+        });
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.deal'), function (li) {
+        var name = li.querySelector('.deal-name').textContent;
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'fav'; b.dataset.num = li.dataset.num;
+        b.setAttribute('aria-label', 'Save ' + name);
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21Z"/></svg>';
+        b.addEventListener('click', function () {
+            var n = b.dataset.num;
+            if (savedSet[n]) delete savedSet[n]; else savedSet[n] = true;
+            persist(); syncSaved();
+            if (onlySaved) apply(true);
+            clearTimeout(statusT); status.textContent = '';
+            statusT = setTimeout(function () { status.textContent = (savedSet[n] ? 'Saved ' : 'Removed ') + name; }, 120);
+        });
+        li.appendChild(b);
+    });
+    savedChip.addEventListener('click', function () {
+        onlySaved = !onlySaved;
+        savedChip.setAttribute('aria-pressed', String(onlySaved));
+        apply(true); syncSaved();
+    });
+    syncSaved();
     apply(false);
     // SAVE stickers pop in as their card scrolls into view (motion only).
     if (matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) {
@@ -490,7 +542,8 @@ main:focus { outline: none; }
     window.addEventListener('resize', stick);
     stick();
     function reset() {
-        q.value = ''; maxPrice = 0; sortBy = 'num'; sortSel.value = 'num'; onlyPicks = false; store = '';
+        q.value = ''; maxPrice = 0; sortBy = 'num'; sortSel.value = 'num'; onlyPicks = false; store = ''; onlySaved = false;
+        savedChip.setAttribute('aria-pressed', 'false'); syncSaved();
         pickChip.setAttribute('aria-pressed', 'false');
         storeBtns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
         priceBtns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });

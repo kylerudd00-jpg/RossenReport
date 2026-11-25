@@ -216,6 +216,7 @@ ${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
         .replace('<!--AMAZON_COUNT-->', String(all.filter(x => x.d.store === 'Amazon').length))
         .replace('<!--WALMART_COUNT-->', String(all.filter(x => x.d.store === 'Walmart').length))
         .replace('<!--PRICES_AT-->', data.pricesAt ? 'Prices checked ' + escHtml(data.pricesAt) + '. ' : '')
+        .replace('<!--VERIFIED-->', data.pricesAt ? `<p class="verified"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Prices checked ${escHtml(data.pricesAt)}</p>` : '')
         .replace('<!--VIDEO-->', /^[\w-]{6,20}$/.test(data.video || '') ? `<a class="watch" href="https://www.youtube.com/watch?v=${data.video}" target="_blank" rel="noopener">Watch Jeff’s video<span class="sr-only"> (opens in a new tab)</span></a>` : '')
         .replace('<!--UPDATED_ISO-->', valid ? data.updated : '')
         .replace('<!--UPDATED-->', valid ? updated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }) : 'recently');
