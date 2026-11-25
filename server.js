@@ -137,9 +137,15 @@ app.use((req, res, next) => {
 });
 
 // Server internals are bundled next to the public files, so express.static
-// would hand them out. They get the 404 page instead.
-const INTERNAL = /^\/(server\.js|package(-lock)?\.json|vercel\.json|lib\/|api\/index\.js|db\/)/;
-app.use((req, res, next) => (INTERNAL.test(req.path) ? notFound(req, res) : next()));
+// would hand them out. Instead of blocking known names (which encoded paths
+// like /%73erver.js slipped past), static files are served only from an
+// allowlist, checked on the decoded, normalised path the file server sees.
+const PUBLIC_FILE = /^\/(?:[\w.-]+\.(?:html|png|jpe?g|webp)|art\/[\w.-]+\.webp|jeff\/[\w.-]+\.(?:js|css|json|webp))$/;
+function isPublicFile(rawPath) {
+    let p;
+    try { p = path.posix.normalize(decodeURIComponent(rawPath)); } catch (_) { return false; }
+    return PUBLIC_FILE.test(p) && !p.includes('..');
+}
 
 // ── robots.txt, sitemap, favicon ──
 // Served from code because the function bundle only includes html/png/jpg.
@@ -307,13 +313,16 @@ app.get(['/', '/index.html'], async (req, res, next) => {
     }
 });
 
-app.use(express.static(__dirname, {
+const serveStatic = express.static(__dirname, {
     index: 'index.html', dotfiles: 'deny',
     // Images, scripts and styles: browsers keep them an hour, the CDN a day.
     setHeaders: (res, file) => res.setHeader('Cache-Control', /\.html$/.test(file)
         ? PAGE_CACHE
         : 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400'),
-}));
+});
+// Only allowlisted paths reach the file server; everything else carries on to
+// the API routes below and, failing those, the 404 page.
+app.use((req, res, next) => (req.path === '/' || isPublicFile(req.path) ? serveStatic(req, res, next) : next()));
 
 // ── YOUTUBE CACHE ──
 const YT_CHANNEL_ID = 'UC7PYy5Tx1WhbnGKc3KJeRKw';
@@ -559,7 +568,12 @@ app.post('/admin/login', (req, res) => {
     if (!ADMIN_KEY || typeof key !== 'string' || key !== ADMIN_KEY) {
         const cur = f && f.until > now ? f : { n: 0, until: now + LOGIN_WINDOW };
         cur.n++; loginFails.set(ip, cur);
-        if (loginFails.size > 5000) loginFails.clear();   // bound memory under a flood
+        // Bound memory under a flood without wiping everyone's count: drop
+        // expired entries first, then the oldest (Map keeps insertion order).
+        if (loginFails.size > 5000) {
+            for (const [k, v] of loginFails) if (v.until <= now) loginFails.delete(k);
+            for (const k of loginFails.keys()) { if (loginFails.size <= 4000) break; loginFails.delete(k); }
+        }
         return res.status(401).json({ error: 'Incorrect password' });
     }
     loginFails.delete(ip);
