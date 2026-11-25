@@ -176,9 +176,9 @@ function renderDealsPage(opts) {
     const offPct = d => { const p = Number(d.price), w = Number(d.was); return w > p && p > 0 ? Math.round((w - p) / w * 100) : 0; };
     // SAVE sticker (style guide): whole dollars, only when the saving is real money.
     const sticker = d => saved(d) >= 5 ? `<span class="save" aria-hidden="true"><span>Save<br><b>$${saved(d).toLocaleString('en-US')}</b></span></span>` : '';
-    const card = (d, catId, cls, eager) => `            <li class="deal${cls || ''}" data-num="${d.num}" data-price="${Number(d.price) || 0}" data-off="${offPct(d)}" data-cat="${catId}"><a href="${escHtml(safe(d.url))}" target="_blank" rel="sponsored noopener">
+    const card = (d, catId, cls, eager) => `            <li class="deal${cls || ''}" data-num="${d.num}" data-price="${Number(d.price) || 0}" data-off="${offPct(d)}" data-saved="${saved(d)}" data-store="${escHtml(d.store)}"${d.top ? ' data-top="1"' : ''} data-cat="${catId}"><a href="${escHtml(safe(d.url))}" target="_blank" rel="sponsored noopener">
                 <span class="deal-pic">${pic(d, eager)}${sticker(d)}</span>
-                <span class="deal-num">#${d.num}</span>
+                <span class="deal-num">#${d.num}${d.top ? '<span class="pick"> · ★ Jeff’s top pick</span>' : ''}</span>
                 <span class="deal-name">${escHtml(d.name)}</span>
                 ${priceLine(d)}${saved(d) >= 5 ? `<span class="sr-only">, you save $${saved(d)}</span>` : ''}
                 <span class="deal-store">Buy at ${escHtml(d.store)}<span class="sr-only"> (opens in a new tab)</span></span>
@@ -212,6 +212,9 @@ ${top.map(x => card(x.d, x.id, ' feat', true)).join('\n')}
         .replace('<!--DEALS-->', sections)
         .replace('<!--FEATURED-->', featured)
         .replace(/<!--DEAL_COUNT-->/g, String(total))
+        .replace('<!--PICK_COUNT-->', String(all.filter(x => x.d.top).length))
+        .replace('<!--AMAZON_COUNT-->', String(all.filter(x => x.d.store === 'Amazon').length))
+        .replace('<!--WALMART_COUNT-->', String(all.filter(x => x.d.store === 'Walmart').length))
         .replace('<!--PRICES_AT-->', data.pricesAt ? 'Prices checked ' + escHtml(data.pricesAt) + '. ' : '')
         .replace('<!--VIDEO-->', /^[\w-]{6,20}$/.test(data.video || '') ? `<a class="watch" href="https://www.youtube.com/watch?v=${data.video}" target="_blank" rel="noopener">Watch Jeff’s video<span class="sr-only"> (opens in a new tab)</span></a>` : '')
         .replace('<!--UPDATED_ISO-->', valid ? data.updated : '')

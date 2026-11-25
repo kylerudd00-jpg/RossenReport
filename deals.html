@@ -148,6 +148,26 @@ main:focus { outline: none; }
 .price-chips button { min-height: var(--tap-min); padding: 0 var(--space-l); border: 0; border-radius: var(--radius-pill); background: #0a6e381a; color: #0a6e38; font: 600 .9375rem/1 var(--font-sans); cursor: pointer; }
 .price-chips button[aria-pressed="true"] { background: #0a6e38; color: var(--card); }
 .price-chips button:active { transform: scale(.98); opacity: .85; }
+/* quick filters: Jeff's picks (yellow) and store (navy), beside the price chips */
+.quick { display: flex; flex-wrap: wrap; gap: var(--space-s) var(--space-l); }
+.pick-chips { display: flex; flex-wrap: wrap; gap: var(--space-s); }
+.pick-chips button { min-height: var(--tap-min); padding: 0 var(--space-l); border: 0; border-radius: var(--radius-pill); background: #0b2c6b14; color: var(--brand-navy); font: 600 .9375rem/1 var(--font-sans); cursor: pointer; }
+.pick-chips button span { font-weight: 400; font-variant-numeric: tabular-nums; }
+.pick-chips button[aria-pressed="true"] { background: var(--brand-navy); color: var(--card); }
+#pickChip { background: #ffd10059; }
+#pickChip[aria-pressed="true"] { background: var(--brand-yellow); color: var(--brand-navy); box-shadow: inset 0 0 0 2px var(--brand-navy); }
+.pick-chips button:active { transform: scale(.98); opacity: .85; }
+.price-chips { flex-wrap: wrap; }
+.shown { margin-top: var(--space-m); font-size: .9375rem; color: var(--subtext); font-variant-numeric: tabular-nums; }
+.pick { color: var(--brand-navy); }
+/* phones: all quick filters in one swipeable row, like the category chips */
+@media (max-width: 640px) {
+    .tools { flex-direction: column; align-items: stretch; }
+    .quick { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--space-l)); padding: var(--space-xs) var(--space-l); }
+    .quick::-webkit-scrollbar { display: none; }
+    .pick-chips, .price-chips { flex-wrap: nowrap; }
+    .pick-chips button, .price-chips button { flex: none; white-space: nowrap; }
+}
 .sort { display: flex; align-items: center; gap: var(--space-s); font-size: .9375rem; color: var(--subtext); }
 .sort select { min-height: var(--tap-min); padding: 0 var(--space-xxl) 0 var(--space-m); border: 1px solid var(--subtext); border-radius: var(--radius-pill); background: var(--card); color: var(--ink); font: 600 .9375rem var(--font-sans); }
 
@@ -279,18 +299,28 @@ main:focus { outline: none; }
 
     <div class="wrap" id="dealList">
         <div class="tools">
-            <div class="price-chips" role="group" aria-label="Filter by price">
-                <button type="button" data-max="25" aria-pressed="false">Under $25</button>
-                <button type="button" data-max="50" aria-pressed="false">Under $50</button>
+            <div class="quick">
+                <div class="pick-chips" role="group" aria-label="Filter by Jeff's picks and store">
+                    <button type="button" id="pickChip" aria-pressed="false">★ Jeff’s top picks <span><!--PICK_COUNT--></span></button>
+                    <button type="button" data-store="Amazon" aria-pressed="false">Amazon <span><!--AMAZON_COUNT--></span></button>
+                    <button type="button" data-store="Walmart" aria-pressed="false">Walmart <span><!--WALMART_COUNT--></span></button>
+                </div>
+                <div class="price-chips" role="group" aria-label="Filter by price">
+                    <button type="button" data-max="25" aria-pressed="false">Under $25</button>
+                    <button type="button" data-max="50" aria-pressed="false">Under $50</button>
+                    <button type="button" data-max="100" aria-pressed="false">Under $100</button>
+                </div>
             </div>
             <div class="sort"><label for="sort">Sort by</label>
                 <select id="sort">
                     <option value="num">Video order</option>
                     <option value="off">Biggest % off</option>
+                    <option value="saved">Most $ saved</option>
                     <option value="price">Lowest price</option>
                 </select>
             </div>
         </div>
+        <p class="shown" id="shown" aria-hidden="true"></p>
 <!--FEATURED-->
         <section class="cat flat" id="flat" aria-labelledby="flat-h" hidden>
             <div class="cat-head"><h2 id="flat-h">All deals</h2><span class="cat-count"></span></div>
@@ -335,7 +365,10 @@ main:focus { outline: none; }
     var cats = Array.prototype.slice.call(document.querySelectorAll('.cat'));
     var empty = document.getElementById('empty');
     var status = document.getElementById('dealStatus');
-    var active = 'all', statusT = null, maxPrice = 0, sortBy = 'num';
+    var active = 'all', statusT = null, maxPrice = 0, sortBy = 'num', onlyPicks = false, store = '';
+    var pickChip = document.getElementById('pickChip');
+    var storeBtns = Array.prototype.slice.call(document.querySelectorAll('.pick-chips [data-store]'));
+    var shown = document.getElementById('shown');
     var featured = document.getElementById('biggest');
     var flat = document.getElementById('flat'), flatList = document.getElementById('flatList');
     var gridDeals = [];
@@ -358,6 +391,7 @@ main:focus { outline: none; }
         if (flatMode) {
             gridDeals.slice().sort(function (a, b) {
                 return sortBy === 'off' ? (b.dataset.off - a.dataset.off) || (a.dataset.num - b.dataset.num)
+                     : sortBy === 'saved' ? (b.dataset.saved - a.dataset.saved) || (a.dataset.num - b.dataset.num)
                                         : (a.dataset.price - b.dataset.price) || (a.dataset.num - b.dataset.num);
             }).forEach(function (d) { flatList.appendChild(d); });
         } else {
@@ -366,7 +400,9 @@ main:focus { outline: none; }
         function hit(d) {
             var inCat = active === 'all' || d.dataset.cat === active;
             var okPrice = !maxPrice || Number(d.dataset.price) < maxPrice;
-            return inCat && okPrice && terms.every(function (t) { return d._text.indexOf(t) !== -1; });
+            var okPick = !onlyPicks || d.dataset.top === '1';
+            var okStore = !store || d.dataset.store === store;
+            return inCat && okPrice && okPick && okStore && terms.every(function (t) { return d._text.indexOf(t) !== -1; });
         }
         cats.forEach(function (c) {
             var n = 0;
@@ -379,19 +415,20 @@ main:focus { outline: none; }
         });
         if (flatMode) {
             Array.prototype.forEach.call(flatList.children, function (d) { var h = hit(d); d.hidden = !h; if (h) total++; });
-            document.getElementById('flat-h').textContent = sortBy === 'off' ? 'All deals, biggest % off first' : 'All deals, lowest price first';
+            document.getElementById('flat-h').textContent = sortBy === 'off' ? 'All deals, biggest % off first' : sortBy === 'saved' ? 'All deals, most money saved first' : 'All deals, lowest price first';
             flat.querySelector('.cat-count').textContent = total + (total === 1 ? ' deal' : ' deals');
         }
         flat.hidden = !flatMode || total === 0;
         // The featured row is for browsing; any search, filter or sort hides it.
-        if (featured) featured.hidden = !!(terms.length || active !== 'all' || maxPrice || flatMode);
+        if (featured) featured.hidden = !!(terms.length || active !== 'all' || maxPrice || flatMode || onlyPicks || store);
+        shown.textContent = total === gridDeals.length ? 'Showing all ' + total + ' deals' : 'Showing ' + total + ' of ' + gridDeals.length + ' deals';
         clear.hidden = !q.value;
         empty.hidden = total > 0;
         document.getElementById('emptyQ').textContent = q.value.trim();
         if (announce) {
             clearTimeout(statusT);
             status.textContent = '';
-            statusT = setTimeout(function () { status.textContent = (total === 1 ? '1 deal shown' : total + ' deals shown') + (sortBy === 'off' ? ', biggest % off first' : sortBy === 'price' ? ', lowest price first' : ''); }, 400);
+            statusT = setTimeout(function () { status.textContent = (total === 1 ? '1 deal shown' : total + ' deals shown') + (sortBy === 'off' ? ', biggest % off first' : sortBy === 'saved' ? ', most money saved first' : sortBy === 'price' ? ', lowest price first' : ''); }, 400);
         }
     }
     function pick(id) {
@@ -419,6 +456,20 @@ main:focus { outline: none; }
             apply(true);
         });
     });
+    pickChip.addEventListener('click', function () {
+        onlyPicks = !onlyPicks;
+        pickChip.setAttribute('aria-pressed', String(onlyPicks));
+        apply(true);
+    });
+    storeBtns.forEach(function (b) {
+        b.addEventListener('click', function () {
+            var s = b.getAttribute('data-store');
+            store = store === s ? '' : s;
+            storeBtns.forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-store') === store)); });
+            apply(true);
+        });
+    });
+    apply(false);
     // SAVE stickers pop in as their card scrolls into view (motion only).
     if (matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (es) {
@@ -439,7 +490,9 @@ main:focus { outline: none; }
     window.addEventListener('resize', stick);
     stick();
     function reset() {
-        q.value = ''; maxPrice = 0; sortBy = 'num'; sortSel.value = 'num';
+        q.value = ''; maxPrice = 0; sortBy = 'num'; sortSel.value = 'num'; onlyPicks = false; store = '';
+        pickChip.setAttribute('aria-pressed', 'false');
+        storeBtns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
         priceBtns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
         pick('all'); q.focus();
     }
