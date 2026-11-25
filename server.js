@@ -1,7 +1,6 @@
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
-const crypto  = require('crypto');
 
 const { getScamFeed } = require('./lib/scamFeed');
 const { getNewsletterFeed } = require('./lib/newsletterFeed');
@@ -92,10 +91,9 @@ const DEFAULT_DEALS = [
 ];
 
 // Named documents, not file paths — lib/storage picks disk or Blob per environment.
-const DOC = { subscribers: 'subscribers', contacts: 'contacts', deals: 'deals', content: 'content' };
+const DOC = { deals: 'deals', content: 'content' };
 
 const readDB  = (doc, fallback) => storage.read(doc, fallback !== undefined ? fallback : []);
-const writeDB = (doc, data) => storage.write(doc, data);
 
 // Storage is async now. Express 4 does not forward a rejected promise to the
 // error middleware, so handlers are wrapped instead of relying on the
@@ -103,7 +101,6 @@ const writeDB = (doc, data) => storage.write(doc, data);
 const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 // ── MIDDLEWARE ──
-app.use(express.json());
 
 // ── CDN CACHING ──
 // Every request on Vercel runs this function, so without these headers each
@@ -152,7 +149,7 @@ function isPublicFile(rawPath) {
 const SITE = 'https://www.rossenreports.com';
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain').set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
-        .send(`User-agent: *\nDisallow: /admin\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
+        .send(`User-agent: *\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
 });
 app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml').set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
@@ -466,167 +463,7 @@ app.get('/api/newsletter', async (req, res) => {
     }
 });
 
-// ── API: Contact form ──
-app.post('/api/contact', wrap(async (req, res) => {
-    const { name, email, type, message } = req.body || {};
-    if (!email || !message) {
-        return res.status(400).json({ error: 'Email and message are required' });
-    }
-    const contacts = await readDB(DOC.contacts);
-    contacts.push({
-        id:         Date.now(),
-        name:       name || null,
-        email:      email.toLowerCase().trim(),
-        type:       type || null,
-        message,
-        created_at: new Date().toISOString()
-    });
-    await writeDB(DOC.contacts, contacts);
-    res.json({ ok: true });
-}));
-
-// ── ADMIN: control board (login-gated) ──
-// derived from the password, not random, so a server restart doesn't log everyone out
-// No hardcoded fallback in production — a default password baked into source is
-// a default password on the public internet. Local dev keeps the convenience.
-const ADMIN_KEY = process.env.ADMIN_KEY || (process.env.VERCEL ? null : 'Rossen!');
-if (!ADMIN_KEY) console.warn('[admin] ADMIN_KEY is not set — the control board is disabled.');
-const ADMIN_TOKEN = ADMIN_KEY ? crypto.createHash('sha256').update(ADMIN_KEY).digest('hex') : null;
-const ADMIN_COOKIE = 'rr_admin';
-
-function parseCookies(req) {
-    const header = req.headers.cookie;
-    const out = {};
-    if (!header) return out;
-    for (const part of header.split(';')) {
-        const idx = part.indexOf('=');
-        if (idx === -1) continue;
-        out[part.slice(0, idx).trim()] = decodeURIComponent(part.slice(idx + 1).trim());
-    }
-    return out;
-}
-function isAdmin(req) { return !!ADMIN_TOKEN && parseCookies(req)[ADMIN_COOKIE] === ADMIN_TOKEN; }
-function requireAdmin(req, res, next) {
-    if (!isAdmin(req)) return res.status(401).json({ error: 'unauthorized' });
-    next();
-}
-
-const ADMIN_MAX_AGE = 60 * 60 * 24 * 365;
-function setAdminCookie(res) {
-    res.setHeader('Set-Cookie',
-        `${ADMIN_COOKIE}=${ADMIN_TOKEN}; Max-Age=${ADMIN_MAX_AGE}; Path=/; HttpOnly; SameSite=Lax`);
-}
-
-// ── SSO from the Producer Toolkit ──
-// The toolkit and this site are separate origins, so a browser will never share
-// a login cookie between them — the team was being asked to sign in twice for
-// what looks like one product. The toolkit signs a short-lived token with a
-// secret only the two servers know; presenting a valid one here is proof the
-// bearer already passed the toolkit's own password gate.
-//
-// The token is deliberately thin: an expiry and its signature, nothing else. It
-// grants no more than the password does, and it is useless two minutes later.
-const SSO_SECRET = process.env.ADMIN_SSO_SECRET || '';
-
-function ssoTokenValid(token) {
-    if (!SSO_SECRET) return false;
-    const parts = String(token || '').split('.');
-    if (parts.length !== 2) return false;
-    const [expStr, sig] = parts;
-    if (!/^\d+$/.test(expStr)) return false;
-
-    const expected = crypto.createHmac('sha256', SSO_SECRET).update(expStr).digest('hex');
-    const a = Buffer.from(sig, 'utf8'), b = Buffer.from(expected, 'utf8');
-    // Length check first: timingSafeEqual throws on a length mismatch.
-    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
-
-    return Date.now() <= Number(expStr);
-}
-
-app.get('/admin/sso', (req, res) => {
-    if (ADMIN_TOKEN && ssoTokenValid(req.query.t)) setAdminCookie(res);
-    // Always land on the control board. A bad or expired token just means the
-    // normal login form, which is a better failure than an error page.
-    res.redirect(303, '/admin.html');
-});
-
-// Slows password guessing: 5 wrong tries per IP per 15 minutes, per server
-// instance. A Vercel Firewall rate-limit rule on /admin/login covers all instances.
-const loginFails = new Map();   // ip -> { n, until }
-const LOGIN_MAX = 5, LOGIN_WINDOW = 15 * 60 * 1000;
-function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
-
-app.post('/admin/login', (req, res) => {
-    const ip = clientIp(req), now = Date.now();
-    const f = loginFails.get(ip);
-    if (f && f.until > now && f.n >= LOGIN_MAX) {
-        return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
-    }
-    const { key } = req.body || {};
-    // The !ADMIN_KEY guard matters: without it a posted null would equal an unset
-    // key and authenticate.
-    if (!ADMIN_KEY || typeof key !== 'string' || key !== ADMIN_KEY) {
-        const cur = f && f.until > now ? f : { n: 0, until: now + LOGIN_WINDOW };
-        cur.n++; loginFails.set(ip, cur);
-        // Bound memory under a flood without wiping everyone's count: drop
-        // expired entries first, then the oldest (Map keeps insertion order).
-        if (loginFails.size > 5000) {
-            for (const [k, v] of loginFails) if (v.until <= now) loginFails.delete(k);
-            for (const k of loginFails.keys()) { if (loginFails.size <= 4000) break; loginFails.delete(k); }
-        }
-        return res.status(401).json({ error: 'Incorrect password' });
-    }
-    loginFails.delete(ip);
-    setAdminCookie(res);
-    res.json({ ok: true });
-});
-app.post('/admin/logout', (req, res) => {
-    res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=; Max-Age=0; Path=/`);
-    res.json({ ok: true });
-});
-app.get('/api/admin/session', (req, res) => res.json({ authed: isAdmin(req) }));
-
-app.get('/api/admin/subscribers', requireAdmin, wrap(async (req, res) => {
-    const rows = await readDB(DOC.subscribers);
-    res.json({ count: rows.length, subscribers: rows });
-}));
-
-app.delete('/api/admin/subscribers/:id', requireAdmin, wrap(async (req, res) => {
-    const id = Number(req.params.id);
-    const rows = await readDB(DOC.subscribers);
-    const next = rows.filter(r => r.id !== id);
-    if (next.length === rows.length) return res.status(404).json({ error: 'not found' });
-    await writeDB(DOC.subscribers, next);
-    res.json({ ok: true });
-}));
-
-app.get('/api/admin/contacts', requireAdmin, wrap(async (req, res) => {
-    const rows = await readDB(DOC.contacts);
-    res.json({ count: rows.length, contacts: rows });
-}));
-
-app.patch('/api/admin/contacts/:id', requireAdmin, wrap(async (req, res) => {
-    const id = Number(req.params.id);
-    const { status } = req.body || {};
-    if (status !== 'new' && status !== 'handled') return res.status(400).json({ error: 'status must be "new" or "handled"' });
-    const rows = await readDB(DOC.contacts);
-    const row = rows.find(r => r.id === id);
-    if (!row) return res.status(404).json({ error: 'not found' });
-    row.status = status;
-    await writeDB(DOC.contacts, rows);
-    res.json({ ok: true });
-}));
-
-app.delete('/api/admin/contacts/:id', requireAdmin, wrap(async (req, res) => {
-    const id = Number(req.params.id);
-    const rows = await readDB(DOC.contacts);
-    const next = rows.filter(r => r.id !== id);
-    if (next.length === rows.length) return res.status(404).json({ error: 'not found' });
-    await writeDB(DOC.contacts, next);
-    res.json({ ok: true });
-}));
-
-// ── SITE CONTENT: public read, admin-only write ──
+// ── SITE CONTENT: public read (edits saved earlier still apply) ──
 // A document saved before a field existed simply won't have it, so stored
 // content is layered over the defaults rather than replacing them. Without
 // this, every field added from here on would read as undefined for anyone who
@@ -650,54 +487,13 @@ app.get('/api/content', wrap(async (req, res) => {
     res.json(await getContent());
 }));
 
-app.post('/api/admin/content', requireAdmin, wrap(async (req, res) => {
-    const content = req.body || {};
-    if (!content.hero || !content.about || !Array.isArray(content.testimonials)) {
-        return res.status(400).json({ error: 'content must include hero, about, and testimonials' });
-    }
-    if (content.sectionOrder !== undefined) {
-        const known = DEFAULT_CONTENT.sectionOrder;
-        const order = content.sectionOrder;
-        if (!Array.isArray(order) || order.some(id => !known.includes(id)) || new Set(order).size !== order.length) {
-            return res.status(400).json({ error: 'sectionOrder must be a list of known section ids with no duplicates' });
-        }
-    }
-    // Merge so a panel that only edits one area can't blank out the others.
-    await writeDB(DOC.content, Object.assign({}, await getContent(), content));
-    res.json({ ok: true });
-}));
-
-// ── DEALS OF THE WEEK: public read, admin-only write ──
+// ── DEALS OF THE WEEK (shop links): public read ──
 app.get('/api/deals', wrap(async (req, res) => {
     res.json({ deals: await readDB(DOC.deals, DEFAULT_DEALS) });
 }));
 
-app.post('/api/admin/deals', requireAdmin, wrap(async (req, res) => {
-    const { deals } = req.body || {};
-    if (!Array.isArray(deals) || !deals.length) {
-        return res.status(400).json({ error: 'deals must be a non-empty array' });
-    }
-    for (const d of deals) {
-        if (!d.category || !d.name || !d.desc || !d.href || !d.cta) {
-            return res.status(400).json({ error: 'each deal needs category, name, desc, href, and cta' });
-        }
-    }
-    await writeDB(DOC.deals, deals);
-    res.json({ ok: true });
-}));
-
 // Anything no route or file matched.
 app.use(notFound);
-
-// Surfaces the "can't persist here" case as a readable 503. Express forwards
-// synchronous throws from route handlers here automatically, so no per-route
-// wrapping is needed. Must stay last, after every route.
-app.use((err, req, res, next) => {
-    if (err && err.code === 'no_persistent_storage') {
-        return res.status(503).json({ error: err.code, message: err.message });
-    }
-    return next(err);
-});
 
 // On Vercel this module is imported by api/index.js and the platform owns the
 // listener; only bind a port when run directly (local dev).
