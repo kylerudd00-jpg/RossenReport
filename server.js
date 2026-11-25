@@ -124,12 +124,44 @@ app.use((req, res, next) => {
     next();
 });
 
-// serve static files from root, block server internals
-app.use(function (req, res, next) {
-    const blocked = ['/server.js', '/package.json', '/package-lock.json'];
-    if (blocked.includes(req.path)) return res.status(403).end();
+// Security headers on every response. No CSP yet: the pages load fonts,
+// icons and YouTube from several origins, and a wrong policy would break them.
+app.use((req, res, next) => {
+    res.set({
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    });
     next();
 });
+
+// Server internals are bundled next to the public files, so express.static
+// would hand them out. They get the 404 page instead.
+const INTERNAL = /^\/(server\.js|package(-lock)?\.json|vercel\.json|lib\/|api\/index\.js|db\/)/;
+app.use((req, res, next) => (INTERNAL.test(req.path) ? notFound(req, res) : next()));
+
+// ── robots.txt, sitemap, favicon ──
+// Served from code because the function bundle only includes html/png/jpg.
+const SITE = 'https://www.rossenreports.com';
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain').set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
+        .send(`User-agent: *\nDisallow: /admin\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
+});
+app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml').set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
+        .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${SITE}/</loc><changefreq>daily</changefreq></url>\n<url><loc>${SITE}/deals</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n</urlset>\n`);
+});
+// Browsers ask for /favicon.ico on their own; without this every visit 404s through the function.
+app.get('/favicon.ico', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=86400, s-maxage=604800').type('image/png').sendFile(path.join(__dirname, 'rossenlogo.png'));
+});
+
+// Friendly 404 in the site's look, pointing people at the deals. Cached
+// briefly so scanners probing random paths mostly hit the CDN.
+function notFound(req, res) {
+    res.status(404).set('Cache-Control', 'public, max-age=0, s-maxage=300').type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found | Rossen Reports</title><meta name="robots" content="noindex"><link rel="icon" href="/rossenlogo.png"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f2f2f5;color:#0a0f1a;font:400 1.0625rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:16px}main{max-width:440px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 1px 1px #0b2c6b0d,0 6px 12px #0b2c6b12}img{height:44px;width:auto}h1{font-size:1.75rem;margin:16px 0 8px}p{margin:0 0 24px;color:#4a4f58}a.btn{display:inline-flex;align-items:center;min-height:52px;padding:0 24px;border-radius:16px;background:#ffd100;color:#0b2c6b;font-weight:600;text-decoration:none}a.home{display:block;margin-top:16px;color:#0a58c1}:focus-visible{outline:3px solid #0a58c1;outline-offset:2px}</style></head><body><main><img src="/rossenlogo-trim.png" alt="Rossen Reports" width="73" height="44"><h1>Page not found</h1><p>That page doesn’t exist, but Jeff’s deals do.</p><a class="btn" href="/deals">See Jeff’s deals</a><a class="home" href="/">Go to the home page</a></main></body></html>`);
+}
 
 // ── HOMEPAGE: sections reordered server-side ──
 // Reordering here rather than in the browser keeps DOM order identical to
@@ -509,13 +541,28 @@ app.get('/admin/sso', (req, res) => {
     res.redirect(303, '/admin.html');
 });
 
+// Slows password guessing: 5 wrong tries per IP per 15 minutes, per server
+// instance. A Vercel Firewall rate-limit rule on /admin/login covers all instances.
+const loginFails = new Map();   // ip -> { n, until }
+const LOGIN_MAX = 5, LOGIN_WINDOW = 15 * 60 * 1000;
+function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
+
 app.post('/admin/login', (req, res) => {
+    const ip = clientIp(req), now = Date.now();
+    const f = loginFails.get(ip);
+    if (f && f.until > now && f.n >= LOGIN_MAX) {
+        return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
+    }
     const { key } = req.body || {};
     // The !ADMIN_KEY guard matters: without it a posted null would equal an unset
     // key and authenticate.
     if (!ADMIN_KEY || typeof key !== 'string' || key !== ADMIN_KEY) {
+        const cur = f && f.until > now ? f : { n: 0, until: now + LOGIN_WINDOW };
+        cur.n++; loginFails.set(ip, cur);
+        if (loginFails.size > 5000) loginFails.clear();   // bound memory under a flood
         return res.status(401).json({ error: 'Incorrect password' });
     }
+    loginFails.delete(ip);
     setAdminCookie(res);
     res.json({ ok: true });
 });
@@ -624,6 +671,9 @@ app.post('/api/admin/deals', requireAdmin, wrap(async (req, res) => {
     await writeDB(DOC.deals, deals);
     res.json({ ok: true });
 }));
+
+// Anything no route or file matched.
+app.use(notFound);
 
 // Surfaces the "can't persist here" case as a readable 503. Express forwards
 // synchronous throws from route handlers here automatically, so no per-route
